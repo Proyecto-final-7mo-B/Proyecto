@@ -1,0 +1,48 @@
+# ---- Secretos: nunca se suben ----
+.env
+.env.*
+!.env.ejemplo
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+*.jks
+*.keystore
+key.properties
+secretos/
+*.pass
+
+# ---- Python ----
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+*.egg-info/
+build/
+dist/
+
+# ---- Flutter / Dart ----
+app/.dart_tool/
+app/.flutter-plugins
+app/.flutter-plugins-dependencies
+app/build/
+app/.packages
+*.g.dart.bak
+
+# ---- Generados del ETL y reportes ----
+backend/salidas/
+backend/cuarentena/
+*.png.tmp
+
+# ---- Editores y sistema ----
+.idea/
+.vscode/
+*.swp
+.DS_Store
+Thumbs.db
