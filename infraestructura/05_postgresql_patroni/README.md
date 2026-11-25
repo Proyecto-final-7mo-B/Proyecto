@@ -90,3 +90,7 @@ sudo -u postgres psql -d kaizen           # en el primario, para escribir
 | Primario congelado | El watchdog reinició la VM; nunca hubo dos primarios |
 | Partición de red del primario | 21.7 s; 0 escrituras confirmadas perdidas |
 | Switchover nodo1 → nodo2 (23-nov) | Réplicas en streaming en < 1 min; la API encontró sola al nuevo primario |
+
+**Prueba en vivo para la defensa:** guion en [`prueba_en_vivo.md`](prueba_en_vivo.md) y comandos en
+[`prueba_en_vivo.sh`](prueba_en_vivo.sh) (partición de red del primario y, opcional, primario congelado), que se corren
+desde la laptop con la VPN encendida.
