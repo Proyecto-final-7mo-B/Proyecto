@@ -54,8 +54,7 @@ flutter build windows                             # en la máquina Windows
 
 ## Estructura y forma de trabajo
 
-- Arquitectura MVVM; árbol completo en `../README.md` y responsabilidad de cada archivo en
-  `Evidencias_generales/08_plan_frontend_esqueleto.md`.
+- Arquitectura MVVM; árbol completo en `../README.md`.
 - La app se construye **por pasos**. Cada paso entrega código, pruebas y su documento en [`modulos/`](modulos/).
 - Versiones de paquetes **fijas** en `pubspec.yaml` (revisadas en pub.dev, regla R14). Para cambiar una, se repite la
   revisión y se anota en el documento del paso.
