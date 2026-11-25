@@ -1,0 +1,11 @@
+{
+  "@@locale": "es",
+  "appTitulo": "Kaizen",
+  "@appTitulo": { "description": "Nombre de la aplicación" },
+  "appLema": "Un paso pequeño cada día.",
+  "@appLema": { "description": "Lema de la marca (panel izquierdo del login)" },
+  "proyectoBaseListo": "Proyecto base listo",
+  "@proyectoBaseListo": { "description": "Texto temporal de la pantalla inicial del Paso 1" },
+  "fuenteDeDatos": "Fuente de datos: {fuente}",
+  "@fuenteDeDatos": { "description": "Muestra si la app usa datos de prueba o la API", "placeholders": { "fuente": { "type": "String" } } }
+}
