@@ -1,79 +1,85 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 
 import 'config/entorno.dart';
 import 'l10n/gen/app_localizations.dart';
-import 'ui/core/tema/medidas.dart';
+import 'routing/estado_sesion.dart';
+import 'routing/router.dart';
+import 'routing/rutas.dart';
+import 'ui/core/adaptativo/plataforma.dart';
 import 'ui/core/tema/tema.dart';
-import 'ui/core/widgets/logo_kaizen.dart';
-import 'ui/dev/galeria_componentes.dart';
 
-/// Raíz de la app. Desde el Paso 2 usa el tema de Kaizen; las rutas llegan en el Paso 3.
-class KaizenApp extends StatelessWidget {
-  const KaizenApp({required this.entorno, this.mostrarHerramientasDev = kDebugMode, super.key});
+/// Raíz de la app: tema de Kaizen, textos es-MX, sesión y router con el *shell* adaptativo.
+class KaizenApp extends StatefulWidget {
+  const KaizenApp({
+    required this.entorno,
+    this.mostrarHerramientasDev = kDebugMode,
+    this.plataforma,
+    this.sesion,
+    this.ubicacionInicial = Rutas.hoy,
+    super.key,
+  });
 
   final Entorno entorno;
 
-  /// Muestra el acceso a la galería de componentes. Por omisión solo en depuración (nunca en release).
+  /// Galería de componentes y entrada de prueba. Por omisión solo en depuración (nunca en *release*).
   final bool mostrarHerramientasDev;
 
+  /// Por omisión, la real. Las pruebas la fijan para probar cada *shell*.
+  final Plataforma? plataforma;
+
+  /// Por omisión empieza sin sesión. Las pruebas pueden pasar una ya iniciada.
+  final EstadoSesion? sesion;
+
+  final String ubicacionInicial;
+
   @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      onGenerateTitle: (context) => AppLocalizations.of(context).appTitulo,
-      debugShowCheckedModeBanner: false,
-      theme: KaizenTema.claro(),
-      themeMode: ThemeMode.light,
-      locale: const Locale('es', 'MX'),
-      supportedLocales: const [Locale('es', 'MX'), Locale('es')],
-      localizationsDelegates: const [
-        AppLocalizations.delegate,
-        GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-      ],
-      home: _PantallaInicialTemporal(entorno: entorno, mostrarHerramientasDev: mostrarHerramientasDev),
-    );
-  }
+  State<KaizenApp> createState() => _KaizenAppState();
 }
 
-/// Pantalla provisional: confirma que la app arranca, con qué fuente de datos y (en depuración) abre la galería.
-/// En el Paso 3 la reemplaza el router (`/login`, `/hoy` y `/dev/componentes`).
-class _PantallaInicialTemporal extends StatelessWidget {
-  const _PantallaInicialTemporal({required this.entorno, required this.mostrarHerramientasDev});
+class _KaizenAppState extends State<KaizenApp> {
+  late final EstadoSesion _sesion = widget.sesion ?? EstadoSesion();
+  late final Plataforma _plataforma = widget.plataforma ?? Plataforma.actual();
+  late final GoRouter _router = crearRouter(
+    sesion: _sesion,
+    plataforma: _plataforma,
+    entorno: widget.entorno,
+    herramientasDev: widget.mostrarHerramientasDev,
+    ubicacionInicial: widget.ubicacionInicial,
+  );
 
-  final Entorno entorno;
-  final bool mostrarHerramientasDev;
+  @override
+  void dispose() {
+    _router.dispose();
+    if (widget.sesion == null) {
+      _sesion.dispose();
+    }
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    final t = AppLocalizations.of(context);
-    final texto = Theme.of(context).textTheme;
-    return Scaffold(
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(KaizenMedidas.e24),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const LogoKaizen(lado: 64),
-              const SizedBox(height: KaizenMedidas.e16),
-              Text(t.appTitulo, style: texto.displayLarge),
-              const SizedBox(height: KaizenMedidas.e8),
-              Text(t.appLema, style: texto.bodyLarge),
-              const SizedBox(height: KaizenMedidas.e24),
-              Text(t.fuenteDeDatos(entorno.fuente.name), style: texto.bodySmall),
-              if (mostrarHerramientasDev) ...[
-                const SizedBox(height: KaizenMedidas.e24),
-                FilledButton(
-                  onPressed: () =>
-                      Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => const GaleriaComponentes())),
-                  child: Text(t.verComponentes),
-                ),
-              ],
-            ],
-          ),
+    return PlataformaApp(
+      plataforma: _plataforma,
+      child: ChangeNotifierProvider<EstadoSesion>.value(
+        value: _sesion,
+        child: MaterialApp.router(
+          routerConfig: _router,
+          onGenerateTitle: (context) => AppLocalizations.of(context).appTitulo,
+          debugShowCheckedModeBanner: false,
+          theme: KaizenTema.claro(),
+          themeMode: ThemeMode.light,
+          locale: const Locale('es', 'MX'),
+          supportedLocales: const [Locale('es', 'MX'), Locale('es')],
+          localizationsDelegates: const [
+            AppLocalizations.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
         ),
       ),
     );

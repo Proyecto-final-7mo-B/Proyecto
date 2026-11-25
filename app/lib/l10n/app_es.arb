@@ -117,5 +117,192 @@
   "galeriaComponentes": "Componentes de Kaizen",
   "@galeriaComponentes": {
     "description": "Título de la galería de componentes (solo en depuración)"
+  },
+  "navHoy": "Hoy",
+  "@navHoy": {
+    "description": "Destino de la navegación"
+  },
+  "navHabitos": "Hábitos",
+  "@navHabitos": {
+    "description": "Destino de la navegación"
+  },
+  "navProgreso": "Progreso",
+  "@navProgreso": {
+    "description": "Destino de la navegación"
+  },
+  "navEscalera": "Escalera",
+  "@navEscalera": {
+    "description": "Destino de la navegación"
+  },
+  "navLaboratorio": "Laboratorio",
+  "@navLaboratorio": {
+    "description": "Destino de la navegación"
+  },
+  "navLab": "Lab",
+  "@navLab": {
+    "description": "Destino de la navegación"
+  },
+  "navCapsulas": "Cápsulas",
+  "@navCapsulas": {
+    "description": "Destino de la navegación"
+  },
+  "navAdmin": "Admin",
+  "@navAdmin": {
+    "description": "Destino de la navegación"
+  },
+  "navPerfil": "Perfil",
+  "@navPerfil": {
+    "description": "Destino de la navegación"
+  },
+  "tituloEntrar": "Entrar",
+  "@tituloEntrar": {
+    "description": "Título de pantalla"
+  },
+  "tituloRestablecer": "Restablecer contraseña",
+  "@tituloRestablecer": {
+    "description": "Título de pantalla"
+  },
+  "tituloHoy": "Hoy",
+  "@tituloHoy": {
+    "description": "Título de pantalla"
+  },
+  "tituloHabitos": "Hábitos",
+  "@tituloHabitos": {
+    "description": "Título de pantalla"
+  },
+  "tituloNuevoHabito": "Nuevo hábito",
+  "@tituloNuevoHabito": {
+    "description": "Título de pantalla"
+  },
+  "tituloDetalleHabito": "Detalle del hábito",
+  "@tituloDetalleHabito": {
+    "description": "Título de pantalla"
+  },
+  "tituloEditarHabito": "Editar hábito",
+  "@tituloEditarHabito": {
+    "description": "Título de pantalla"
+  },
+  "tituloEscaleraHabito": "Escalera del hábito",
+  "@tituloEscaleraHabito": {
+    "description": "Título de pantalla"
+  },
+  "tituloProgreso": "Progreso",
+  "@tituloProgreso": {
+    "description": "Título de pantalla"
+  },
+  "tituloMiSemana": "Mi semana",
+  "@tituloMiSemana": {
+    "description": "Título de pantalla"
+  },
+  "tituloEscalera": "Escalera Kaizen",
+  "@tituloEscalera": {
+    "description": "Título de pantalla"
+  },
+  "tituloLaboratorio": "Laboratorio",
+  "@tituloLaboratorio": {
+    "description": "Título de pantalla"
+  },
+  "tituloCapsulas": "Cápsula Kaizen",
+  "@tituloCapsulas": {
+    "description": "Título de pantalla"
+  },
+  "tituloNuevaCapsula": "Nueva cápsula",
+  "@tituloNuevaCapsula": {
+    "description": "Título de pantalla"
+  },
+  "tituloPerfil": "Perfil",
+  "@tituloPerfil": {
+    "description": "Título de pantalla"
+  },
+  "tituloPrivacidad": "Privacidad",
+  "@tituloPrivacidad": {
+    "description": "Título de pantalla"
+  },
+  "tituloAdmin": "Panel de administración",
+  "@tituloAdmin": {
+    "description": "Título de pantalla"
+  },
+  "tituloIndicadores": "Dashboard de indicadores",
+  "@tituloIndicadores": {
+    "description": "Título de pantalla"
+  },
+  "nuevoHabito": "Nuevo hábito",
+  "@nuevoHabito": {
+    "description": "Botón para crear un hábito"
+  },
+  "buscar": "Buscar",
+  "@buscar": {
+    "description": "Campo y paleta de búsqueda"
+  },
+  "atajoBuscar": "Ctrl K",
+  "@atajoBuscar": {
+    "description": "Atajo de teclado de la búsqueda"
+  },
+  "buscarPista": "Buscar una sección…",
+  "@buscarPista": {
+    "description": "Pista del campo de la paleta de búsqueda"
+  },
+  "sinResultados": "Sin resultados",
+  "@sinResultados": {
+    "description": "La búsqueda no encontró nada"
+  },
+  "paginaNoEncontrada": "No encontramos esa página",
+  "@paginaNoEncontrada": {
+    "description": "Ruta que no existe"
+  },
+  "irAHoy": "Ir a Hoy",
+  "@irAHoy": {
+    "description": "Botón de la página no encontrada"
+  },
+  "llegaEnPaso": "Esta pantalla llega en el paso {paso} del plan.",
+  "@llegaEnPaso": {
+    "description": "Texto de las pantallas provisionales",
+    "placeholders": {
+      "paso": {
+        "type": "int"
+      }
+    }
+  },
+  "entrarDemo": "Entrar como usuario demo",
+  "@entrarDemo": {
+    "description": "Botón provisional (solo en depuración) hasta el paso 5"
+  },
+  "entrarAdminDemo": "Entrar como admin demo",
+  "@entrarAdminDemo": {
+    "description": "Botón provisional (solo en depuración) hasta el paso 5"
+  },
+  "cerrarSesion": "Cerrar sesión",
+  "@cerrarSesion": {
+    "description": "Botón del perfil"
+  },
+  "regionDe": "Región {region}",
+  "@regionDe": {
+    "description": "Región del usuario en el riel lateral",
+    "placeholders": {
+      "region": {
+        "type": "String"
+      }
+    }
+  },
+  "menuPrincipal": "Menú principal",
+  "@menuPrincipal": {
+    "description": "Etiqueta de la navegación para lectores de pantalla"
+  },
+  "enlaceRecibido": "Enlace de restablecimiento recibido.",
+  "@enlaceRecibido": {
+    "description": "Pantalla provisional de restablecer contraseña"
+  },
+  "enlaceInvalido": "El enlace no es válido o ya venció.",
+  "@enlaceInvalido": {
+    "description": "Restablecer sin token"
+  },
+  "abrirPerfil": "Abrir perfil de {nombre}",
+  "@abrirPerfil": {
+    "description": "Botón del avatar",
+    "placeholders": {
+      "nombre": {
+        "type": "String"
+      }
+    }
   }
 }
