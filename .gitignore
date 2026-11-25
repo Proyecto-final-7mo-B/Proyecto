@@ -46,3 +46,7 @@ backend/cuarentena/
 *.swp
 .DS_Store
 Thumbs.db
+
+# ---- App: generados ----
+app/lib/l10n/gen/
+app/coverage/

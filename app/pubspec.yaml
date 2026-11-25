@@ -1,0 +1,49 @@
+name: kaizen
+description: "Kaizen: hábitos con mejora continua (Proyecto Integrador UAA, 7.º semestre)"
+publish_to: 'none'
+version: 0.1.0+1
+
+environment:
+  sdk: ^3.13.0
+  flutter: ">=3.47.0"
+
+# Versiones FIJAS (sin ^): cada una se revisó en pub.dev (regla R14 de los Lineamientos):
+# publisher verificado y al menos 14 días de publicada. Para actualizar una, se repite la revisión.
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+  intl: any                              # la versión la fija flutter_localizations
+  provider: 6.1.5+1                      # inyección y ViewModels
+  go_router: 18.1.4                      # rutas y guardas
+  dio: 5.11.1                            # HTTP con interceptores
+  flutter_secure_storage: 11.2.0         # token de renovación (no en web)
+  drift: 2.35.4                          # base local
+  drift_flutter: 0.3.1
+  path_provider: 2.1.6                   # carpeta privada
+  image_picker: 1.2.4                    # cámara y galería (móvil)
+  permission_handler: 12.0.3             # permisos explícitos. La 13.x usa permission_handler_android 14 (compileSdk 37): no compila con el SDK 36
+  flutter_local_notifications: 22.3.3    # recordatorios (móvil). La 23.x exige compileSdk 37 y AGP 9.1: no compila con el SDK 36
+  timezone: 0.11.2
+  flutter_timezone: 5.1.1                # zona IANA para X-Zona-Horaria
+  connectivity_plus: 7.3.2               # detectar la red
+  uuid: 4.6.0                            # id de los check-ins (idempotencia)
+  fl_chart: 1.3.1                        # gráficas
+  share_plus: 13.3.1                     # exportar mis datos (ARCO)
+  json_annotation: 4.12.0                # modelos ↔ JSON
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  integration_test:
+    sdk: flutter
+  flutter_lints: 6.0.0
+  build_runner: 2.17.1
+  json_serializable: 6.15.2
+  drift_dev: 2.35.3
+  mocktail: 1.0.5
+
+flutter:
+  uses-material-design: true
+  generate: true                         # textos (l10n) generados desde lib/l10n/app_es.arb
