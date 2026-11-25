@@ -18,7 +18,11 @@ void main() {
 
   group('Entorno.desdeValores', () {
     test('quita las diagonales finales de la URL', () {
-      final e = Entorno.desdeValores(fuente: 'api', apiBaseUrl: 'http://localhost:8000/api/v1//', zonaHorariaDefecto: 'UTC');
+      final e = Entorno.desdeValores(
+        fuente: 'api',
+        apiBaseUrl: 'http://localhost:8000/api/v1//',
+        zonaHorariaDefecto: 'UTC',
+      );
       expect(e.apiBaseUrl, 'http://localhost:8000/api/v1');
     });
 

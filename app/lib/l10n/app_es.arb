@@ -1,11 +1,121 @@
 {
   "@@locale": "es",
   "appTitulo": "Kaizen",
-  "@appTitulo": { "description": "Nombre de la aplicación" },
+  "@appTitulo": {
+    "description": "Nombre de la aplicación"
+  },
   "appLema": "Un paso pequeño cada día.",
-  "@appLema": { "description": "Lema de la marca (panel izquierdo del login)" },
-  "proyectoBaseListo": "Proyecto base listo",
-  "@proyectoBaseListo": { "description": "Texto temporal de la pantalla inicial del Paso 1" },
+  "@appLema": {
+    "description": "Lema de la marca (panel izquierdo del login)"
+  },
   "fuenteDeDatos": "Fuente de datos: {fuente}",
-  "@fuenteDeDatos": { "description": "Muestra si la app usa datos de prueba o la API", "placeholders": { "fuente": { "type": "String" } } }
+  "@fuenteDeDatos": {
+    "description": "Muestra si la app usa datos de prueba o la API",
+    "placeholders": {
+      "fuente": {
+        "type": "String"
+      }
+    }
+  },
+  "rachaDias": "{n, plural, =1{Racha de 1 día} other{Racha de {n} días}}",
+  "@rachaDias": {
+    "description": "Lectura de pantalla del indicador de racha",
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "conCapsulaSellada": "con cápsula sellada",
+  "@conCapsulaSellada": {
+    "description": "Se agrega a la racha cuando el hábito tiene cápsula"
+  },
+  "sinDatos": "sin datos",
+  "@sinDatos": {
+    "description": "Día o celda sin información"
+  },
+  "nivelDeCuatro": "nivel {nivel} de 4",
+  "@nivelDeCuatro": {
+    "description": "Intensidad del calendario o de la semana",
+    "placeholders": {
+      "nivel": {
+        "type": "int"
+      }
+    }
+  },
+  "reintentar": "Reintentar",
+  "@reintentar": {
+    "description": "Botón del estado de error"
+  },
+  "errorGenerico": "Algo salió mal. Intenta de nuevo.",
+  "@errorGenerico": {
+    "description": "Mensaje del estado de error si no hay otro"
+  },
+  "cargando": "Cargando…",
+  "@cargando": {
+    "description": "Estado de carga"
+  },
+  "sinConexion": "Sin conexión",
+  "@sinConexion": {
+    "description": "Banner cuando no hay red"
+  },
+  "registrosPorEnviar": "{n, plural, =0{tus cambios se guardan en este dispositivo} =1{1 registro por enviar} other{{n} registros por enviar}}",
+  "@registrosPorEnviar": {
+    "description": "Detalle del banner sin conexión",
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "cancelar": "Cancelar",
+  "@cancelar": {
+    "description": "Botón de diálogo"
+  },
+  "confirmar": "Confirmar",
+  "@confirmar": {
+    "description": "Botón de diálogo"
+  },
+  "mostrarContrasena": "Mostrar contraseña",
+  "@mostrarContrasena": {
+    "description": "Botón del campo de contraseña"
+  },
+  "ocultarContrasena": "Ocultar contraseña",
+  "@ocultarContrasena": {
+    "description": "Botón del campo de contraseña"
+  },
+  "disminuir": "Disminuir",
+  "@disminuir": {
+    "description": "Botón − del contador de meta"
+  },
+  "aumentar": "Aumentar",
+  "@aumentar": {
+    "description": "Botón + del contador de meta"
+  },
+  "marcarCumplido": "Marcar {habito} como cumplido",
+  "@marcarCumplido": {
+    "description": "Lectura de pantalla del check-in",
+    "placeholders": {
+      "habito": {
+        "type": "String"
+      }
+    }
+  },
+  "habitoCumplido": "{habito}: cumplido hoy",
+  "@habitoCumplido": {
+    "description": "Lectura de pantalla del check-in marcado",
+    "placeholders": {
+      "habito": {
+        "type": "String"
+      }
+    }
+  },
+  "verComponentes": "Ver componentes",
+  "@verComponentes": {
+    "description": "Botón temporal (solo en depuración) hacia la galería"
+  },
+  "galeriaComponentes": "Componentes de Kaizen",
+  "@galeriaComponentes": {
+    "description": "Título de la galería de componentes (solo en depuración)"
+  }
 }

@@ -47,3 +47,19 @@ dev_dependencies:
 flutter:
   uses-material-design: true
   generate: true                         # textos (l10n) generados desde lib/l10n/app_es.arb
+
+  # Plus Jakarta Sans (OFL, licencia en assets/fuentes/plus_jakarta_sans/OFL.txt), de github.com/tokotype/PlusJakartaSans
+  # en el commit 18d1cd2. Se incluye en la app para que funcione sin internet y se vea igual en todas las plataformas.
+  fonts:
+    - family: PlusJakartaSans
+      fonts:
+        - asset: assets/fuentes/plus_jakarta_sans/PlusJakartaSans-Regular.ttf
+          weight: 400
+        - asset: assets/fuentes/plus_jakarta_sans/PlusJakartaSans-Medium.ttf
+          weight: 500
+        - asset: assets/fuentes/plus_jakarta_sans/PlusJakartaSans-SemiBold.ttf
+          weight: 600
+        - asset: assets/fuentes/plus_jakarta_sans/PlusJakartaSans-Bold.ttf
+          weight: 700
+        - asset: assets/fuentes/plus_jakarta_sans/PlusJakartaSans-ExtraBold.ttf
+          weight: 800

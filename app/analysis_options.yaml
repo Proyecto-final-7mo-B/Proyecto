@@ -1,6 +1,10 @@
 # Análisis estático de Kaizen: flutter_lints + reglas más estrictas.
 include: package:flutter_lints/flutter.yaml
 
+# `dart format .` usa este ancho (el mismo para todo el equipo).
+formatter:
+  page_width: 120
+
 analyzer:
   language:
     strict-casts: true

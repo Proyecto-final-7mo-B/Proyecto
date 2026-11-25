@@ -11,12 +11,12 @@ abstract final class Limites {
   static const int nombreHabitoMax = 60;
   static const int unidadMin = 1;
   static const int unidadMax = 20;
-  static const int mascaraDiasMin = 1;   // lunes = 1 … domingo = 64
+  static const int mascaraDiasMin = 1; // lunes = 1 … domingo = 64
   static const int mascaraDiasMax = 127;
   static const int mascaraLunesAViernes = 31;
   static const int vecesSemanaMin = 1;
   static const int vecesSemanaMax = 7;
-  static const int escalaMin = 1;        // ánimo y energía
+  static const int escalaMin = 1; // ánimo y energía
   static const int escalaMax = 5;
   static const int mensajeCapsulaMaxBytes = 4096;
   static const List<int> rachasObjetivo = [7, 21, 66];
