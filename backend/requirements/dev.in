@@ -1,0 +1,14 @@
+# Herramientas para DESARROLLAR y PROBAR (no van al servidor).
+# "-c base.txt" obliga a usar las mismas versiones que produccion.
+-c base.txt
+
+pytest            # pruebas
+pytest-cov        # porcentaje de codigo probado
+hypothesis        # pruebas con datos aleatorios (rachas)
+httpx             # cliente para probar la API
+ruff              # estilo PEP 8 y reglas de seguridad
+mypy              # revisa los type hints
+bandit[toml]      # analisis de seguridad
+pip-audit         # busca vulnerabilidades conocidas en las dependencias
+pip-tools         # genera base.txt y dev.txt con hashes
+faker             # datos sinteticos

@@ -1,0 +1,15 @@
+# Dependencias para EJECUTAR el backend (API, ETL, reportes y tareas).
+# Las cuatro con version fija son las que Jael ya probo contra la base y MongoDB 4.4.
+
+fastapi                       # API REST
+uvicorn                       # servidor que corre la API
+pydantic-settings             # lee la configuracion del .env y de las variables del servidor
+psycopg[binary,pool]==3.3.9   # PostgreSQL (DB-API 2.0) con pool de conexiones
+pymongo==4.10.1               # MongoDB; la ultima que soporta MongoDB 4.4
+argon2-cffi==25.1.0           # hash de contrasenas (Argon2id)
+cryptography==50.0.2          # AES-256-GCM, HMAC y Ed25519
+pyjwt                         # tokens JWT firmados con EdDSA
+slowapi                       # limites de peticiones por IP
+pandas                        # limpieza y analisis (ETL)
+numpy                         # calculos del Laboratorio
+matplotlib                    # graficas I1 a I6

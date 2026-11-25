@@ -1,0 +1,54 @@
+# Kaizen . configuracion del paquete del backend y de sus herramientas de calidad
+
+[build-system]
+requires = ["setuptools>=75"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "kaizen"
+version = "0.1.0"
+description = "Backend de Kaizen: API REST, ETL, reportes y tareas programadas"
+requires-python = ">=3.12,<3.13"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+# ---------- ruff: estilo PEP 8, orden de imports y reglas de seguridad ----------
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = [
+    "E", "W",   # PEP 8 (pycodestyle)
+    "F",        # errores comunes (pyflakes): variables sin usar, imports rotos
+    "I",        # orden de imports
+    "N",        # nombres segun PEP 8
+    "UP",       # sintaxis moderna de Python 3.12
+    "B",        # errores probables (bugbear)
+    "S",        # seguridad (bandit): SQL armado con texto, secretos en el codigo, etc.
+    "SIM",      # simplificaciones
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["S101"]   # en las pruebas si se usa assert
+
+# ---------- mypy: revisa los type hints ----------
+[tool.mypy]
+python_version = "3.12"
+mypy_path = "src"
+strict = true
+
+# ---------- pytest y cobertura ----------
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "--cov=kaizen --cov-report=term-missing --cov-fail-under=60"
+
+[tool.coverage.run]
+source = ["kaizen"]
+branch = true
+
+# ---------- bandit: analisis de seguridad (se corre con: bandit -c pyproject.toml -r src) ----------
+[tool.bandit]
+exclude_dirs = ["tests"]
