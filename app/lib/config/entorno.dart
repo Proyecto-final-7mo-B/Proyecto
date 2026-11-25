@@ -17,9 +17,9 @@ enum FuenteDatos {
   /// Interpreta el valor de `KAIZEN_FUENTE`. Cualquier valor desconocido usa la API:
   /// así un build de producción nunca queda con datos de prueba por error.
   static FuenteDatos desde(String valor) => switch (valor.trim().toLowerCase()) {
-        'fake' => FuenteDatos.fake,
-        _ => FuenteDatos.api,
-      };
+    'fake' => FuenteDatos.fake,
+    _ => FuenteDatos.api,
+  };
 }
 
 /// URL de la API en producción (Nginx en nodo1).
@@ -35,11 +35,8 @@ class Entorno {
   const Entorno({required this.fuente, required this.apiBaseUrl, required this.zonaHorariaDefecto});
 
   /// La que se usa al ejecutar la app.
-  factory Entorno.actual() => Entorno.desdeValores(
-        fuente: _fuenteDefinida,
-        apiBaseUrl: _apiDefinida,
-        zonaHorariaDefecto: _zonaDefinida,
-      );
+  factory Entorno.actual() =>
+      Entorno.desdeValores(fuente: _fuenteDefinida, apiBaseUrl: _apiDefinida, zonaHorariaDefecto: _zonaDefinida);
 
   /// Construye la configuración a partir de valores en texto (se usa en las pruebas).
   factory Entorno.desdeValores({

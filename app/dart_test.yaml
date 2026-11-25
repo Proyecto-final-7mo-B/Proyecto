@@ -1,0 +1,4 @@
+# Etiquetas de las pruebas. Las golden comparan imágenes: se generan en Linux (ver docs/modulos/02_sistema_de_diseno.md).
+tags:
+  golden:
+    description: "Comparación de imágenes de los componentes del sistema de diseño"

@@ -18,7 +18,12 @@ cd app
 flutter pub get                 # también genera los textos (lib/l10n/gen/)
 flutter analyze                 # debe decir "No issues found!"
 flutter test --coverage         # todas las pruebas en verde
+dart format .                   # ancho de 120 columnas (analysis_options.yaml)
 ```
+
+Las pruebas *golden* (imágenes de referencia de los componentes) se generaron en Linux. Si en otro sistema fallan solo
+por el suavizado de las letras, corre `flutter test --exclude-tags golden`. Detalle en
+[02_sistema_de_diseno.md](modulos/02_sistema_de_diseno.md#sobre-las-pruebas-golden).
 
 ## Correr la app
 
@@ -54,8 +59,10 @@ flutter build windows                             # en la máquina Windows
 
 ## Estructura y forma de trabajo
 
-- Arquitectura MVVM; árbol completo en `../README.md` y responsabilidad de cada archivo en
-  `Evidencias_generales/08_plan_frontend_esqueleto.md`.
+- Arquitectura MVVM; árbol completo en `../README.md`.
+- Solo tema claro. Colores, textos, formas e íconos salen de `lib/ui/core/tema/`; los componentes reutilizables están en
+  `lib/ui/core/widgets/` (catálogo en [02_sistema_de_diseno.md](modulos/02_sistema_de_diseno.md)). En depuración, el
+  botón **Ver componentes** abre la galería.
 - La app se construye **por pasos**. Cada paso entrega código, pruebas y su documento en [`modulos/`](modulos/).
 - Versiones de paquetes **fijas** en `pubspec.yaml` (revisadas en pub.dev, regla R14). Para cambiar una, se repite la
   revisión y se anota en el documento del paso.
@@ -63,3 +70,4 @@ flutter build windows                             # en la máquina Windows
 | Paso | Documento |
 |---|---|
 | 1 · Proyecto base | [01_proyecto_base.md](modulos/01_proyecto_base.md) |
+| 2 · Sistema de diseño | [02_sistema_de_diseno.md](modulos/02_sistema_de_diseno.md) |
