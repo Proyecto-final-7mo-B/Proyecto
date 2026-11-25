@@ -1,0 +1,4 @@
+# Dependencias del poblador (mismas bibliotecas que usará el backend)
+psycopg[binary]==3.3.9
+argon2-cffi==25.1.0
+cryptography==50.0.2

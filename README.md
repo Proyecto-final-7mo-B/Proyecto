@@ -11,6 +11,7 @@ Proyecto Integrador de 7.º semestre, Universidad Autónoma de Aguascalientes.
 backend/          API REST (FastAPI), ETL, reportes y tareas programadas · Python 3.12
 app/              Aplicación Flutter: Android, iOS, Linux, Windows, macOS y web
 db/               Estructura de la base de datos (PostgreSQL 16) y sus cambios
+entorno_local/    Entorno de desarrollo con Docker: PostgreSQL, MongoDB, Mailpit y poblador (ver LEEME.md)
 docs/             Contrato de la API y registro de decisiones (ADR)
 infraestructura/  Cómo está desplegada la infraestructura (un documento por tecnología)
 ```
@@ -39,6 +40,6 @@ Detalle de cada pieza en [`infraestructura/`](infraestructura/).
 
 | Integrante | Responsabilidad | Carpetas |
 |---|---|---|
-| Jael Dantez Contreras Estrada | Infraestructura y base de datos distribuida | `infraestructura/`, `db/` |
+| Jael Dantez Contreras Estrada | Infraestructura y base de datos distribuida | `infraestructura/`, `db/`, `entorno_local/` |
 | Jesús Ángel Vázquez Sánchez | Backend en Python y seguridad de la aplicación | `backend/` |
 | Samuel Ignacio Rizo González | Aplicación Flutter y reportes | `app/` |

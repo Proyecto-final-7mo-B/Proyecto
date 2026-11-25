@@ -1,0 +1,81 @@
+# Kaizen · entorno local para desarrollar el backend
+# PostgreSQL 16 con el esquema real del clúster + MongoDB 4.4 (las mismas versiones que producción)
+# + Mailpit, que atrapa los correos de recuperación de contraseña (no salen a internet).
+# Solo escucha en 127.0.0.1: nada queda expuesto a la red.
+# Uso rápido: ver LEEME.md
+name: kaizen-local
+
+services:
+  postgres:
+    image: postgres:16.16
+    container_name: kaizen-pg
+    environment:
+      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD:?Falta el archivo .env, copia .env.ejemplo a .env}"
+      KAIZEN_DB_PASSWORD: "${KAIZEN_DB_PASSWORD:?Falta KAIZEN_DB_PASSWORD en .env}"
+      KAIZEN_ETL_DB_PASSWORD: "${KAIZEN_ETL_DB_PASSWORD:?Falta KAIZEN_ETL_DB_PASSWORD en .env}"
+      KAIZEN_TAREAS_DB_PASSWORD: "${KAIZEN_TAREAS_DB_PASSWORD:?Falta KAIZEN_TAREAS_DB_PASSWORD en .env}"
+      TZ: UTC                       # el clúster trabaja en UTC
+    ports:
+      - "127.0.0.1:${KAIZEN_PG_PUERTO:-5432}:5432"
+    volumes:
+      - kaizen-pg-datos:/var/lib/postgresql/data
+      - ./postgres/init:/docker-entrypoint-initdb.d:ro
+      - ./postgres:/kaizen:ro
+    healthcheck:
+      # por TCP: durante la inicialización el servidor temporal solo escucha por socket,
+      # así que esto solo pasa cuando el esquema ya quedó cargado
+      test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -U postgres -d kaizen"]
+      interval: 5s
+      timeout: 3s
+      retries: 40
+    restart: unless-stopped
+
+  mongo:
+    image: mongo:4.4.30
+    container_name: kaizen-mongo
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: "${MONGO_ROOT_PASSWORD:?Falta MONGO_ROOT_PASSWORD en .env}"
+      KAIZEN_MONGO_API_PASSWORD: "${KAIZEN_MONGO_API_PASSWORD:?Falta KAIZEN_MONGO_API_PASSWORD en .env}"
+      KAIZEN_MONGO_ETL_PASSWORD: "${KAIZEN_MONGO_ETL_PASSWORD:?Falta KAIZEN_MONGO_ETL_PASSWORD en .env}"
+    ports:
+      - "127.0.0.1:${KAIZEN_MONGO_PUERTO:-27017}:27017"
+    volumes:
+      - kaizen-mongo-datos:/data/db
+      - ./mongo/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD", "mongo", "--quiet", "--eval", "db.adminCommand('ping').ok"]
+      interval: 5s
+      timeout: 3s
+      retries: 40
+    restart: unless-stopped
+
+  # Servidor de correo de desarrollo: recibe por SMTP (1025) y muestra los correos en http://localhost:8025
+  mailpit:
+    image: axllent/mailpit:v1.33.1
+    container_name: kaizen-mailpit
+    ports:
+      - "127.0.0.1:${KAIZEN_SMTP_PUERTO:-1025}:1025"
+      - "127.0.0.1:8025:8025"
+    restart: unless-stopped
+
+  # Herramienta de una sola ejecución: docker compose run --rm poblar
+  poblar:
+    build: ./poblar
+    profiles: ["herramientas"]
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      KAIZEN_ENTORNO: local
+      PGHOST: postgres
+      PGPORT: "5432"
+      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD}"
+      KAIZEN_DB_PASSWORD: "${KAIZEN_DB_PASSWORD}"
+      KAIZEN_EMAIL_HMAC_KEY: "${KAIZEN_EMAIL_HMAC_KEY:?Falta KAIZEN_EMAIL_HMAC_KEY en .env}"
+      KAIZEN_CAPSULA_KEY_V1: "${KAIZEN_CAPSULA_KEY_V1:?Falta KAIZEN_CAPSULA_KEY_V1 en .env}"
+      KAIZEN_DEMO_PASSWORD: "${KAIZEN_DEMO_PASSWORD:?Falta KAIZEN_DEMO_PASSWORD en .env}"
+
+volumes:
+  kaizen-pg-datos:
+  kaizen-mongo-datos:
