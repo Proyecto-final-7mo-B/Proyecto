@@ -25,7 +25,7 @@ import '../core/widgets/tarjeta_kaizen.dart';
 import '../core/widgets/tarjeta_kpi.dart';
 
 /// Galería de todos los componentes del sistema de diseño, para compararlos con los bosquejos.
-/// Solo se abre en depuración (en el Paso 3 queda en la ruta `/dev/componentes`).
+/// Ruta `/dev/componentes`, que solo existe en depuración (botón "Ver componentes" en la pantalla de entrada).
 class GaleriaComponentes extends StatefulWidget {
   const GaleriaComponentes({super.key});
 

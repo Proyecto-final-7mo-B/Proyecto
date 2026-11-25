@@ -46,3 +46,6 @@ app.*.map.json
 
 # Widget Preview related
 .widget_preview/
+
+# Imágenes de diferencias que dejan las pruebas golden cuando fallan
+**/failures/
