@@ -1,0 +1,293 @@
+{
+  "_descripcion": "Países y estados que acepta Kaizen. Es la misma lista que fn_region() en la base: cualquier otro valor da KZ002. La app la usa en el registro y la API la valida antes de llamar a sp_registrar_usuario. El estado solo sirve para asignar la región; no se guarda.",
+  "_version": "2026-11-23",
+  "regiones": [
+    "MX-NORTE",
+    "MX-CENTRO-SUR",
+    "LATAM"
+  ],
+  "paises": [
+    {
+      "codigo": "MX",
+      "nombre": "México",
+      "requiere_estado": true,
+      "region": null
+    },
+    {
+      "codigo": "AR",
+      "nombre": "Argentina",
+      "requiere_estado": false,
+      "region": "LATAM"
+    },
+    {
+      "codigo": "BO",
+      "nombre": "Bolivia",
+      "requiere_estado": false,
+      "region": "LATAM"
+    },
+    {
+      "codigo": "BR",
+      "nombre": "Brasil",
+      "requiere_estado": false,
+      "region": "LATAM"
+    },
+    {
+      "codigo": "CL",
+      "nombre": "Chile",
+      "requiere_estado": false,
+      "region": "LATAM"
+    },
+    {
+      "codigo": "CO",
+      "nombre": "Colombia",
+      "requiere_estado": false,
+      "region": "LATAM"
+    },
+    {
+      "codigo": "CR",
+      "nombre": "Costa Rica",
+      "requiere_estado": false,
+      "region": "LATAM"
+    },
+    {
+      "codigo": "CU",
+      "nombre": "Cuba",
+      "requiere_estado": false,
+      "region": "LATAM"
+    },
+    {
+      "codigo": "EC",
+      "nombre": "Ecuador",
+      "requiere_estado": false,
+      "region": "LATAM"
+    },
+    {
+      "codigo": "SV",
+      "nombre": "El Salvador",
+      "requiere_estado": false,
+      "region": "LATAM"
+    },
+    {
+      "codigo": "GT",
+      "nombre": "Guatemala",
+      "requiere_estado": false,
+      "region": "LATAM"
+    },
+    {
+      "codigo": "HN",
+      "nombre": "Honduras",
+      "requiere_estado": false,
+      "region": "LATAM"
+    },
+    {
+      "codigo": "NI",
+      "nombre": "Nicaragua",
+      "requiere_estado": false,
+      "region": "LATAM"
+    },
+    {
+      "codigo": "PA",
+      "nombre": "Panamá",
+      "requiere_estado": false,
+      "region": "LATAM"
+    },
+    {
+      "codigo": "PY",
+      "nombre": "Paraguay",
+      "requiere_estado": false,
+      "region": "LATAM"
+    },
+    {
+      "codigo": "PE",
+      "nombre": "Perú",
+      "requiere_estado": false,
+      "region": "LATAM"
+    },
+    {
+      "codigo": "PR",
+      "nombre": "Puerto Rico",
+      "requiere_estado": false,
+      "region": "LATAM"
+    },
+    {
+      "codigo": "DO",
+      "nombre": "República Dominicana",
+      "requiere_estado": false,
+      "region": "LATAM"
+    },
+    {
+      "codigo": "UY",
+      "nombre": "Uruguay",
+      "requiere_estado": false,
+      "region": "LATAM"
+    },
+    {
+      "codigo": "VE",
+      "nombre": "Venezuela",
+      "requiere_estado": false,
+      "region": "LATAM"
+    }
+  ],
+  "estados_mx": [
+    {
+      "codigo": "AGU",
+      "nombre": "Aguascalientes",
+      "region": "MX-NORTE"
+    },
+    {
+      "codigo": "BCN",
+      "nombre": "Baja California",
+      "region": "MX-NORTE"
+    },
+    {
+      "codigo": "BCS",
+      "nombre": "Baja California Sur",
+      "region": "MX-NORTE"
+    },
+    {
+      "codigo": "CAM",
+      "nombre": "Campeche",
+      "region": "MX-CENTRO-SUR"
+    },
+    {
+      "codigo": "CHP",
+      "nombre": "Chiapas",
+      "region": "MX-CENTRO-SUR"
+    },
+    {
+      "codigo": "CHH",
+      "nombre": "Chihuahua",
+      "region": "MX-NORTE"
+    },
+    {
+      "codigo": "CMX",
+      "nombre": "Ciudad de México",
+      "region": "MX-CENTRO-SUR"
+    },
+    {
+      "codigo": "COA",
+      "nombre": "Coahuila",
+      "region": "MX-NORTE"
+    },
+    {
+      "codigo": "COL",
+      "nombre": "Colima",
+      "region": "MX-NORTE"
+    },
+    {
+      "codigo": "DUR",
+      "nombre": "Durango",
+      "region": "MX-NORTE"
+    },
+    {
+      "codigo": "MEX",
+      "nombre": "Estado de México",
+      "region": "MX-CENTRO-SUR"
+    },
+    {
+      "codigo": "GUA",
+      "nombre": "Guanajuato",
+      "region": "MX-NORTE"
+    },
+    {
+      "codigo": "GRO",
+      "nombre": "Guerrero",
+      "region": "MX-CENTRO-SUR"
+    },
+    {
+      "codigo": "HID",
+      "nombre": "Hidalgo",
+      "region": "MX-CENTRO-SUR"
+    },
+    {
+      "codigo": "JAL",
+      "nombre": "Jalisco",
+      "region": "MX-NORTE"
+    },
+    {
+      "codigo": "MIC",
+      "nombre": "Michoacán",
+      "region": "MX-NORTE"
+    },
+    {
+      "codigo": "MOR",
+      "nombre": "Morelos",
+      "region": "MX-CENTRO-SUR"
+    },
+    {
+      "codigo": "NAY",
+      "nombre": "Nayarit",
+      "region": "MX-NORTE"
+    },
+    {
+      "codigo": "NLE",
+      "nombre": "Nuevo León",
+      "region": "MX-NORTE"
+    },
+    {
+      "codigo": "OAX",
+      "nombre": "Oaxaca",
+      "region": "MX-CENTRO-SUR"
+    },
+    {
+      "codigo": "PUE",
+      "nombre": "Puebla",
+      "region": "MX-CENTRO-SUR"
+    },
+    {
+      "codigo": "QUE",
+      "nombre": "Querétaro",
+      "region": "MX-NORTE"
+    },
+    {
+      "codigo": "ROO",
+      "nombre": "Quintana Roo",
+      "region": "MX-CENTRO-SUR"
+    },
+    {
+      "codigo": "SLP",
+      "nombre": "San Luis Potosí",
+      "region": "MX-NORTE"
+    },
+    {
+      "codigo": "SIN",
+      "nombre": "Sinaloa",
+      "region": "MX-NORTE"
+    },
+    {
+      "codigo": "SON",
+      "nombre": "Sonora",
+      "region": "MX-NORTE"
+    },
+    {
+      "codigo": "TAB",
+      "nombre": "Tabasco",
+      "region": "MX-CENTRO-SUR"
+    },
+    {
+      "codigo": "TAM",
+      "nombre": "Tamaulipas",
+      "region": "MX-NORTE"
+    },
+    {
+      "codigo": "TLA",
+      "nombre": "Tlaxcala",
+      "region": "MX-CENTRO-SUR"
+    },
+    {
+      "codigo": "VER",
+      "nombre": "Veracruz",
+      "region": "MX-CENTRO-SUR"
+    },
+    {
+      "codigo": "YUC",
+      "nombre": "Yucatán",
+      "region": "MX-CENTRO-SUR"
+    },
+    {
+      "codigo": "ZAC",
+      "nombre": "Zacatecas",
+      "region": "MX-NORTE"
+    }
+  ]
+}
