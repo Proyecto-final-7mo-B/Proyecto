@@ -8,6 +8,7 @@ import '../ui/auth/widgets/pantalla_restablecer.dart';
 import '../ui/core/adaptativo/plataforma.dart';
 import '../ui/core/adaptativo/shell_adaptativo.dart';
 import '../ui/dev/galeria_componentes.dart';
+import '../ui/hoy/widgets/pantalla_hoy.dart';
 import '../ui/provisional/pantallas_provisionales.dart';
 import 'estado_sesion.dart';
 import 'guardas.dart';
@@ -60,7 +61,10 @@ GoRouter crearRouter({
       ShellRoute(
         builder: (context, estado, hijo) => ShellAdaptativo(ubicacion: estado.uri.path, child: hijo),
         routes: [
-          GoRoute(path: Rutas.hoy, pageBuilder: provisional((t) => t.tituloHoy, 6)),
+          GoRoute(
+            path: Rutas.hoy,
+            pageBuilder: (context, estado) => NoTransitionPage<void>(key: estado.pageKey, child: const PantallaHoy()),
+          ),
           GoRoute(
             path: Rutas.habitos,
             pageBuilder: provisional((t) => t.tituloHabitos, 7),

@@ -601,5 +601,206 @@
         "type": "String"
       }
     }
+  },
+  "saludoManana": "Buenos días, {nombre}",
+  "@saludoManana": {
+    "description": "Saludo de 5 a 12 h",
+    "placeholders": {
+      "nombre": {
+        "type": "String"
+      }
+    }
+  },
+  "saludoTarde": "Buenas tardes, {nombre}",
+  "@saludoTarde": {
+    "description": "Saludo de 12 a 19 h",
+    "placeholders": {
+      "nombre": {
+        "type": "String"
+      }
+    }
+  },
+  "saludoNoche": "Buenas noches, {nombre}",
+  "@saludoNoche": {
+    "description": "Saludo de 19 a 5 h",
+    "placeholders": {
+      "nombre": {
+        "type": "String"
+      }
+    }
+  },
+  "nDeM": "{cumplidos} de {total}",
+  "@nDeM": {
+    "description": "Hábitos cumplidos de los programados hoy",
+    "placeholders": {
+      "cumplidos": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "habitosDeHoy": "hábitos de hoy",
+  "@habitosDeHoy": {
+    "description": "Texto junto a \"2 de 5\""
+  },
+  "resumenHoySemantica": "Hoy: {cumplidos} de {total} hábitos cumplidos",
+  "@resumenHoySemantica": {
+    "description": "Lectura de pantalla de la tarjeta de hoy",
+    "placeholders": {
+      "cumplidos": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "paraHoy": "Para hoy",
+  "@paraHoy": {
+    "description": "Título de la lista de hábitos"
+  },
+  "frecuenciaDiaria": "diario",
+  "@frecuenciaDiaria": {
+    "description": "Frecuencia en el subtítulo del hábito"
+  },
+  "frecuenciaLaV": "L-V",
+  "@frecuenciaLaV": {
+    "description": "Lunes a viernes"
+  },
+  "frecuenciaFinDeSemana": "S-D",
+  "@frecuenciaFinDeSemana": {
+    "description": "Sábado y domingo"
+  },
+  "frecuenciaVeces": "{n, plural, =1{1 vez por semana} other{{n} por semana}}",
+  "@frecuenciaVeces": {
+    "description": "Frecuencia N por semana",
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "nivelN": "Nivel {n}",
+  "@nivelN": {
+    "description": "Nivel de la Escalera en el subtítulo",
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "sugerenciaSubir": "{habito}: ¿subir de {de} a {a} {unidad}?",
+  "@sugerenciaSubir": {
+    "description": "Pregunta de la sugerencia (subir)",
+    "placeholders": {
+      "habito": {
+        "type": "String"
+      },
+      "de": {
+        "type": "String"
+      },
+      "a": {
+        "type": "String"
+      },
+      "unidad": {
+        "type": "String"
+      }
+    }
+  },
+  "sugerenciaBajar": "{habito}: ¿bajar de {de} a {a} {unidad}?",
+  "@sugerenciaBajar": {
+    "description": "Pregunta de la sugerencia (bajar)",
+    "placeholders": {
+      "habito": {
+        "type": "String"
+      },
+      "de": {
+        "type": "String"
+      },
+      "a": {
+        "type": "String"
+      },
+      "unidad": {
+        "type": "String"
+      }
+    }
+  },
+  "sugerenciaDetalle": "{porcentaje} % en 14 días",
+  "@sugerenciaDetalle": {
+    "description": "Cumplimiento que justifica la sugerencia",
+    "placeholders": {
+      "porcentaje": {
+        "type": "String"
+      }
+    }
+  },
+  "microPasoSugerido": "Micro-paso sugerido",
+  "@microPasoSugerido": {
+    "description": "Título de la tarjeta de la Escalera"
+  },
+  "aceptar": "Aceptar",
+  "@aceptar": {
+    "description": "Botón de la sugerencia"
+  },
+  "mantener": "Mantener",
+  "@mantener": {
+    "description": "Botón de la sugerencia"
+  },
+  "metaAceptada": "Subiste al nivel {nivel}: tu nueva meta es {meta} {unidad}.",
+  "@metaAceptada": {
+    "description": "Aviso al aceptar",
+    "placeholders": {
+      "nivel": {
+        "type": "int"
+      },
+      "meta": {
+        "type": "String"
+      },
+      "unidad": {
+        "type": "String"
+      }
+    }
+  },
+  "metaMantenida": "Mantienes tu meta actual.",
+  "@metaMantenida": {
+    "description": "Aviso al mantener"
+  },
+  "comoTeSientes": "¿Cómo te sientes hoy?",
+  "@comoTeSientes": {
+    "description": "Tarjeta de señales"
+  },
+  "comoTeSientesDetalle": "Ánimo y energía en 5 segundos",
+  "@comoTeSientesDetalle": {
+    "description": "Detalle de la tarjeta de señales"
+  },
+  "sinHabitosHoyTitulo": "Aún no tienes hábitos",
+  "@sinHabitosHoyTitulo": {
+    "description": "Estado vacío de Hoy"
+  },
+  "sinHabitosHoyTexto": "Empieza con uno pequeño: 5 minutos bastan para crear el hábito.",
+  "@sinHabitosHoyTexto": {
+    "description": "Estado vacío de Hoy"
+  },
+  "crearPrimerHabito": "Crear mi primer hábito",
+  "@crearPrimerHabito": {
+    "description": "Botón del estado vacío"
+  },
+  "nadaProgramadoHoy": "Hoy no tienes hábitos programados. ¡Descansa!",
+  "@nadaProgramadoHoy": {
+    "description": "Cuando hay hábitos pero ninguno toca hoy"
+  },
+  "checkinNoGuardado": "No se guardó el check-in de {habito}: {motivo}",
+  "@checkinNoGuardado": {
+    "description": "Aviso cuando falla un check-in",
+    "placeholders": {
+      "habito": {
+        "type": "String"
+      },
+      "motivo": {
+        "type": "String"
+      }
+    }
   }
 }

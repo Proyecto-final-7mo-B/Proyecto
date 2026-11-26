@@ -5,6 +5,7 @@ import 'package:integration_test/integration_test.dart';
 import 'package:kaizen/app.dart';
 import 'package:kaizen/config/entorno.dart';
 import 'package:kaizen/ui/core/adaptativo/busqueda.dart';
+import 'package:kaizen/ui/hoy/widgets/pantalla_hoy.dart';
 
 /// Flujo del Paso 3 en la app real (escritorio): entrar → secciones → Ctrl+K → perfil → salir.
 /// `flutter test integration_test/navegacion_test.dart -d linux`
@@ -37,7 +38,7 @@ void main() {
     await tester.pump();
     await tester.tap(find.text('Iniciar sesión'));
     await tester.pumpAndSettle();
-    expect(find.text('Esta pantalla llega en el paso 6 del plan.'), findsOneWidget);
+    expect(find.byType(PantallaHoy), findsOneWidget);
 
     await tester.tap(find.text('Hábitos'));
     await tester.pumpAndSettle();

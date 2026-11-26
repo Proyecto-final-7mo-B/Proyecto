@@ -10,6 +10,7 @@ import 'package:kaizen/data/services/gestor_tokens.dart';
 import 'package:kaizen/ui/auth/widgets/pantalla_entrar.dart';
 import 'package:kaizen/ui/core/adaptativo/busqueda.dart';
 import 'package:kaizen/ui/core/widgets/campo_validado.dart';
+import 'package:kaizen/ui/hoy/widgets/pantalla_hoy.dart';
 import 'package:kaizen/utils/paises_estados.dart';
 
 /// Flujo del Paso 5 en la app real: crear cuenta → Hoy → cerrar sesión (tokens borrados) → entrar de nuevo.
@@ -49,7 +50,8 @@ void main() {
     await tocar(tester, find.text('Acepto el aviso de privacidad'));
     await tocar(tester, find.widgetWithText(FilledButton, 'Crear cuenta'));
     expect(find.byType(PantallaEntrar), findsNothing);
-    expect(find.text('Esta pantalla llega en el paso 6 del plan.'), findsOneWidget);
+    expect(find.byType(PantallaHoy), findsOneWidget);
+    expect(find.text('Aún no tienes hábitos'), findsOneWidget, reason: 'cuenta nueva');
     expect(await almacen.leer(GestorTokens.claveRenovacion), isNotNull);
 
     // 2. Cerrar sesión desde el perfil (Ctrl+K → perfil): se borran los tokens.
