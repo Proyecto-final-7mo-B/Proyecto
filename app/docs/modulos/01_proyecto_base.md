@@ -1,13 +1,13 @@
 # Paso 1 · Proyecto base (F0)
 
-**Estado:** terminado, listo para commit · **Fecha:** 24-nov-2026 · **Implementó:** Claude (IA: asistido) · **Revisa y sube:** Samuel Rizo
+**Estado:** terminado · **Fecha:** 24-nov-2026 · **IA:** asistido (Claude), revisado por Samuel Rizo
 
 ## Qué se hizo
 
 | Parte | Detalle |
 |---|---|
 | Proyecto | `flutter create --org mx.uaa.kaizen --project-name kaizen --platforms android,ios,linux,windows,macos,web .` dentro de `app/`, respetando las carpetas ya creadas |
-| Dependencias | 21 paquetes con versión **fija** (sin `^`), revisados en pub.dev: *publisher* verificado y al menos 14 días de publicados. Descartados: `sqlite3_flutter_libs` (descontinuado) y `lucide_icons_flutter` (no hace falta). Dos paquetes se bajaron de versión porque sus versiones nuevas exigen el **Android SDK 37** (el proyecto compila con el 36): `flutter_local_notifications` **22.3.3** (la 23.x exige compileSdk 37 y AGP 9.1) y `permission_handler` **12.0.3** (la 13.x usa `permission_handler_android` 14, que exige compileSdk 37). Las dos compilaciones de Android que fallaron están explicadas en la evidencia. Tabla completa en el plan |
+| Dependencias | 21 paquetes con versión **fija** (sin `^`), revisados en pub.dev: *publisher* verificado y al menos 14 días de publicados. Descartados: `sqlite3_flutter_libs` (descontinuado) y `lucide_icons_flutter` (no hace falta). Dos paquetes se bajaron de versión porque sus versiones nuevas exigen el **Android SDK 37** (el proyecto compila con el 36): `flutter_local_notifications` **22.3.3** (la 23.x exige compileSdk 37 y AGP 9.1) y `permission_handler` **12.0.3** (la 13.x usa `permission_handler_android` 14, que exige compileSdk 37). Las versiones están en `pubspec.yaml` |
 | Análisis estático | `flutter_lints` + `strict-casts`, `strict-inference`, `strict-raw-types` y reglas extra (comillas simples, `const`, `final` locales, comas finales, `unawaited_futures`, sin `print`) |
 | Textos | `flutter_localizations` + archivo `lib/l10n/app_es.arb` (es-MX). Se generan en `lib/l10n/gen/` con `flutter pub get` |
 | Configuración | `lib/config/entorno.dart`: `KAIZEN_FUENTE` (`fake`/`api`, **por omisión `api`**: un valor desconocido nunca deja la app con datos de prueba), `API_BASE_URL` y `KAIZEN_ZONA_DEFECTO` |
@@ -35,7 +35,7 @@
 | Compilación | Resultado |
 |---|---|
 | Linux (debug) | ✓ `build/linux/x64/debug/bundle/kaizen` |
-| Web (`--no-web-resources-cdn`) | ✓ `build/web` (capturas en móvil y escritorio en la evidencia) |
+| Web (`--no-web-resources-cdn`) | ✓ `build/web` |
 | Android APK (debug) | ✓ `build/app/outputs/flutter-apk/app-debug.apk` (163 MB en debug; el de release firmado se hace en el Paso 16) |
 
 ## Cómo probarlo
@@ -44,19 +44,4 @@
 cd app
 flutter pub get && flutter analyze && flutter test --coverage
 flutter run -d linux --dart-define=KAIZEN_FUENTE=fake     # muestra "Fuente de datos: fake"
-```
-
-## Evidencia
-`Evidencias_generales/frontend/01_proyecto_base/` (salida de pruebas, cobertura, compilaciones y capturas).
-
-## Commit sugerido (Samuel)
-
-```
-feat(app): proyecto Flutter base con 6 plataformas (F0)
-
-Proyecto con Android, iOS, Linux, Windows, macOS y web; dependencias con versión fija revisadas en pub.dev;
-análisis estricto; textos en es-MX; configuración por --dart-define (KAIZEN_FUENTE, API_BASE_URL);
-permisos por plataforma. 8 pruebas, cobertura 100 %.
-
-IA: asistido (Claude). Revisado por Samuel Rizo.
 ```
