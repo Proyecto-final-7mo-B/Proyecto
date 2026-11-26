@@ -33,8 +33,9 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    expect(find.text('Entrar'), findsOneWidget);
-    await tester.tap(find.text('Entrar como usuario demo'));
+    await tester.tap(find.text('Daniela'));
+    await tester.pump();
+    await tester.tap(find.text('Iniciar sesión'));
     await tester.pumpAndSettle();
     expect(find.text('Esta pantalla llega en el paso 6 del plan.'), findsOneWidget);
 
@@ -48,6 +49,6 @@ void main() {
     await buscarEIr(tester, 'perfil');
     await tester.tap(find.text('Cerrar sesión'));
     await tester.pumpAndSettle();
-    expect(find.text('Entrar como usuario demo'), findsOneWidget);
+    expect(find.text('Iniciar sesión'), findsOneWidget);
   });
 }

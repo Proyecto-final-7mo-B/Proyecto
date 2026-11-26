@@ -73,7 +73,7 @@ entrada provisional tiene **Entrar como usuario demo** y **Entrar como admin dem
 - **Barra inferior** (bosquejos móviles): Hoy · Hábitos · Progreso · Lab · Perfil. El elegido lleva una píldora
   `azul100`. La Escalera y las Cápsulas se abren desde Hoy y desde el detalle del hábito.
 - **Riel** (bosquejos de escritorio): fondo `marino900`, logo, Hoy · Hábitos · Progreso · Escalera · Laboratorio ·
-  Cápsulas · Admin (solo admin). El elegido va en `azul600`. Abajo está el usuario con su región, que abre el perfil.
+  Cápsulas · Admin (solo admin). El elegido va en `azul600`. Abajo está el usuario, que abre el perfil (desde el Paso 5 ya no se muestra su región).
   En la versión angosta, el nombre va debajo del ícono y abajo solo el avatar.
 - **Barra superior** (bosquejos web): marca, secciones en píldoras, botón **Nuevo hábito** y avatar, centrados en
   1200 px.

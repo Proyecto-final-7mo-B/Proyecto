@@ -471,7 +471,7 @@ void main() {
       expect((await d.cuenta.cambiarNombre('Dani')).valorONulo!.nombre, 'Dani');
       expect(tipo(await d.cuenta.cambiarNombre('')), TipoError.validacion);
       expect(
-        tipo(await d.cuenta.cambiarContrasena(actual: 'mala', nueva: 'una-nueva-larga')),
+        tipo(await d.cuenta.cambiarContrasena(actual: 'mala', nueva: 'una-contrasena-nueva-larga')),
         TipoError.credencialesInvalidas,
       );
       expect(
@@ -479,7 +479,10 @@ void main() {
         TipoError.validacion,
       );
       expect(
-        (await d.cuenta.cambiarContrasena(actual: DatosDemo.contrasenaDemo, nueva: 'una-nueva-larga')).esExito,
+        (await d.cuenta.cambiarContrasena(
+          actual: DatosDemo.contrasenaDemo,
+          nueva: 'una-contrasena-nueva-larga',
+        )).esExito,
         isTrue,
       );
     });

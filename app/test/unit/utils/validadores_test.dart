@@ -21,14 +21,14 @@ void main() {
     expect(Validadores.normalizarCorreo('  Dani@Correo.COM '), 'dani@correo.com');
   });
 
-  test('contraseña 12–128, sin reglas de composición, distinta del correo', () {
+  test('contraseña 18–128 (acordado con backend), sin reglas de composición, distinta del correo', () {
     expect(Validadores.contrasena(''), ErrorValidacion.requerido);
-    expect(Validadores.contrasena('a' * 11), ErrorValidacion.contrasenaCorta);
-    expect(Validadores.contrasena('a' * 12), isNull);
+    expect(Validadores.contrasena('a' * 17), ErrorValidacion.contrasenaCorta);
+    expect(Validadores.contrasena('a' * 18), isNull);
     expect(Validadores.contrasena('a' * 128), isNull);
     expect(Validadores.contrasena('a' * 129), ErrorValidacion.contrasenaLarga);
     expect(
-      Validadores.contrasena('Largo@Correo.com', correo: 'largo@correo.com'),
+      Validadores.contrasena('Muy.Largo@Correo.com', correo: 'muy.largo@correo.com'),
       ErrorValidacion.contrasenaIgualAlCorreo,
     );
     expect(Validadores.contrasenaParaEntrar(''), ErrorValidacion.requerido);

@@ -57,7 +57,7 @@ class AuthRepositoryFake implements AuthRepository {
     if (Validadores.nombreUsuario(s.nombre) != null) campos['nombre'] = '1 a 80 caracteres';
     if (Validadores.correo(s.email) != null) campos['email'] = 'Correo no válido';
     final errorContrasena = Validadores.contrasena(s.contrasena, correo: s.email);
-    if (errorContrasena != null) campos['contrasena'] = 'De 12 a 128 caracteres y distinta del correo';
+    if (errorContrasena != null) campos['contrasena'] = 'De 18 a 128 caracteres y distinta del correo';
     if (!s.aceptaAviso) campos['acepta_aviso'] = 'Debes aceptar el aviso de privacidad';
     if (campos.isNotEmpty) {
       throw DatosDemo.validacion(campos);
@@ -135,7 +135,7 @@ class AuthRepositoryFake implements AuthRepository {
     }
     final u = _datos.usuarios[datos.$1]!;
     if (Validadores.contrasena(nueva, correo: u.email) != null) {
-      throw DatosDemo.validacion({'nueva': 'De 12 a 128 caracteres y distinta del correo'});
+      throw DatosDemo.validacion({'nueva': 'De 18 a 128 caracteres y distinta del correo'});
     }
     _datos.recuperaciones.remove(token); // un solo uso
     u

@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 
 import '../domain/models/usuario.dart';
+import '../utils/paises_estados.dart' as utils;
 
 export '../domain/models/usuario.dart' show RolUsuario;
 
@@ -9,6 +10,9 @@ export '../domain/models/usuario.dart' show RolUsuario;
 class UsuarioSesion {
   const UsuarioSesion({required this.nombre, required this.rol, this.region});
 
+  /// A partir del usuario que viene con los tokens.
+  factory UsuarioSesion.desdeToken(UsuarioToken u) => UsuarioSesion(nombre: u.nombre, rol: u.rol, region: u.region);
+
   final String nombre;
   final RolUsuario rol;
 
@@ -16,13 +20,7 @@ class UsuarioSesion {
   final String? region;
 
   /// "MX Norte", "MX Centro-Sur" o "LATAM", como en los bosquejos.
-  String? get nombreRegion => switch (region) {
-    null => null,
-    'MX-NORTE' => 'MX Norte',
-    'MX-CENTRO-SUR' => 'MX Centro-Sur',
-    'LATAM' => 'LATAM',
-    final otra => otra,
-  };
+  String? get nombreRegion => region == null ? null : utils.nombreRegion(region!);
 
   bool get esAdmin => rol == RolUsuario.admin;
 

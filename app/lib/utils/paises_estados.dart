@@ -2,6 +2,14 @@ import 'dart:convert';
 
 import 'package:flutter/services.dart';
 
+/// "MX Norte", "MX Centro-Sur" o "LATAM" para el código de región de la API, como en los bosquejos.
+String nombreRegion(String codigo) => switch (codigo) {
+  'MX-NORTE' => 'MX Norte',
+  'MX-CENTRO-SUR' => 'MX Centro-Sur',
+  'LATAM' => 'LATAM',
+  _ => codigo,
+};
+
 /// Un país que acepta Kaizen.
 class Pais {
   const Pais({required this.codigo, required this.nombre, required this.requiereEstado, this.region});

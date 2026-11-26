@@ -104,12 +104,19 @@ void main() {
   });
 
   group('Logo e ícono de escalera', () {
-    testWidgets('logo con nombre y en sus dos variantes', (tester) async {
+    testWidgets('logo (ensō) con nombre y en sus dos variantes', (tester) async {
       await montar(tester, const Column(children: [LogoKaizen(conNombre: true), LogoKaizen(sobreOscuro: true)]));
       expect(find.text('Kaizen'), findsOneWidget);
-      expect(find.byType(IconoEscalera), findsNWidgets(2));
-      final iconos = tester.widgetList<IconoEscalera>(find.byType(IconoEscalera)).map((i) => i.color).toList();
-      expect(iconos, [KaizenColores.superficie, KaizenColores.marino800]);
+      // El ensō (imagen) dentro de un cuadro blanco; con borde solo sobre fondo claro.
+      final imagenes = tester.widgetList<Image>(find.byType(Image)).toList();
+      expect(imagenes, hasLength(2));
+      expect(imagenes.every((i) => (i.image as AssetImage).assetName == LogoKaizen.rutaImagen), isTrue);
+      final cuadros = tester
+          .widgetList<Container>(find.ancestor(of: find.byType(Image), matching: find.byType(Container)))
+          .map((c) => c.decoration! as BoxDecoration)
+          .toList();
+      expect(cuadros.every((d) => d.color == KaizenColores.superficie), isTrue);
+      expect(cuadros.map((d) => d.border != null), [true, false]);
     });
 
     testWidgets('el logo solo se anuncia como imagen "Kaizen"', (tester) async {

@@ -54,7 +54,7 @@ void main() {
     );
     expect(auth, same(d.auth));
     expect(leido, same(catalogo));
-    expect(Dependencias.fake().proveedores(), hasLength(12), reason: 'sin catálogo no se registra');
+    expect(Dependencias.fake().proveedores(), hasLength(13), reason: 'el catálogo se registra aunque sea nulo');
   });
 
   test('almacén nativo (flutter_secure_storage simulado) y almacén en memoria', () async {

@@ -155,6 +155,6 @@ class Dependencias {
     Provider<CapsulasRepository>.value(value: capsulas),
     Provider<CuentaRepository>.value(value: cuenta),
     Provider<AdminRepository>.value(value: admin),
-    if (catalogo != null) Provider<CatalogoRegiones>.value(value: catalogo!),
+    Provider<CatalogoRegiones?>.value(value: catalogo),
   ];
 }

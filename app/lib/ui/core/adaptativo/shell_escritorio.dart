@@ -225,12 +225,6 @@ class _PieUsuario extends StatelessWidget {
                               overflow: TextOverflow.ellipsis,
                               style: texto.titleSmall!.copyWith(color: KaizenColores.superficie),
                             ),
-                            if (usuario.nombreRegion != null)
-                              Text(
-                                t.regionDe(usuario.nombreRegion!),
-                                maxLines: 2,
-                                style: texto.bodySmall!.copyWith(color: KaizenColores.azul200),
-                              ),
                           ],
                         ),
                       ),
