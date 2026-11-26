@@ -1,0 +1,3 @@
+# Dependencias del generador (mismas bibliotecas y versiones que el poblador local y el backend)
+argon2-cffi==25.1.0
+cryptography==50.0.2
