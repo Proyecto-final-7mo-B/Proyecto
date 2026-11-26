@@ -48,6 +48,9 @@ flutter:
   uses-material-design: true
   generate: true                         # textos (l10n) generados desde lib/l10n/app_es.arb
 
+  assets:
+    - assets/paises_estados.json          # países y estados que acepta la base (igual a fn_region)
+
   # Plus Jakarta Sans (OFL, licencia en assets/fuentes/plus_jakarta_sans/OFL.txt), de github.com/tokotype/PlusJakartaSans
   # en el commit 18d1cd2. Se incluye en la app para que funcione sin internet y se vea igual en todas las plataformas.
   fonts:

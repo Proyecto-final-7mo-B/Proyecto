@@ -1,6 +1,7 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:kaizen/app.dart';
+import 'package:kaizen/config/dependencias.dart';
 import 'package:kaizen/config/entorno.dart';
 import 'package:kaizen/routing/estado_sesion.dart';
 import 'package:kaizen/routing/rutas.dart';
@@ -37,6 +38,7 @@ Future<EstadoSesion> montarApp(
       sesion: sesion,
       ubicacionInicial: ubicacion,
       mostrarHerramientasDev: dev,
+      dependencias: Dependencias.fake(),
     ),
   );
   await tester.pumpAndSettle();

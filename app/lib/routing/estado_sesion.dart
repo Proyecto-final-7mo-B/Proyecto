@@ -1,7 +1,8 @@
 import 'package:flutter/foundation.dart';
 
-/// Rol del usuario, igual que la columna `rol` de la tabla `usuarios`.
-enum RolUsuario { usuario, admin }
+import '../domain/models/usuario.dart';
+
+export '../domain/models/usuario.dart' show RolUsuario;
 
 /// Datos mínimos de quien tiene la sesión abierta, para la navegación y el riel lateral.
 @immutable

@@ -20,6 +20,7 @@ flutter analyze                 # debe decir "No issues found!"
 flutter test --coverage         # todas las pruebas en verde
 flutter test integration_test/navegacion_test.dart -d linux   # flujos en la app real
 dart format .                   # ancho de 120 columnas (analysis_options.yaml)
+dart run build_runner build      # solo si cambias un modelo (los *.g.dart se suben al repo)
 ```
 
 Las pruebas *golden* (imágenes de referencia de los componentes) se generaron en Linux. Si en otro sistema fallan solo
@@ -74,3 +75,4 @@ flutter build windows                             # en la máquina Windows
 | 1 · Proyecto base | [01_proyecto_base.md](modulos/01_proyecto_base.md) |
 | 2 · Sistema de diseño | [02_sistema_de_diseno.md](modulos/02_sistema_de_diseno.md) |
 | 3 · Navegación adaptativa | [03_navegacion.md](modulos/03_navegacion.md) |
+| 4 · Núcleo de datos y *fakes* | [04_nucleo_de_datos.md](modulos/04_nucleo_de_datos.md) |
