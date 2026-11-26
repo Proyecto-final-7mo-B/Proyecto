@@ -24,6 +24,8 @@ class CampoValidado extends StatefulWidget {
     this.onCambio,
     this.onEnviar,
     this.sufijo,
+    this.errorServidor,
+    this.focusNode,
     super.key,
   });
 
@@ -46,6 +48,11 @@ class CampoValidado extends StatefulWidget {
 
   /// Ícono al final (p. ej., el reloj del recordatorio). Se ignora si es contraseña.
   final Widget? sufijo;
+
+  /// Error que mandó el servidor para este campo (422 con `errores[]`). Se muestra aunque el valor pase la
+  /// validación local.
+  final String? errorServidor;
+  final FocusNode? focusNode;
 
   @override
   State<CampoValidado> createState() => _CampoValidadoState();
@@ -77,6 +84,8 @@ class _CampoValidadoState extends State<CampoValidado> {
           textField: true,
           child: TextFormField(
             controller: widget.controller,
+            focusNode: widget.focusNode,
+            forceErrorText: widget.errorServidor,
             validator: widget.validador,
             obscureText: ocultar,
             enableSuggestions: !widget.contrasena,

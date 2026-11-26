@@ -14,8 +14,8 @@ void main() {
 
     expect(find.text('Kaizen'), findsOneWidget);
     expect(find.text('Un paso pequeño cada día.'), findsOneWidget);
-    expect(find.text('Entrar'), findsOneWidget);
-    expect(find.text('Fuente de datos: fake'), findsOneWidget);
+    expect(find.text('Iniciar sesión'), findsOneWidget);
+    expect(find.text('Cuentas de prueba (solo en desarrollo)'), findsOneWidget, reason: 'fake + depuración');
     expect(find.byType(LogoKaizen), findsOneWidget);
 
     final app = tester.widget<MaterialApp>(find.byType(MaterialApp));
@@ -34,9 +34,8 @@ void main() {
   testWidgets('sin herramientas de depuración (release) no hay entrada de prueba ni galería', (tester) async {
     await tester.pumpWidget(KaizenApp(entorno: entornoPrueba, mostrarHerramientasDev: false));
     await tester.pumpAndSettle();
-    expect(find.text('Entrar como usuario demo'), findsNothing);
+    expect(find.text('Cuentas de prueba (solo en desarrollo)'), findsNothing);
     expect(find.text('Ver componentes'), findsNothing);
-    expect(find.text('Fuente de datos: fake'), findsNothing);
   });
 
   testWidgets('al quitar la app se liberan el router y la sesión', (tester) async {

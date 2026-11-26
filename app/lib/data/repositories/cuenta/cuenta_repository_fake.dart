@@ -29,7 +29,7 @@ class CuentaRepositoryFake implements CuentaRepository {
       throw DatosDemo.error(TipoError.credencialesInvalidas, 401, 'Contraseña actual incorrecta');
     }
     if (Validadores.contrasena(nueva, correo: u.email) != null) {
-      throw DatosDemo.validacion({'nueva': 'De 12 a 128 caracteres y distinta del correo'});
+      throw DatosDemo.validacion({'nueva': 'De 18 a 128 caracteres y distinta del correo'});
     }
     u.contrasena = nueva;
     // Revoca las demás sesiones; la actual sigue.

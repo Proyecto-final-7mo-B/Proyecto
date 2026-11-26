@@ -71,7 +71,7 @@ class _Segmento extends StatelessWidget {
           borderRadius: radio,
           onTap: onTap,
           child: Container(
-            height: 40,
+            height: 48, // área de toque mínima de Android
             alignment: Alignment.center,
             padding: const EdgeInsets.symmetric(horizontal: KaizenMedidas.e8),
             child: Text(

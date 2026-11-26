@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 
 import 'config/dependencias.dart';
 import 'config/entorno.dart';
+import 'data/services/servicio_sesion.dart';
 import 'l10n/gen/app_localizations.dart';
 import 'routing/estado_sesion.dart';
 import 'routing/router.dart';
@@ -22,6 +23,7 @@ class KaizenApp extends StatefulWidget {
     this.sesion,
     this.ubicacionInicial = Rutas.hoy,
     this.dependencias,
+    this.servicioSesion,
     super.key,
   });
 
@@ -29,6 +31,9 @@ class KaizenApp extends StatefulWidget {
 
   /// Repositorios y servicios de datos. Por omisión, según `KAIZEN_FUENTE` (las pruebas pasan unos *fake*).
   final Dependencias? dependencias;
+
+  /// Entrar, salir y restaurar la sesión. `main` lo crea antes de `runApp` para restaurar la sesión al abrir.
+  final ServicioSesion? servicioSesion;
 
   /// Galería de componentes y entrada de prueba. Por omisión solo en depuración (nunca en *release*).
   final bool mostrarHerramientasDev;
@@ -48,6 +53,8 @@ class KaizenApp extends StatefulWidget {
 class _KaizenAppState extends State<KaizenApp> {
   late final Dependencias _dependencias = widget.dependencias ?? Dependencias.desdeEntorno(widget.entorno);
   late final EstadoSesion _sesion = widget.sesion ?? EstadoSesion();
+  late final ServicioSesion _servicio =
+      widget.servicioSesion ?? ServicioSesion(auth: _dependencias.auth, tokens: _dependencias.tokens, estado: _sesion);
   late final Plataforma _plataforma = widget.plataforma ?? Plataforma.actual();
   late final GoRouter _router = crearRouter(
     sesion: _sesion,
@@ -60,6 +67,9 @@ class _KaizenAppState extends State<KaizenApp> {
   @override
   void dispose() {
     _router.dispose();
+    if (widget.servicioSesion == null) {
+      _servicio.cerrar();
+    }
     if (widget.sesion == null) {
       _sesion.dispose();
     }
@@ -74,6 +84,7 @@ class _KaizenAppState extends State<KaizenApp> {
         providers: [
           ..._dependencias.proveedores(),
           ChangeNotifierProvider<EstadoSesion>.value(value: _sesion),
+          Provider<ServicioSesion>.value(value: _servicio),
         ],
         child: MaterialApp.router(
           routerConfig: _router,

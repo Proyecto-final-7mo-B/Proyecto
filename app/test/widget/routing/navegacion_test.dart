@@ -7,7 +7,7 @@ import 'package:kaizen/ui/core/adaptativo/shell_movil.dart';
 import 'package:kaizen/ui/core/adaptativo/shell_web.dart';
 import 'package:kaizen/ui/core/widgets/avatar_usuario.dart';
 import 'package:kaizen/ui/dev/galeria_componentes.dart';
-import 'package:kaizen/ui/provisional/pantallas_provisionales.dart';
+import 'package:kaizen/ui/auth/widgets/pantalla_entrar.dart';
 
 import '../../helpers/app.dart';
 
@@ -20,19 +20,17 @@ void main() {
   group('guardas en la app', () {
     testWidgets('sin sesión abre la entrada; al entrar llega a Hoy', (tester) async {
       await montarApp(tester, usuario: null);
-      expect(find.byType(PantallaEntrarProvisional), findsOneWidget);
+      expect(find.byType(PantallaEntrar), findsOneWidget);
       expect(find.byType(ShellMovil), findsNothing);
 
-      await tester.tap(find.text('Entrar como usuario demo'));
-      await tester.pumpAndSettle();
+      await entrarCon(tester);
       expect(find.byType(ShellMovil), findsOneWidget);
       expect(find.text('Esta pantalla llega en el paso 6 del plan.'), findsOneWidget);
     });
 
     testWidgets('un enlace profundo sin sesión vuelve a su destino después de entrar', (tester) async {
       await montarApp(tester, usuario: null, ubicacion: Rutas.editarHabito('42'));
-      await tester.tap(find.text('Entrar como usuario demo'));
-      await tester.pumpAndSettle();
+      await entrarCon(tester);
       expect(find.text('Editar hábito'), findsOneWidget);
       expect(find.text('42'), findsOneWidget);
     });
@@ -47,14 +45,14 @@ void main() {
       final sesion = await montarApp(tester);
       sesion.cerrar();
       await tester.pumpAndSettle();
-      expect(find.byType(PantallaEntrarProvisional), findsOneWidget);
+      expect(find.byType(PantallaEntrar), findsOneWidget);
     });
 
     testWidgets('cerrar sesión desde el perfil', (tester) async {
       await montarApp(tester, ubicacion: Rutas.perfil);
       await tester.tap(find.text('Cerrar sesión'));
       await tester.pumpAndSettle();
-      expect(find.byType(PantallaEntrarProvisional), findsOneWidget);
+      expect(find.byType(PantallaEntrar), findsOneWidget);
     });
 
     testWidgets('ruta inexistente muestra "No encontramos esa página" y regresa a Hoy', (tester) async {
@@ -67,13 +65,13 @@ void main() {
 
     testWidgets('restablecer se abre sin sesión y nunca muestra el token', (tester) async {
       await montarApp(tester, usuario: null, ubicacion: '/restablecer?token=secreto123');
-      expect(find.text('Enlace de restablecimiento recibido.'), findsOneWidget);
+      expect(find.text('Nueva contraseña'), findsOneWidget);
       expect(find.textContaining('secreto123'), findsNothing);
       await montarApp(tester, usuario: null, ubicacion: Rutas.restablecer);
       expect(find.text('El enlace no es válido o ya venció.'), findsOneWidget);
-      await tester.tap(find.text('Entrar'));
+      await tester.tap(find.text('Ir a entrar'));
       await tester.pumpAndSettle();
-      expect(find.byType(PantallaEntrarProvisional), findsOneWidget);
+      expect(find.byType(PantallaEntrar), findsOneWidget);
     });
 
     testWidgets('la galería de componentes solo existe en depuración', (tester) async {
@@ -81,18 +79,20 @@ void main() {
       expect(find.byType(GaleriaComponentes), findsOneWidget);
       await montarApp(tester, usuario: null, ubicacion: Rutas.componentes, dev: false);
       expect(find.byType(GaleriaComponentes), findsNothing);
-      expect(find.byType(PantallaEntrarProvisional), findsOneWidget);
-      expect(find.text('Entrar como usuario demo'), findsNothing, reason: 'en release no hay entrada de prueba');
+      expect(find.byType(PantallaEntrar), findsOneWidget);
+      expect(find.text('Cuentas de prueba (solo en desarrollo)'), findsNothing, reason: 'en release no hay atajos');
     });
 
     testWidgets('desde la entrada se abre la galería y se puede regresar', (tester) async {
       await montarApp(tester, usuario: null);
+      await tester.ensureVisible(find.text('Ver componentes'));
+      await tester.pumpAndSettle();
       await tester.tap(find.text('Ver componentes'));
       await tester.pumpAndSettle();
       expect(find.byType(GaleriaComponentes), findsOneWidget);
       await tester.tap(find.byType(BackButton));
       await tester.pumpAndSettle();
-      expect(find.byType(PantallaEntrarProvisional), findsOneWidget);
+      expect(find.byType(PantallaEntrar), findsOneWidget);
     });
 
     testWidgets('cada ruta del plan abre su pantalla', (tester) async {
@@ -183,7 +183,7 @@ void main() {
   });
 
   group('riel lateral (escritorio)', () {
-    testWidgets('extendido: marca, 6 secciones, usuario y región; Admin solo para admin', (tester) async {
+    testWidgets('extendido: marca, 6 secciones y usuario; Admin solo para admin', (tester) async {
       await montarApp(tester, plataforma: Plataforma.escritorio, tamano: escritorio);
       for (final e in ['Hoy', 'Hábitos', 'Progreso', 'Escalera', 'Laboratorio', 'Cápsulas']) {
         expect(
@@ -194,7 +194,7 @@ void main() {
       }
       expect(find.text('Admin'), findsNothing);
       expect(find.text('Jael'), findsOneWidget);
-      expect(find.text('Región MX Norte'), findsOneWidget);
+      expect(find.textContaining('Región'), findsNothing, reason: 'la región no se muestra');
 
       await montarApp(tester, plataforma: Plataforma.escritorio, tamano: escritorio, usuario: adminPrueba);
       await tester.tap(find.text('Admin'));

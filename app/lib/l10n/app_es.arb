@@ -263,26 +263,9 @@
       }
     }
   },
-  "entrarDemo": "Entrar como usuario demo",
-  "@entrarDemo": {
-    "description": "Botón provisional (solo en depuración) hasta el paso 5"
-  },
-  "entrarAdminDemo": "Entrar como admin demo",
-  "@entrarAdminDemo": {
-    "description": "Botón provisional (solo en depuración) hasta el paso 5"
-  },
   "cerrarSesion": "Cerrar sesión",
   "@cerrarSesion": {
     "description": "Botón del perfil"
-  },
-  "regionDe": "Región {region}",
-  "@regionDe": {
-    "description": "Región del usuario en el riel lateral",
-    "placeholders": {
-      "region": {
-        "type": "String"
-      }
-    }
   },
   "menuPrincipal": "Menú principal",
   "@menuPrincipal": {
@@ -301,6 +284,320 @@
     "description": "Botón del avatar",
     "placeholders": {
       "nombre": {
+        "type": "String"
+      }
+    }
+  },
+  "bienvenida": "Te damos la bienvenida",
+  "@bienvenida": {
+    "description": "Título de la pantalla de entrada"
+  },
+  "pestanaEntrar": "Entrar",
+  "@pestanaEntrar": {
+    "description": "Pestaña de la pantalla de entrada"
+  },
+  "pestanaCrearCuenta": "Crear cuenta",
+  "@pestanaCrearCuenta": {
+    "description": "Pestaña de la pantalla de entrada"
+  },
+  "campoCorreo": "Correo",
+  "@campoCorreo": {
+    "description": "Etiqueta del campo"
+  },
+  "pistaCorreo": "tu@correo.com",
+  "@pistaCorreo": {
+    "description": "Pista del campo de correo"
+  },
+  "campoContrasena": "Contraseña",
+  "@campoContrasena": {
+    "description": "Etiqueta del campo"
+  },
+  "olvidasteContrasena": "¿Olvidaste tu contraseña?",
+  "@olvidasteContrasena": {
+    "description": "Enlace de recuperación"
+  },
+  "iniciarSesion": "Iniciar sesión",
+  "@iniciarSesion": {
+    "description": "Botón de entrar"
+  },
+  "campoNombre": "Nombre",
+  "@campoNombre": {
+    "description": "Etiqueta del campo"
+  },
+  "pistaNombre": "Cómo quieres que te llamemos",
+  "@pistaNombre": {
+    "description": "Pista del campo de nombre"
+  },
+  "ayudaContrasena": "De 18 a 128 caracteres. Una frase larga es más segura.",
+  "@ayudaContrasena": {
+    "description": "Ayuda de la contraseña nueva"
+  },
+  "campoPais": "País",
+  "@campoPais": {
+    "description": "Etiqueta del campo"
+  },
+  "campoEstado": "Estado",
+  "@campoEstado": {
+    "description": "Etiqueta del campo"
+  },
+  "elegirPais": "Elige tu país",
+  "@elegirPais": {
+    "description": "Pista del selector de país"
+  },
+  "elegirEstado": "Elige tu estado",
+  "@elegirEstado": {
+    "description": "Pista del selector de estado"
+  },
+  "aceptoAviso": "Acepto el aviso de privacidad",
+  "@aceptoAviso": {
+    "description": "Casilla obligatoria del registro"
+  },
+  "verAviso": "Ver aviso de privacidad",
+  "@verAviso": {
+    "description": "Enlace al aviso"
+  },
+  "consientoSenales": "Quiero registrar mi ánimo y energía para el Laboratorio (opcional)",
+  "@consientoSenales": {
+    "description": "Casilla opcional del registro"
+  },
+  "consientoSenalesDetalle": "Puedes retirarlo cuando quieras desde tu perfil; al hacerlo se borran tus señales.",
+  "@consientoSenalesDetalle": {
+    "description": "Detalle del consentimiento"
+  },
+  "debesAceptarAviso": "Debes aceptar el aviso de privacidad para crear tu cuenta.",
+  "@debesAceptarAviso": {
+    "description": "Error del registro"
+  },
+  "cuentasDePrueba": "Cuentas de prueba (solo en desarrollo)",
+  "@cuentasDePrueba": {
+    "description": "Título de los atajos de cuentas en modo fake"
+  },
+  "avisoPrivacidadTitulo": "Aviso de privacidad",
+  "@avisoPrivacidadTitulo": {
+    "description": "Título del diálogo"
+  },
+  "avisoPrivacidadTexto": "Kaizen guarda tu nombre, correo, país y tus hábitos para darte el servicio. Tu correo se guarda para iniciar sesión y en la analítica solo se usan datos seudonimizados, sin tu nombre ni tu correo. Puedes ver, exportar, corregir o eliminar tus datos desde tu perfil (derechos ARCO). Tus señales de ánimo y energía solo se guardan si das tu consentimiento, y se borran si lo retiras.",
+  "@avisoPrivacidadTexto": {
+    "description": "Texto del aviso de privacidad"
+  },
+  "cerrar": "Cerrar",
+  "@cerrar": {
+    "description": "Botón genérico"
+  },
+  "recuperarTitulo": "Recupera tu contraseña",
+  "@recuperarTitulo": {
+    "description": "Título del diálogo de recuperación"
+  },
+  "recuperarTexto": "Escribe tu correo y te enviaremos un enlace para crear una nueva contraseña.",
+  "@recuperarTexto": {
+    "description": "Texto del diálogo de recuperación"
+  },
+  "enviarEnlace": "Enviar enlace",
+  "@enviarEnlace": {
+    "description": "Botón del diálogo de recuperación"
+  },
+  "recuperarEnviado": "Si el correo está registrado, te enviamos un enlace. Revisa también tu carpeta de spam.",
+  "@recuperarEnviado": {
+    "description": "Mismo mensaje exista o no la cuenta"
+  },
+  "restablecerTexto": "Escribe tu nueva contraseña. Al guardarla se cerrarán todas tus sesiones.",
+  "@restablecerTexto": {
+    "description": "Texto de la pantalla de restablecer"
+  },
+  "nuevaContrasena": "Nueva contraseña",
+  "@nuevaContrasena": {
+    "description": "Etiqueta del campo"
+  },
+  "confirmarContrasena": "Confirma la contraseña",
+  "@confirmarContrasena": {
+    "description": "Etiqueta del campo"
+  },
+  "guardarContrasena": "Guardar contraseña",
+  "@guardarContrasena": {
+    "description": "Botón de restablecer"
+  },
+  "contrasenaRestablecida": "Listo. Tu contraseña cambió y se cerraron todas tus sesiones.",
+  "@contrasenaRestablecida": {
+    "description": "Éxito de restablecer"
+  },
+  "pedirOtroEnlace": "Pedir otro enlace",
+  "@pedirOtroEnlace": {
+    "description": "Botón cuando el enlace venció"
+  },
+  "irAEntrar": "Ir a entrar",
+  "@irAEntrar": {
+    "description": "Botón de restablecer"
+  },
+  "validacionRequerido": "Este campo es obligatorio.",
+  "@validacionRequerido": {
+    "description": "Validación"
+  },
+  "validacionMuyLargo": "Es demasiado largo.",
+  "@validacionMuyLargo": {
+    "description": "Validación"
+  },
+  "validacionMuyCorto": "Es demasiado corto.",
+  "@validacionMuyCorto": {
+    "description": "Validación"
+  },
+  "validacionCorreo": "Escribe un correo válido.",
+  "@validacionCorreo": {
+    "description": "Validación"
+  },
+  "validacionContrasenaCorta": "Usa al menos 18 caracteres.",
+  "@validacionContrasenaCorta": {
+    "description": "Validación"
+  },
+  "validacionContrasenaLarga": "Usa como máximo 128 caracteres.",
+  "@validacionContrasenaLarga": {
+    "description": "Validación"
+  },
+  "validacionContrasenaCorreo": "La contraseña no puede ser tu correo.",
+  "@validacionContrasenaCorreo": {
+    "description": "Validación"
+  },
+  "validacionContrasenasDistintas": "Las contraseñas no coinciden.",
+  "@validacionContrasenasDistintas": {
+    "description": "Validación"
+  },
+  "validacionNumero": "Escribe un número.",
+  "@validacionNumero": {
+    "description": "Validación"
+  },
+  "validacionMayorACero": "Debe ser mayor que 0.",
+  "@validacionMayorACero": {
+    "description": "Validación"
+  },
+  "validacionNoNegativo": "No puede ser negativo.",
+  "@validacionNoNegativo": {
+    "description": "Validación"
+  },
+  "validacionDosDecimales": "Usa como máximo 2 decimales.",
+  "@validacionDosDecimales": {
+    "description": "Validación"
+  },
+  "validacionFueraDeRango": "Valor fuera de rango.",
+  "@validacionFueraDeRango": {
+    "description": "Validación"
+  },
+  "validacionMensajeLargo": "El mensaje es demasiado largo (máximo 4096 bytes).",
+  "@validacionMensajeLargo": {
+    "description": "Validación"
+  },
+  "validacionRangoFechas": "Rango de fechas no válido (máximo 366 días).",
+  "@validacionRangoFechas": {
+    "description": "Validación"
+  },
+  "errorValidacion": "Revisa los datos marcados.",
+  "@errorValidacion": {
+    "description": "Error 422"
+  },
+  "errorRegionInvalida": "País o estado fuera del servicio.",
+  "@errorRegionInvalida": {
+    "description": "Error"
+  },
+  "errorFechaFueraDeRango": "Fecha no válida.",
+  "@errorFechaFueraDeRango": {
+    "description": "Error"
+  },
+  "errorCategoriaInactiva": "Esa categoría ya no está disponible.",
+  "@errorCategoriaInactiva": {
+    "description": "Error"
+  },
+  "errorEnlaceInvalido": "El enlace no es válido o ya venció.",
+  "@errorEnlaceInvalido": {
+    "description": "Error"
+  },
+  "errorCredenciales": "Correo o contraseña incorrectos.",
+  "@errorCredenciales": {
+    "description": "Error (mismo texto exista o no la cuenta)"
+  },
+  "errorTokenInvalido": "Tu sesión terminó. Vuelve a entrar.",
+  "@errorTokenInvalido": {
+    "description": "Error"
+  },
+  "errorTokenReutilizado": "Por seguridad cerramos tu sesión. Vuelve a entrar.",
+  "@errorTokenReutilizado": {
+    "description": "Error"
+  },
+  "errorConsentimiento": "Necesitas activar el registro de ánimo y energía.",
+  "@errorConsentimiento": {
+    "description": "Error"
+  },
+  "errorRolInsuficiente": "No tienes permiso para hacer esto.",
+  "@errorRolInsuficiente": {
+    "description": "Error"
+  },
+  "errorCuentaSuspendida": "Tu cuenta está suspendida. Contacta al administrador.",
+  "@errorCuentaSuspendida": {
+    "description": "Error"
+  },
+  "errorNoEncontrado": "No encontrado.",
+  "@errorNoEncontrado": {
+    "description": "Error"
+  },
+  "errorRegistroRechazado": "No fue posible completar el registro.",
+  "@errorRegistroRechazado": {
+    "description": "Error genérico a propósito"
+  },
+  "errorCapsulaSellada": "La cápsula aún está sellada.",
+  "@errorCapsulaSellada": {
+    "description": "Error"
+  },
+  "errorSugerenciaResuelta": "Esa sugerencia ya se resolvió.",
+  "@errorSugerenciaResuelta": {
+    "description": "Error"
+  },
+  "errorOperacionNoPermitida": "Esta operación no está permitida.",
+  "@errorOperacionNoPermitida": {
+    "description": "Error"
+  },
+  "errorHabitoArchivado": "El hábito está archivado.",
+  "@errorHabitoArchivado": {
+    "description": "Error"
+  },
+  "errorNombreDuplicado": "Ya existe una categoría con ese nombre.",
+  "@errorNombreDuplicado": {
+    "description": "Error"
+  },
+  "errorDemasiadasPeticiones": "Demasiados intentos. Espera un momento.",
+  "@errorDemasiadasPeticiones": {
+    "description": "Error"
+  },
+  "errorPrimarioNoDisponible": "El servicio se está recuperando. Intenta en unos segundos.",
+  "@errorPrimarioNoDisponible": {
+    "description": "Error"
+  },
+  "errorAnaliticaNoDisponible": "La analítica no está disponible por ahora.",
+  "@errorAnaliticaNoDisponible": {
+    "description": "Error"
+  },
+  "errorServicioNoDisponible": "Servicio no disponible. Intenta más tarde.",
+  "@errorServicioNoDisponible": {
+    "description": "Error"
+  },
+  "errorSinConexion": "Sin conexión a internet.",
+  "@errorSinConexion": {
+    "description": "Error"
+  },
+  "errorTiempoAgotado": "El servidor tardó demasiado. Intenta de nuevo.",
+  "@errorTiempoAgotado": {
+    "description": "Error"
+  },
+  "errorCuentaBloqueada": "{minutos, plural, =1{Cuenta bloqueada por intentos fallidos. Intenta de nuevo en 1 minuto.} other{Cuenta bloqueada por intentos fallidos. Intenta de nuevo en {minutos} minutos.}}",
+  "@errorCuentaBloqueada": {
+    "description": "Error 429 con Retry-After",
+    "placeholders": {
+      "minutos": {
+        "type": "int"
+      }
+    }
+  },
+  "errorInternoConId": "Algo salió mal. Código: {id}",
+  "@errorInternoConId": {
+    "description": "Error 500 con id_peticion",
+    "placeholders": {
+      "id": {
         "type": "String"
       }
     }

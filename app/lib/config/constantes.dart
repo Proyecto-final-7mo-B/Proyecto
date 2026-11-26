@@ -5,7 +5,7 @@ library;
 abstract final class Limites {
   static const int nombreUsuarioMin = 1;
   static const int nombreUsuarioMax = 80;
-  static const int contrasenaMin = 12;
+  static const int contrasenaMin = 18;
   static const int contrasenaMax = 128;
   static const int nombreHabitoMin = 1;
   static const int nombreHabitoMax = 60;

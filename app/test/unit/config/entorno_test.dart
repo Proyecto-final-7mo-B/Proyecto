@@ -46,7 +46,7 @@ void main() {
   });
 
   test('los límites coinciden con el contrato v1.4', () {
-    expect(Limites.contrasenaMin, 12);
+    expect(Limites.contrasenaMin, 18);
     expect(Limites.mensajeCapsulaMaxBytes, 4096);
     expect(Limites.rachasObjetivo, [7, 21, 66]);
     expect(Limites.mascaraLunesAViernes, 1 + 2 + 4 + 8 + 16);

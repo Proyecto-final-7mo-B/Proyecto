@@ -11,7 +11,7 @@
 | Análisis estático | `flutter_lints` + `strict-casts`, `strict-inference`, `strict-raw-types` y reglas extra (comillas simples, `const`, `final` locales, comas finales, `unawaited_futures`, sin `print`) |
 | Textos | `flutter_localizations` + archivo `lib/l10n/app_es.arb` (es-MX). Se generan en `lib/l10n/gen/` con `flutter pub get` |
 | Configuración | `lib/config/entorno.dart`: `KAIZEN_FUENTE` (`fake`/`api`, **por omisión `api`**: un valor desconocido nunca deja la app con datos de prueba), `API_BASE_URL` y `KAIZEN_ZONA_DEFECTO` |
-| Límites del contrato | `lib/config/constantes.dart`: los mismos de la base (contraseña 12–128, mensaje 4096 bytes, rachas 7/21/66…) |
+| Límites del contrato | `lib/config/constantes.dart`: los mismos de la base (contraseña 18–128 desde el Paso 5, mensaje 4096 bytes, rachas 7/21/66…) |
 | App mínima | `lib/main.dart` y `lib/app.dart`: arranca en español de México y muestra una pantalla temporal con la fuente de datos (se reemplaza en los pasos 2 y 3) |
 
 ### Configuración por plataforma

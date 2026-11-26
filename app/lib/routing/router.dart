@@ -3,6 +3,8 @@ import 'package:go_router/go_router.dart';
 
 import '../config/entorno.dart';
 import '../l10n/gen/app_localizations.dart';
+import '../ui/auth/widgets/pantalla_entrar.dart';
+import '../ui/auth/widgets/pantalla_restablecer.dart';
 import '../ui/core/adaptativo/plataforma.dart';
 import '../ui/core/adaptativo/shell_adaptativo.dart';
 import '../ui/dev/galeria_componentes.dart';
@@ -47,11 +49,12 @@ GoRouter crearRouter({
     routes: [
       GoRoute(
         path: Rutas.login,
-        builder: (context, estado) => PantallaEntrarProvisional(entorno: entorno, herramientasDev: herramientasDev),
+        builder: (context, estado) =>
+            PantallaEntrar(cuentasDePrueba: entorno.usaFakes && herramientasDev, herramientasDev: herramientasDev),
       ),
       GoRoute(
         path: Rutas.restablecer,
-        builder: (context, estado) => PantallaRestablecerProvisional(token: estado.uri.queryParameters['token']),
+        builder: (context, estado) => PantallaRestablecer(token: estado.uri.queryParameters['token']),
       ),
       GoRoute(path: Rutas.componentes, builder: (context, estado) => const GaleriaComponentes()),
       ShellRoute(

@@ -2,14 +2,19 @@ import 'package:flutter/material.dart';
 
 import '../tema/colores.dart';
 import '../tema/medidas.dart';
-import 'icono_escalera.dart';
 
-/// Logo: escalera en un cuadro redondeado, opcionalmente con el nombre "Kaizen".
+/// Logo de Kaizen: un **ensō** (círculo zen de pincel) con piedras que suben como una escalera hasta una flor de
+/// cerezo: la meta se alcanza paso a paso. Va en un cuadro blanco redondeado, opcionalmente con el nombre "Kaizen".
 ///
-/// - Sobre fondo oscuro (riel, panel del login): cuadro blanco con escalera `marino800`.
-/// - Sobre fondo claro: cuadro `marino800` con escalera blanca.
+/// - Sobre fondo oscuro (riel, panel de la entrada): el cuadro blanco resalta solo.
+/// - Sobre fondo claro: el cuadro lleva un borde suave para no perderse en el fondo.
+///
+/// La imagen es `assets/imagenes/logo_kaizen.png`; los íconos de cada plataforma salen del mismo dibujo
+/// (`herramientas/generador_logo/`).
 class LogoKaizen extends StatelessWidget {
   const LogoKaizen({this.lado = 36, this.sobreOscuro = false, this.conNombre = false, super.key});
+
+  static const String rutaImagen = 'assets/imagenes/logo_kaizen.png';
 
   final double lado;
   final bool sobreOscuro;
@@ -17,21 +22,19 @@ class LogoKaizen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final fondo = sobreOscuro ? KaizenColores.superficie : KaizenColores.marino800;
-    final trazo = sobreOscuro ? KaizenColores.marino800 : KaizenColores.superficie;
     final cuadro = Container(
       width: lado,
       height: lado,
-      decoration: BoxDecoration(color: fondo, borderRadius: BorderRadius.circular(lado * 0.28)),
-      padding: EdgeInsets.all(lado * 0.2),
-      child: IconoEscalera(color: trazo),
+      decoration: BoxDecoration(
+        color: KaizenColores.superficie,
+        borderRadius: BorderRadius.circular(lado * 0.225),
+        border: sobreOscuro ? null : Border.all(color: KaizenColores.borde),
+      ),
+      padding: EdgeInsets.all(lado * 0.07),
+      child: Image.asset(rutaImagen, filterQuality: FilterQuality.medium),
     );
     if (!conNombre) {
-      return Semantics(
-        label: 'Kaizen',
-        image: true,
-        child: ExcludeSemantics(child: cuadro),
-      );
+      return Semantics(label: 'Kaizen', image: true, child: ExcludeSemantics(child: cuadro));
     }
     final estilo = Theme.of(context).textTheme.titleLarge!.copyWith(
       fontSize: lado * 0.6,

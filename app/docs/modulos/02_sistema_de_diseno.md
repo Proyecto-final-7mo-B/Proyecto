@@ -71,6 +71,16 @@ las plataformas. Viene de `github.com/tokotype/PlusJakartaSans` (commit `18d1cd2
 | `labelMedium` | 13 / 600 | Chips y segmentado |
 | `labelSmall` | 12 / 600 | "L M M J V S D" |
 
+## Logo
+
+Desde el Paso 5, el logo es un **ensō** (círculo zen de pincel) con piedras que suben como una escalera hasta una
+flor de cerezo en naranja coral: la meta se alcanza paso a paso. Usa la paleta de la app (marinos y azules, con el
+naranja de la racha).
+
+- En la app: `assets/imagenes/logo_kaizen.png` (512 px, fondo transparente), dentro de `LogoKaizen`.
+- Íconos de Android (clásico y adaptable), iOS, macOS, web (incluido *maskable*) y Windows: se generan con
+  `herramientas/generador_logo/iconos.py` (fuera del repo de la app) a partir del mismo dibujo.
+
 ## Formas e íconos
 
 - Tarjetas con radio 16 y borde de 1 px. Campos y botones con radio 12. Chips en píldora. Celdas del calendario con
@@ -113,7 +123,8 @@ las plataformas. Viene de `github.com/tokotype/PlusJakartaSans` (commit `18d1cd2
 | `BannerSinConexion` | Global (Paso 8) | "Sin conexión · N registros por enviar" |
 | `AvisoKaizen` | Cápsula, laboratorio | Aviso en ámbar |
 | `DialogoConfirmacion` | Archivar, retirar consentimiento, suspender | `mostrar()` devuelve `true` solo si se confirma; variante roja |
-| `LogoKaizen` / `IconoEscalera` | Login, riel | Versión sobre fondo claro y sobre fondo oscuro |
+| `LogoKaizen` | Entrada, riel, barra web | El ensō (desde el Paso 5): cuadro blanco con el logo; con borde sobre fondo claro |
+| `IconoEscalera` | Destino "Escalera" | Escalera dibujada (Material no trae ese trazo) |
 
 **Accesibilidad:** cada componente se anuncia a los lectores de pantalla. Por ejemplo, el check-in dice "Marcar Leer
 como cumplido" (es un botón con estado), la racha dice "Racha de 21 días, con cápsula sellada" y cada día del

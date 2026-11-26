@@ -24,8 +24,13 @@ void main() {
     });
   }
 
-  testWidgets('entrada provisional', (tester) async {
-    await montarApp(tester, usuario: null, tamano: const Size(390, 844));
-    await expectLater(find.byType(MaterialApp), matchesGoldenFile('goldens/entrar_provisional.png'));
-  });
+  for (final (nombre, tamano, plataforma) in const [
+    ('entrar_movil', Size(390, 844), Plataforma.movil),
+    ('entrar_escritorio', Size(1440, 900), Plataforma.web),
+  ]) {
+    testWidgets('pantalla de entrada: $nombre', (tester) async {
+      await montarApp(tester, usuario: null, tamano: tamano, plataforma: plataforma, dev: false);
+      await expectLater(find.byType(MaterialApp), matchesGoldenFile('goldens/$nombre.png'));
+    });
+  }
 }

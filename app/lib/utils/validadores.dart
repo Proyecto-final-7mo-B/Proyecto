@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import '../config/constantes.dart';
+
 /// Por qué un valor no es válido. La pantalla lo convierte en texto con `mensajeValidacion` (ui/core/mensajes.dart).
 enum ErrorValidacion {
   requerido,
@@ -50,17 +52,18 @@ abstract final class Validadores {
     return _correo.hasMatch(texto) && texto.length <= 254 ? null : ErrorValidacion.correoInvalido;
   }
 
-  /// 12–128 caracteres, sin reglas de composición (ASVS 2.1). No puede ser igual al correo.
+  /// 18–128 caracteres (acordado con backend; el contrato v1.4 decía 12), sin reglas de composición (ASVS 2.1).
+  /// No puede ser igual al correo.
   /// La lista de contraseñas comunes la revisa la API.
   static ErrorValidacion? contrasena(String? valor, {String? correo}) {
     final texto = valor ?? '';
     if (texto.isEmpty) {
       return ErrorValidacion.requerido;
     }
-    if (texto.length < 12) {
+    if (texto.length < Limites.contrasenaMin) {
       return ErrorValidacion.contrasenaCorta;
     }
-    if (texto.length > 128) {
+    if (texto.length > Limites.contrasenaMax) {
       return ErrorValidacion.contrasenaLarga;
     }
     if (correo != null && normalizarCorreo(texto) == normalizarCorreo(correo)) {
