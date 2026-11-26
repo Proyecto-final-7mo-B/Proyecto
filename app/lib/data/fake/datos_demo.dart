@@ -50,6 +50,9 @@ class DatosDemo {
   /// La próxima operación falla con [error] (para probar estados de error).
   void fallarSiguiente(ErrorApp error) => _errorSiguiente = error;
 
+  /// El reloj de este servidor en memoria (la app lo usa como "ahora" en modo *fake*).
+  DateTime Function() get reloj => _reloj;
+
   DateTime get ahora => _reloj().toUtc();
   DateTime get hoy => Fechas.soloFecha(_reloj());
 

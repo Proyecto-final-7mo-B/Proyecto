@@ -40,6 +40,7 @@ import '../data/services/api/cliente_api.dart';
 import '../data/services/api/interceptor_zona_horaria.dart';
 import '../data/services/gestor_tokens.dart';
 import '../utils/paises_estados.dart';
+import '../utils/reloj.dart';
 import 'entorno.dart';
 
 /// Todo lo que la app necesita de la capa de datos, armado según `KAIZEN_FUENTE`:
@@ -62,6 +63,7 @@ class Dependencias {
     required this.admin,
     this.catalogo,
     this.datosDemo,
+    this.reloj = relojDelSistema,
   });
 
   /// Repositorios *fake* sobre [datos] (los mismos datos para todos, como un servidor).
@@ -90,6 +92,7 @@ class Dependencias {
       admin: AdminRepositoryFake(d),
       catalogo: catalogo,
       datosDemo: d,
+      reloj: d.reloj,
     );
   }
 
@@ -142,6 +145,9 @@ class Dependencias {
   /// Solo en modo *fake*: el "servidor" en memoria (las pruebas lo usan para preparar casos).
   final DatosDemo? datosDemo;
 
+  /// "Ahora" para toda la app. Con *fakes* es el mismo reloj del servidor en memoria (las pruebas lo fijan).
+  final Reloj reloj;
+
   List<SingleChildWidget> proveedores() => [
     Provider<GestorTokens>.value(value: tokens),
     Provider<AuthRepository>.value(value: auth),
@@ -156,5 +162,6 @@ class Dependencias {
     Provider<CuentaRepository>.value(value: cuenta),
     Provider<AdminRepository>.value(value: admin),
     Provider<CatalogoRegiones?>.value(value: catalogo),
+    Provider<Reloj>.value(value: reloj),
   ];
 }

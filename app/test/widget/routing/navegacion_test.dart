@@ -7,6 +7,7 @@ import 'package:kaizen/ui/core/adaptativo/shell_movil.dart';
 import 'package:kaizen/ui/core/adaptativo/shell_web.dart';
 import 'package:kaizen/ui/core/widgets/avatar_usuario.dart';
 import 'package:kaizen/ui/dev/galeria_componentes.dart';
+import 'package:kaizen/ui/hoy/widgets/pantalla_hoy.dart';
 import 'package:kaizen/ui/auth/widgets/pantalla_entrar.dart';
 
 import '../../helpers/app.dart';
@@ -25,7 +26,7 @@ void main() {
 
       await entrarCon(tester);
       expect(find.byType(ShellMovil), findsOneWidget);
-      expect(find.text('Esta pantalla llega en el paso 6 del plan.'), findsOneWidget);
+      expect(find.byType(PantallaHoy), findsOneWidget);
     });
 
     testWidgets('un enlace profundo sin sesión vuelve a su destino después de entrar', (tester) async {
@@ -38,7 +39,7 @@ void main() {
     testWidgets('un usuario normal que abre /admin termina en Hoy', (tester) async {
       await montarApp(tester, plataforma: Plataforma.escritorio, tamano: escritorio, ubicacion: Rutas.admin);
       expect(find.text('Panel de administración'), findsNothing);
-      expect(find.text('Esta pantalla llega en el paso 6 del plan.'), findsOneWidget);
+      expect(find.byType(PantallaHoy), findsOneWidget);
     });
 
     testWidgets('si la sesión se cierra desde fuera, vuelve a la entrada', (tester) async {
@@ -209,7 +210,7 @@ void main() {
       expect(find.text('Perfil'), findsOneWidget);
       await tester.tap(find.text('Kaizen'));
       await tester.pumpAndSettle();
-      expect(find.text('Esta pantalla llega en el paso 6 del plan.'), findsOneWidget);
+      expect(find.byType(PantallaHoy), findsOneWidget);
     });
 
     testWidgets('angosto: íconos con nombre corto y avatar', (tester) async {
