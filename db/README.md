@@ -5,8 +5,9 @@ Responsable: Jael Contreras.
 
 ```
 db/
-├── sql/       esquema, funciones, triggers, procedimientos, vistas, roles, RLS y sus pruebas
-└── cambios/   cada cambio posterior de estructura: un script fechado y sus pruebas
+├── sql/         esquema, funciones, triggers, procedimientos, vistas, roles, RLS y sus pruebas
+├── cambios/     cada cambio posterior de estructura: un script fechado y sus pruebas
+└── sinteticos/  generador de datos sintéticos (~100 mil check-ins en las 3 regiones) para el clúster
 ```
 
 La estructura vigente en el clúster es **`sql/01`-`07` + los scripts de `cambios/` en orden de fecha**.
