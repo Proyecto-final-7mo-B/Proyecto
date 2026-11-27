@@ -51,19 +51,82 @@ Map<String, dynamic> _$ProgresoHabitoToJson(ProgresoHabito instance) =>
       'cumplimiento': instance.cumplimiento,
     };
 
-MejorRacha _$MejorRachaFromJson(Map<String, dynamic> json) =>
-    $checkedCreate('MejorRacha', json, ($checkedConvert) {
-      final val = MejorRacha(
-        categoria: $checkedConvert('categoria', (v) => v as String),
-        rachaMaxima: $checkedConvert('racha_maxima', (v) => (v as num).toInt()),
-      );
-      return val;
-    }, fieldKeyMap: const {'rachaMaxima': 'racha_maxima'});
+MejorRacha _$MejorRachaFromJson(Map<String, dynamic> json) => $checkedCreate(
+  'MejorRacha',
+  json,
+  ($checkedConvert) {
+    final val = MejorRacha(
+      categoria: $checkedConvert('categoria', (v) => v as String),
+      rachaMaxima: $checkedConvert('racha_maxima', (v) => (v as num).toInt()),
+      categoriaClave: $checkedConvert(
+        'categoria_clave',
+        (v) => v as String? ?? '',
+      ),
+    );
+    return val;
+  },
+  fieldKeyMap: const {
+    'rachaMaxima': 'racha_maxima',
+    'categoriaClave': 'categoria_clave',
+  },
+);
 
 Map<String, dynamic> _$MejorRachaToJson(MejorRacha instance) =>
     <String, dynamic>{
       'categoria': instance.categoria,
+      'categoria_clave': instance.categoriaClave,
       'racha_maxima': instance.rachaMaxima,
+    };
+
+ActividadSemanal _$ActividadSemanalFromJson(Map<String, dynamic> json) =>
+    $checkedCreate(
+      'ActividadSemanal',
+      json,
+      ($checkedConvert) {
+        final val = ActividadSemanal(
+          semana: $checkedConvert('semana', (v) => v as String),
+          minutosModerados: $checkedConvert(
+            'minutos_moderados',
+            (v) => (v as num).toDouble(),
+          ),
+          minutosVigorosos: $checkedConvert(
+            'minutos_vigorosos',
+            (v) => (v as num).toDouble(),
+          ),
+          equivalenteModerado: $checkedConvert(
+            'equivalente_moderado',
+            (v) => (v as num).toDouble(),
+          ),
+          recomendadoDesde: $checkedConvert(
+            'recomendado_desde',
+            (v) => (v as num).toDouble(),
+          ),
+          recomendadoHasta: $checkedConvert(
+            'recomendado_hasta',
+            (v) => (v as num).toDouble(),
+          ),
+          cita: $checkedConvert('cita', (v) => v as String),
+        );
+        return val;
+      },
+      fieldKeyMap: const {
+        'minutosModerados': 'minutos_moderados',
+        'minutosVigorosos': 'minutos_vigorosos',
+        'equivalenteModerado': 'equivalente_moderado',
+        'recomendadoDesde': 'recomendado_desde',
+        'recomendadoHasta': 'recomendado_hasta',
+      },
+    );
+
+Map<String, dynamic> _$ActividadSemanalToJson(ActividadSemanal instance) =>
+    <String, dynamic>{
+      'semana': instance.semana,
+      'minutos_moderados': instance.minutosModerados,
+      'minutos_vigorosos': instance.minutosVigorosos,
+      'equivalente_moderado': instance.equivalenteModerado,
+      'recomendado_desde': instance.recomendadoDesde,
+      'recomendado_hasta': instance.recomendadoHasta,
+      'cita': instance.cita,
     };
 
 Progreso _$ProgresoFromJson(Map<String, dynamic> json) => $checkedCreate(
@@ -114,6 +177,12 @@ Progreso _$ProgresoFromJson(Map<String, dynamic> json) => $checkedCreate(
         (v) => (v as num).toDouble(),
       ),
       variacion: $checkedConvert('variacion', (v) => (v as num?)?.toDouble()),
+      actividadSemanal: $checkedConvert(
+        'actividad_semanal',
+        (v) => v == null
+            ? null
+            : ActividadSemanal.fromJson(v as Map<String, dynamic>),
+      ),
     );
     return val;
   },
@@ -123,6 +192,7 @@ Progreso _$ProgresoFromJson(Map<String, dynamic> json) => $checkedCreate(
     'porHabito': 'por_habito',
     'mejoresRachas': 'mejores_rachas',
     'crecimientoMetas': 'crecimiento_metas',
+    'actividadSemanal': 'actividad_semanal',
   },
 );
 
@@ -137,6 +207,7 @@ Map<String, dynamic> _$ProgresoToJson(Progreso instance) => <String, dynamic>{
   'por_habito': instance.porHabito.map((e) => e.toJson()).toList(),
   'mejores_rachas': instance.mejoresRachas.map((e) => e.toJson()).toList(),
   'crecimiento_metas': instance.crecimientoMetas,
+  'actividad_semanal': instance.actividadSemanal?.toJson(),
 };
 
 const _$PeriodoEnumMap = {

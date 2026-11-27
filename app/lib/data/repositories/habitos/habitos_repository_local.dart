@@ -1,9 +1,11 @@
 import '../../../domain/models/escalera.dart';
 import '../../../domain/models/habito.dart';
+import '../../../domain/models/recomendacion.dart';
 import '../../../domain/models/registro.dart';
 import '../../../utils/fechas.dart';
 import '../../../utils/result.dart';
 import '../../services/base_local/almacen_local.dart';
+import '../../sync/sincronizador.dart';
 import '../cache.dart';
 import 'habitos_repository.dart';
 
@@ -132,4 +134,39 @@ class HabitosRepositoryLocal implements HabitosRepository {
 
   @override
   Future<Result<EscaleraHabito>> escalera(String id) => escribirEnServidor(() => remoto.escalera(id), reportar);
+
+  /// Las recomendaciones se guardan para verlas sin red (crearlas sí necesita al servidor).
+  @override
+  Future<Result<List<HabitoRecomendado>>> recomendados() => leerConCache<List<HabitoRecomendado>>(
+    remoto: remoto.recomendados,
+    guardar: (lista) => almacen.guardarJson('recomendados', [for (final r in lista) r.toJson()]),
+    local: () async {
+      final json = await almacen.leerJson('recomendados');
+      return json == null
+          ? null
+          : [for (final r in json as List<dynamic>) HabitoRecomendado.fromJson(r as Map<String, dynamic>)];
+    },
+    reportar: reportar,
+  );
+
+  @override
+  Future<Result<Habito>> crearRecomendado(String recomendacionId, {int prioridad = Prioridad.media}) async {
+    final r = await escribirEnServidor(() => remoto.crearRecomendado(recomendacionId, prioridad: prioridad), reportar);
+    if (r case Exito(:final valor)) {
+      await almacen.guardarHabito(valor);
+    }
+    return r;
+  }
+
+  /// Sin red no hay escudos en el calendario (no es indispensable): se responde vacío en lugar de un error.
+  @override
+  Future<Result<Set<DateTime>>> diasProtegidos(String id, {required DateTime desde, required DateTime hasta}) async {
+    final r = await remoto.diasProtegidos(id, desde: desde, hasta: hasta);
+    if (r case Fallo(:final error)) {
+      reportar?.call(!Sincronizador.esDeRed(error));
+      return Sincronizador.esDeRed(error) ? const Result.exito(<DateTime>{}) : r;
+    }
+    reportar?.call(true);
+    return r;
+  }
 }

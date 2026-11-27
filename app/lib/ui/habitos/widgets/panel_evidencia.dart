@@ -19,6 +19,7 @@ class PanelEvidencia extends StatelessWidget {
     required this.unidad,
     this.unidadComparable,
     this.onUsarSugerida,
+    this.conFuente = false,
     super.key,
   });
 
@@ -31,6 +32,10 @@ class PanelEvidencia extends StatelessWidget {
 
   /// "Usar X" (solo al crear y si la meta pasa del máximo). `null` = sin botón.
   final VoidCallback? onUsarSugerida;
+
+  /// La fuente y la confianza solo van en el detalle del hábito (decisión del 27-nov). En el formulario se muestra
+  /// solo lo recomendado y la medición.
+  final bool conFuente;
 
   static IconData iconoDe(ZonaEvidencia z) => switch (z) {
     ZonaEvidencia.bajo => Icons.trending_up,
@@ -150,7 +155,7 @@ class PanelEvidencia extends StatelessWidget {
                   ),
                 ),
               ],
-              if (e.cita case final cita?) ...[
+              if (e.cita case final cita? when conFuente) ...[
                 const SizedBox(height: KaizenMedidas.e8),
                 Text(
                   [t.evidenciaFuente(cita), if (e.confianza case final c?) confianzaDe(c, t)].join(' · '),

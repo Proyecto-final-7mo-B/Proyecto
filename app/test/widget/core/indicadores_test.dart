@@ -13,12 +13,48 @@ import '../../helpers/envolver.dart';
 
 void main() {
   group('IndicadorRacha', () {
-    testWidgets('llama y número en naranjaRacha', (tester) async {
-      await montar(tester, const IndicadorRacha(dias: 34));
-      final numero = tester.widget<Text>(find.text('34'));
+    testWidgets('de 7 a 29 días: la llama y el número en naranjaRacha, sin aro', (tester) async {
+      await montar(tester, const IndicadorRacha(dias: 21));
+      final numero = tester.widget<Text>(find.text('21'));
       expect(numero.style!.color, KaizenColores.naranjaRacha);
       expect(tester.widget<Icon>(find.byIcon(KaizenIconos.racha)).color, KaizenColores.naranjaRacha);
       expect(find.byIcon(KaizenIconos.capsulaSellada), findsNothing);
+      expect(find.byKey(const ValueKey('aro-racha')), findsNothing);
+    });
+
+    testWidgets('el símbolo cambia por nivel (doc. 05): color, ícono, tamaño y aro', (tester) async {
+      final casos = <(int, IconData, Color, bool)>[
+        (0, KaizenIconos.racha, KaizenColores.rachaSinRacha, false),
+        (3, KaizenIconos.rachaChispa, KaizenColores.rachaChispa, false),
+        (7, KaizenIconos.racha, KaizenColores.naranjaRacha, false),
+        (34, KaizenIconos.rachaLlena, KaizenColores.rachaProfunda, true),
+        (66, KaizenIconos.rachaLlena, KaizenColores.rachaDorada, true),
+        (120, KaizenIconos.rachaEmblema, KaizenColores.rachaDorada, true),
+      ];
+      double? anterior;
+      for (final (dias, icono, color, aro) in casos) {
+        await montar(tester, IndicadorRacha(dias: dias));
+        final simbolo = tester.widget<Icon>(find.byIcon(icono));
+        expect(simbolo.color, color, reason: '$dias días');
+        expect(tester.widget<Text>(find.text('$dias')).style!.color, color, reason: '$dias días');
+        expect(find.byKey(const ValueKey('aro-racha')), aro ? findsOneWidget : findsNothing, reason: '$dias días');
+        expect(color, isNot(KaizenColores.error), reason: 'el rojo de error nunca es racha (F40)');
+        final lado = tester.getSize(find.byType(IndicadorRacha)).height;
+        if (anterior != null) {
+          expect(lado, greaterThanOrEqualTo(anterior), reason: 'el símbolo crece con el nivel');
+        }
+        anterior = lado;
+      }
+    });
+
+    testWidgets('el escudo del protector y el nombre del nivel se leen en pantalla', (tester) async {
+      final manejador = tester.ensureSemantics();
+      await montar(tester, const IndicadorRacha(dias: 70, protegida: true));
+      expect(find.byIcon(KaizenIconos.protector), findsOneWidget);
+      expect(find.bySemanticsLabel('Racha de 70 días, hábito formado, protegida esta semana'), findsOneWidget);
+      await montar(tester, const IndicadorRacha(dias: 4));
+      expect(find.byIcon(KaizenIconos.protector), findsNothing);
+      manejador.dispose();
     });
 
     testWidgets('se lee como "Racha de N días" (singular y con cápsula)', (tester) async {

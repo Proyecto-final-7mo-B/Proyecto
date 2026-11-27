@@ -99,7 +99,8 @@ void main() {
       expect(const BarraProgreso(valor: -0.2).valorRecortado, 0);
       expect(const BarraProgreso(valor: double.nan).valorRecortado, 0);
       expect(const AnilloProgreso(valor: 2).valorRecortado, 1);
-      expect(const BarraProgreso(valor: 0.5, sobreOscuro: true).colorBarra, KaizenColores.superficie);
+      expect(const BarraProgreso(valor: 0.5, sobreOscuro: true).colorBarra, KaizenColores.verdeProgresoSobreMarino);
+      expect(const BarraProgreso(valor: 0.5).colorBarra, KaizenColores.verdeProgreso);
       expect(const BarraProgreso(valor: 0.5, sobreOscuro: true).colorPista, KaizenColores.marino700);
     });
 

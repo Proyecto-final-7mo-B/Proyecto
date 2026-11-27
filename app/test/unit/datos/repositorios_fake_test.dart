@@ -1,8 +1,10 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:kaizen/utils/evidencia.dart';
 import 'package:kaizen/config/dependencias.dart';
 import 'package:kaizen/data/fake/datos_demo.dart';
 import 'package:kaizen/data/repositories/admin/admin_repository_fake.dart';
 import 'package:kaizen/data/services/api/errores_api.dart';
+import 'package:kaizen/domain/models/categoria.dart';
 import 'package:kaizen/domain/models/admin.dart';
 import 'package:kaizen/domain/models/capsula.dart';
 import 'package:kaizen/domain/models/escalera.dart';
@@ -330,7 +332,13 @@ void main() {
       expect(
         tipo(
           await d.habitos.crear(
-            NuevoHabito(nombre: 'X', subcategoriaId: meditacion.id, frecuencia: const Diaria(), meta: 700, unidad: 'min'),
+            NuevoHabito(
+              nombre: 'X',
+              subcategoriaId: meditacion.id,
+              frecuencia: const Diaria(),
+              meta: 700,
+              unidad: 'min',
+            ),
           ),
         ),
         TipoError.validacion,
@@ -356,8 +364,10 @@ void main() {
         tipo(await d.habitos.actualizar(h.id, CambiosHabito(subcategoriaId: gratitud.id))),
         TipoError.subcategoriaInactiva,
       );
-      expect(tipo(await d.habitos.actualizar(h.id, const CambiosHabito(nombre: 'Meditar 5', unidad: 'segundos'))),
-          TipoError.unidadNoPermitida);
+      expect(
+        tipo(await d.habitos.actualizar(h.id, const CambiosHabito(nombre: 'Meditar 5', unidad: 'segundos'))),
+        TipoError.unidadNoPermitida,
+      );
       expect(tipo(await d.habitos.actualizar(h.id, CambiosHabito(nombre: 'x' * 61))), TipoError.validacion);
       final editado = (await d.habitos.actualizar(
         h.id,
@@ -468,6 +478,81 @@ void main() {
     });
   });
 
+  group('recomendaciones, días protegidos y fuentes (v1.7)', () {
+    test('100 recomendaciones: 20 por categoría, de subcategorías del catálogo, con el id de la base', () async {
+      await entrar('demo@kaizen.test');
+      final recs = (await d.habitos.recomendados()).valorONulo!;
+      expect(recs, hasLength(100));
+      final porCategoria = <String, int>{};
+      for (final r in recs) {
+        porCategoria[r.categoria.clave] = (porCategoria[r.categoria.clave] ?? 0) + 1;
+        expect(datos.categorias.subcategoria(r.subcategoria.id), isNotNull, reason: r.clave);
+      }
+      expect(porCategoria, {'ejercicio': 20, 'salud': 20, 'educacion': 20, 'bienestar': 20, 'finanzas': 20});
+      final caminar = recs.firstWhere((r) => r.clave == 'caminar_rapido');
+      expect(caminar.id, 'e34965d9-e9ee-9413-31db-81d7be7fef64', reason: "md5('kaizen-recomendacion:caminar_rapido')");
+      expect(
+        recs.map((r) => r.porque).where((p) => RegExp(r'\(?[A-Z][a-z]+ (et al\. )?(19|20)\d\d').hasMatch(p)),
+        isEmpty,
+        reason: 'el "por qué" no lleva cita',
+      );
+    });
+
+    test('la zona de cada recomendación (de la base) coincide con EvaluadorEvidencia (de la app)', () async {
+      await entrar('demo@kaizen.test');
+      for (final r in (await d.habitos.recomendados()).valorONulo!) {
+        final sub = datos.categorias.subcategoria(r.subcategoria.id)!;
+        final e = EvaluadorEvidencia.evaluar(sub, r.unidad, r.meta, r.frecuencia);
+        expect(e.zona, r.zona, reason: r.clave);
+        if (r.optimoDesde != null) {
+          expect((e.optimoDesde, e.optimoHasta), (r.optimoDesde, r.optimoHasta), reason: r.clave);
+        }
+      }
+    });
+
+    test('crear desde una recomendación: copia todo y solo cambia la prioridad', () async {
+      await entrar('demo@kaizen.test');
+      final r = (await d.habitos.recomendados()).valorONulo!.firstWhere((x) => x.clave == 'meditar_10');
+      final h = (await d.habitos.crearRecomendado(r.id, prioridad: Prioridad.alta)).valorONulo!;
+      expect(
+        (h.nombre, h.meta, h.unidad, h.frecuencia, h.intencion, h.prioridad, h.recomendacionId),
+        ('Meditar 10 minutos', 10.0, 'min', const Diaria(), 'Al despertar', Prioridad.alta, r.id),
+      );
+      expect(h.categoria.clave, 'bienestar');
+      expect(h.evaluacion!.zona, ZonaEvidencia.optimo);
+      expect((await d.habitos.listar(fecha: hoy)).valorONulo!.map((x) => x.id), contains(h.id));
+      expect(tipo(await d.habitos.crearRecomendado(r.id, prioridad: 7)), TipoError.validacion);
+      expect(tipo(await d.habitos.crearRecomendado('no-existe')), TipoError.recomendacionNoDisponible);
+      datos.recomendadosInactivos.add(r.id);
+      expect(tipo(await d.habitos.crearRecomendado(r.id)), TipoError.recomendacionNoDisponible);
+      expect((await d.habitos.recomendados()).valorONulo!, hasLength(99), reason: 'las inactivas no se listan');
+    });
+
+    test('días protegidos: el sábado 21 de Leer; rango máximo de 366 días; solo hábitos propios', () async {
+      await entrar('demo@kaizen.test');
+      final leer = datos.habitosDe('u-demo').firstWhere((h) => h.nombre == 'Leer').id;
+      final dias = (await d.habitos.diasProtegidos(leer, desde: DateTime.utc(2026, 11), hasta: hoy)).valorONulo!;
+      expect(dias, contains(DateTime.utc(2026, 11, 21)));
+      expect(dias.every((x) => !x.isBefore(DateTime.utc(2026, 11)) && !x.isAfter(hoy)), isTrue);
+      expect(tipo(await d.habitos.diasProtegidos(leer, desde: DateTime.utc(2025), hasta: hoy)), TipoError.validacion);
+      await entrar('latam@kaizen.test');
+      expect(
+        tipo(await d.habitos.diasProtegidos(leer, desde: DateTime.utc(2026, 11), hasta: hoy)),
+        TipoError.noEncontrado,
+      );
+    });
+
+    test('fuentes: las 53, y toda fuente citada por una recomendación existe', () async {
+      await entrar('demo@kaizen.test');
+      final fuentes = (await d.categorias.fuentes()).valorONulo!;
+      expect(fuentes.map((f) => f.clave), [for (var i = 1; i <= 53; i++) 'F${i.toString().padLeft(2, '0')}']);
+      final claves = fuentes.map((f) => f.clave).toSet();
+      for (final r in datos.recomendados) {
+        expect(claves.containsAll(r.fuentes.split(', ')), isTrue, reason: r.clave);
+      }
+    });
+  });
+
   group('progreso, señales y laboratorio', () {
     test('progreso por semana, mes y año (semana de lunes a domingo)', () async {
       await entrar('demo@kaizen.test');
@@ -484,6 +569,63 @@ void main() {
       expect(m.porDia, hasLength(23));
       expect((await d.progreso.obtener(Periodo.anio, fecha: hoy)).valorONulo!.hasta, DateTime.utc(2026, 12, 31));
     });
+
+    test(
+      'actividad_semanal (v1.6): minutos aeróbicos de la semana; el vigoroso cuenta doble; sin aeróbicos, null',
+      () async {
+        await entrar('latam@kaizen.test');
+        expect((await d.progreso.obtener(Periodo.semana, fecha: hoy)).valorONulo!.actividadSemanal, isNull);
+
+        await entrar('demo@kaizen.test');
+        final antes = (await d.progreso.obtener(Periodo.semana, fecha: hoy)).valorONulo!.actividadSemanal!;
+        expect(antes.minutosVigorosos, 0);
+        expect(antes.equivalenteModerado, antes.minutosModerados);
+        expect(antes.semana, '2026-W48');
+
+        final correr = (await d.habitos.crear(
+          NuevoHabito(
+            nombre: 'Correr',
+            subcategoriaId: datos.subcategoriaPorClave('vigoroso').id,
+            frecuencia: const Diaria(),
+            meta: 20,
+            unidad: 'min',
+          ),
+        )).valorONulo!;
+        // Creado a las 18:00 (00:00 UTC del día siguiente): el check-in de hoy sí se acepta.
+        final checkin = await d.registros.registrar(
+          NuevoRegistro(
+            id: 'v1',
+            habitoId: correr.id,
+            fecha: hoy,
+            cumplido: true,
+            valor: 25,
+            origen: OrigenRegistro.rapido,
+          ),
+        );
+        expect(checkin.esExito, isTrue, reason: '$checkin');
+        // Antes de crearse no se puede registrar (y la semana pasada tampoco contaría).
+        expect(
+          tipo(
+            await d.registros.registrar(
+              NuevoRegistro(
+                id: 'v0',
+                habitoId: correr.id,
+                fecha: hoy.subtract(const Duration(days: 7)),
+                cumplido: true,
+                origen: OrigenRegistro.manual,
+              ),
+            ),
+          ),
+          TipoError.fechaFueraDeRango,
+        );
+        final despues = (await d.progreso.obtener(Periodo.semana, fecha: hoy)).valorONulo!.actividadSemanal!;
+        expect(despues.minutosVigorosos, 25);
+        expect(despues.minutosModerados, antes.minutosModerados);
+        expect(despues.equivalenteModerado, antes.minutosModerados + 50);
+        expect(despues.cumplida, despues.equivalenteModerado >= 150);
+        expect(despues.faltante, despues.cumplida ? 0 : 150 - despues.equivalenteModerado);
+      },
+    );
 
     test('señales exigen consentimiento (403) y se reemplazan el mismo día', () async {
       await entrar('nuevo@kaizen.test');

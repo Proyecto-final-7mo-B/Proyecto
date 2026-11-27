@@ -1,4 +1,5 @@
 import '../../../domain/models/categoria.dart';
+import '../../../domain/models/recomendacion.dart';
 import '../../../utils/result.dart';
 import '../../fake/datos_demo.dart';
 import 'categorias_repository.dart';
@@ -27,5 +28,11 @@ class CategoriasRepositoryFake implements CategoriasRepository {
             ],
           ),
     ];
+  });
+
+  @override
+  Future<Result<List<FuenteCientifica>>> fuentes() => _datos.ejecutar(() {
+    _datos.usuarioDeSesion();
+    return List.of(_datos.fuentes);
   });
 }

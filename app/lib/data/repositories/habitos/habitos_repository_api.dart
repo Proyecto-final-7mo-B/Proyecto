@@ -1,5 +1,6 @@
 import '../../../domain/models/escalera.dart';
 import '../../../domain/models/habito.dart';
+import '../../../domain/models/recomendacion.dart';
 import '../../../domain/models/registro.dart';
 import '../../../utils/fechas.dart';
 import '../../../utils/result.dart';
@@ -42,4 +43,22 @@ class HabitosRepositoryApi implements HabitosRepository {
   @override
   Future<Result<EscaleraHabito>> escalera(String id) =>
       _api.get('${_ruta(id)}/escalera', (d) => EscaleraHabito.fromJson(d as Map<String, dynamic>));
+
+  @override
+  Future<Result<List<HabitoRecomendado>>> recomendados() => _api.get(
+    '/habitos/recomendados',
+    (d) => [for (final r in d as List<dynamic>) HabitoRecomendado.fromJson(r as Map<String, dynamic>)],
+  );
+
+  @override
+  Future<Result<Habito>> crearRecomendado(String recomendacionId, {int prioridad = Prioridad.media}) =>
+      _api.post('/habitos', _habito, datos: {'recomendacion_id': recomendacionId, 'prioridad': prioridad});
+
+  @override
+  Future<Result<Set<DateTime>>> diasProtegidos(String id, {required DateTime desde, required DateTime hasta}) =>
+      _api.get(
+        '${_ruta(id)}/protegidos',
+        (d) => {for (final f in (d as Map<String, dynamic>)['fechas'] as List<dynamic>) DateTime.parse('${f}T00:00:00Z')},
+        parametros: {'desde': Fechas.iso(desde), 'hasta': Fechas.iso(hasta)},
+      );
 }

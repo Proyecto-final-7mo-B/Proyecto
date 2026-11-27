@@ -343,4 +343,98 @@ void main() {
     expect(noche.hoy, Fechas.soloFecha(DateTime(2026, 11, 25)));
     noche.dispose();
   });
+
+  group('Paso 9: orden, hitos y panel', () {
+    test('lo pendiente va arriba por prioridad y nombre; lo hecho, al final (doc. 07)', () {
+      // Ejercicio (alta) y Tomar agua ya están hechos; Estudiar inglés es de prioridad baja.
+      expect(vm.pendientes.map((h) => h.nombre), ['Dormir 7 h', 'Leer', 'Estudiar inglés']);
+      expect(vm.hechos.map((h) => h.nombre), ['Ejercicio', 'Tomar agua']);
+      expect(vm.pendientes.length + vm.hechos.length, vm.paraHoy.length);
+    });
+
+    test('marcar baja el hábito a "Hechos hoy" y desmarcar lo regresa a su lugar', () async {
+      await vm.alternar(habito('Leer'));
+      expect(vm.pendientes.map((h) => h.nombre), ['Dormir 7 h', 'Estudiar inglés']);
+      expect(vm.hechos.map((h) => h.nombre), ['Ejercicio', 'Leer', 'Tomar agua']);
+      await vm.alternar(habito('Leer'));
+      expect(vm.pendientes.map((h) => h.nombre), ['Dormir 7 h', 'Leer', 'Estudiar inglés']);
+    });
+
+    test('cruzar 7 días deja una celebración, una sola vez', () async {
+      expect(habito('Estudiar inglés').racha.actual, 6);
+      expect(vm.tomarCelebracion(), isNull);
+      expect(await vm.alternar(habito('Estudiar inglés')), isNull);
+      expect(habito('Estudiar inglés').racha.actual, 7);
+      expect(vm.tomarCelebracion(), (habito: 'Estudiar inglés', hito: 7));
+      expect(vm.tomarCelebracion(), isNull, reason: 'se muestra una vez');
+    });
+
+    test('sin hito no hay celebración, ni al desmarcar', () async {
+      await vm.alternar(habito('Leer')); // 34 → 35
+      expect(vm.tomarCelebracion(), isNull);
+      await vm.alternar(habito('Estudiar inglés')); // 6 → 7
+      vm.tomarCelebracion();
+      await vm.alternar(habito('Estudiar inglés')); // 7 → 6
+      expect(vm.tomarCelebracion(), isNull);
+    });
+
+    test('si el check-in falla, no hay celebración', () async {
+      datos.fallarSiguiente(DatosDemo.error(TipoError.habitoArchivado, 409, 'archivado'));
+      expect(await vm.alternar(habito('Estudiar inglés')), isNotNull);
+      expect(vm.tomarCelebracion(), isNull);
+    });
+
+    test('"Próximo hito" toma el hábito de la racha más larga', () {
+      expect(vm.habitoDelHito!.nombre, 'Leer');
+      expect(vm.habitoDelHito!.racha.actual, 34);
+    });
+
+    test('la meta semanal OMS suma los minutos de Ejercicio de lunes a hoy', () {
+      final a = vm.actividadSemanal!;
+      final ejercicio = datos.habitos.values.firstWhere((h) => h.usuarioId == 'u-demo' && h.nombre == 'Ejercicio');
+      final lunes = Fechas.inicioSemana(_ahora);
+      var minutos = 0.0;
+      for (var i = 0; i < 7; i++) {
+        final r = datos.registros[ejercicio.id]?[lunes.add(Duration(days: i))];
+        if (r != null && r.cumplido) {
+          minutos += r.valor ?? ejercicio.meta;
+        }
+      }
+      expect(minutos, greaterThan(0));
+      expect(a.minutosModerados, minutos);
+      expect(a.equivalenteModerado, minutos);
+      expect(a.semana, '2026-W48');
+      expect((a.recomendadoDesde, a.recomendadoHasta), (150.0, 300.0));
+      expect(a.cita, contains('OMS'));
+    });
+
+    test('la semana por hábito: el % de lunes a hoy de cada activo, en el orden de Hoy', () {
+      final filas = vm.semanaPorHabito;
+      expect(filas.map((f) => f.habito.nombre), ['Ejercicio', 'Dormir 7 h', 'Leer', 'Tomar agua', 'Estudiar inglés']);
+      expect(filas.every((f) => f.cumplimiento >= 0 && f.cumplimiento <= 100), isTrue);
+      expect(
+        filas.firstWhere((f) => f.habito.nombre == 'Leer').cumplimiento,
+        closeTo(33.33, 1e-9),
+          reason: 'como la base: lunes (falló, protegido), martes cumplido y hoy, que aún no se marca → 1 de 3');
+    });
+
+    test('el calendario de Hoy lleva escudo en los días que el protector perdonó a algún hábito', () {
+      expect(vm.protegidosMes, contains(23), reason: 'Leer falló el lunes 23 y el protector lo perdonó');
+      expect(vm.protegidosMes.every((d) => d >= 1 && d <= 25), isTrue, reason: 'solo días de noviembre hasta hoy');
+    });
+
+    test('el consejo del día es uno de los 14 y cambia con el día', () {
+      expect(vm.consejoDelDia, inInclusiveRange(0, 13));
+      final manana = HoyViewModel(
+        habitos: d.habitos,
+        registros: d.registros,
+        progreso: d.progreso,
+        escalera: d.escalera,
+        capsulas: d.capsulas,
+        reloj: () => _ahora.add(const Duration(days: 1)),
+      );
+      expect(manana.consejoDelDia, (vm.consejoDelDia + 1) % 14);
+      manana.dispose();
+    });
+  });
 }

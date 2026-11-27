@@ -1071,7 +1071,7 @@
   "@tendencia": {
     "description": "Gráfica del detalle"
   },
-  "tendenciaDetalle": "Cumplimiento por semana",
+  "tendenciaDetalle": "Cumplimiento de las últimas 12 semanas",
   "@tendenciaDetalle": {
     "description": "Detalle de la gráfica"
   },
@@ -1436,5 +1436,672 @@
   "sugerenciaExceso": "Tu meta pasa de lo que recomienda la evidencia.",
   "@sugerenciaExceso": {
     "description": "Sugerencia de bajar por exceso (sin % de 14 días)"
+  },
+  "nivelRachaFormado": "hábito formado",
+  "@nivelRachaFormado": {
+    "description": "Nivel de racha de 66 a 99 días, para lectura de pantalla"
+  },
+  "nivelRachaEmblema": "más de 100 días",
+  "@nivelRachaEmblema": {
+    "description": "Nivel de racha de 100 días o más, para lectura de pantalla"
+  },
+  "rachaProtegida": "protegida esta semana",
+  "@rachaProtegida": {
+    "description": "Lectura de pantalla del escudo del protector de racha"
+  },
+  "prioridadAltaSemantica": "Prioridad alta",
+  "@prioridadAltaSemantica": {
+    "description": "Lectura de pantalla de la etiqueta de prioridad"
+  },
+  "hechosHoy": "Hechos hoy",
+  "@hechosHoy": {
+    "description": "Título de la sección de hábitos ya marcados (al final de Hoy)"
+  },
+  "hechosHoyConteo": "{n, plural, =1{1 hecho} other{{n} hechos}}",
+  "@hechosHoyConteo": {
+    "description": "Conteo junto al título Hechos hoy",
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "celebracionTitulo": "¡{n} días seguidos!",
+  "@celebracionTitulo": {
+    "description": "Título de la celebración de un hito de racha",
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "celebracion7": "Primera semana completa. Al principio es cuando el hábito se vuelve automático más rápido.",
+  "@celebracion7": {
+    "description": "Texto del hito de 7 días"
+  },
+  "celebracion30": "Un mes seguido. Ya vas a casi la mitad de los 66 días que suele tomar formar un hábito.",
+  "@celebracion30": {
+    "description": "Texto del hito de 30 días"
+  },
+  "celebracion66": "Hábito formado: 66 días es lo que suele tomar formar un hábito, según la ciencia.",
+  "@celebracion66": {
+    "description": "Texto del hito de 66 días"
+  },
+  "celebracion100": "Cien días seguidos: muy por encima de la mediana de 66 para formar un hábito.",
+  "@celebracion100": {
+    "description": "Texto del hito de 100 días"
+  },
+  "celebracionMas": "Sigue así: tu racha ya es parte de tu rutina.",
+  "@celebracionMas": {
+    "description": "Texto de los hitos de 200, 300…"
+  },
+  "celebracionSeguir": "Seguir",
+  "@celebracionSeguir": {
+    "description": "Botón que cierra la celebración"
+  },
+  "metaOmsTitulo": "Meta semanal OMS",
+  "@metaOmsTitulo": {
+    "description": "Título del widget de actividad física de la semana"
+  },
+  "metaOmsValor": "{actual} de {desde} min",
+  "@metaOmsValor": {
+    "description": "Minutos de la semana contra el mínimo recomendado",
+    "placeholders": {
+      "actual": {
+        "type": "String"
+      },
+      "desde": {
+        "type": "String"
+      }
+    }
+  },
+  "metaOmsFalta": "Te faltan {n} min para lo mínimo recomendado",
+  "@metaOmsFalta": {
+    "description": "Cuando aún no llega a 150",
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "metaOmsCumplida": "Dentro de lo recomendado esta semana",
+  "@metaOmsCumplida": {
+    "description": "Entre 150 y 300 min"
+  },
+  "metaOmsArriba": "Arriba de 300 min el beneficio extra es pequeño",
+  "@metaOmsArriba": {
+    "description": "Más de 300 min en la semana"
+  },
+  "metaOmsDetalle": "Incluye {vigorosos} min vigorosos (cuentan doble)",
+  "@metaOmsDetalle": {
+    "description": "Aclaración cuando hubo actividad vigorosa",
+    "placeholders": {
+      "vigorosos": {
+        "type": "String"
+      }
+    }
+  },
+  "proximoHitoTitulo": "Próximo hito",
+  "@proximoHitoTitulo": {
+    "description": "Título del widget del siguiente hito de racha"
+  },
+  "proximoHitoFaltan": "{n, plural, =1{Te falta 1 día para {hito}} other{Te faltan {n} días para {hito}}}",
+  "@proximoHitoFaltan": {
+    "description": "Días que faltan para el siguiente hito",
+    "placeholders": {
+      "n": {
+        "type": "int"
+      },
+      "hito": {
+        "type": "int"
+      }
+    }
+  },
+  "proximoHitoSemantica": "{habito}: racha de {dias} días. {faltan}",
+  "@proximoHitoSemantica": {
+    "description": "Lectura de pantalla del widget Próximo hito",
+    "placeholders": {
+      "habito": {
+        "type": "String"
+      },
+      "dias": {
+        "type": "int"
+      },
+      "faltan": {
+        "type": "String"
+      }
+    }
+  },
+  "consejoTitulo": "Consejo saludable",
+  "@consejoTitulo": {
+    "description": "Título del widget del consejo del día"
+  },
+  "consejo00": "Un plan «Después de ___, haré ___» ayuda a cumplir tus metas: es la técnica con más evidencia.",
+  "@consejo00": {
+    "description": "Consejo con evidencia 0 (fuentes en los doc. 01, 03 y 05 de la investigación)"
+  },
+  "consejoCita00": "Gollwitzer y Sheeran 2006 · d = 0.65",
+  "@consejoCita00": {
+    "description": "Cita corta del consejo 0"
+  },
+  "consejo01": "Fallar un día no echa a perder tu hábito; lo que lo frena es fallar seguido.",
+  "@consejo01": {
+    "description": "Consejo con evidencia 1 (fuentes en los doc. 01, 03 y 05 de la investigación)"
+  },
+  "consejoCita01": "Lally et al. 2010",
+  "@consejoCita01": {
+    "description": "Cita corta del consejo 1"
+  },
+  "consejo02": "Formar un hábito toma una mediana de 66 días, no 21; puede ir de 18 a 254.",
+  "@consejo02": {
+    "description": "Consejo con evidencia 2 (fuentes en los doc. 01, 03 y 05 de la investigación)"
+  },
+  "consejoCita02": "Lally et al. 2010",
+  "@consejoCita02": {
+    "description": "Cita corta del consejo 2"
+  },
+  "consejo03": "Repetir la misma acción en el mismo momento del día hace que el contexto la dispare sola.",
+  "@consejo03": {
+    "description": "Consejo con evidencia 3 (fuentes en los doc. 01, 03 y 05 de la investigación)"
+  },
+  "consejoCita03": "Wood y Neal 2007",
+  "@consejoCita03": {
+    "description": "Cita corta del consejo 3"
+  },
+  "consejo04": "Repartir el estudio en varias sesiones rinde más que estudiar todo de corrido.",
+  "@consejo04": {
+    "description": "Consejo con evidencia 4 (fuentes en los doc. 01, 03 y 05 de la investigación)"
+  },
+  "consejoCita04": "Cepeda et al. 2006",
+  "@consejoCita04": {
+    "description": "Cita corta del consejo 4"
+  },
+  "consejo05": "La OMS recomienda de 150 a 300 minutos de actividad moderada a la semana.",
+  "@consejo05": {
+    "description": "Consejo con evidencia 5 (fuentes en los doc. 01, 03 y 05 de la investigación)"
+  },
+  "consejoCita05": "OMS 2020",
+  "@consejoCita05": {
+    "description": "Cita corta del consejo 5"
+  },
+  "consejo06": "El beneficio de caminar se estabiliza entre 8,000 y 10,000 pasos al día (6,000–8,000 después de los 60).",
+  "@consejo06": {
+    "description": "Consejo con evidencia 6 (fuentes en los doc. 01, 03 y 05 de la investigación)"
+  },
+  "consejoCita06": "Paluch et al. 2022",
+  "@consejoCita06": {
+    "description": "Cita corta del consejo 6"
+  },
+  "consejo07": "Los adultos necesitamos dormir al menos 7 horas por noche.",
+  "@consejo07": {
+    "description": "Consejo con evidencia 7 (fuentes en los doc. 01, 03 y 05 de la investigación)"
+  },
+  "consejoCita07": "AASM y SRS 2015",
+  "@consejoCita07": {
+    "description": "Cita corta del consejo 7"
+  },
+  "consejo08": "Levantarte 2 minutos cada 20 minutos de estar sentado mejora tu glucosa después de comer.",
+  "@consejo08": {
+    "description": "Consejo con evidencia 8 (fuentes en los doc. 01, 03 y 05 de la investigación)"
+  },
+  "consejoCita08": "Dunstan et al. 2012",
+  "@consejoCita08": {
+    "description": "Cita corta del consejo 8"
+  },
+  "consejo09": "Pasar al menos 120 minutos a la semana en la naturaleza se asocia con mejor salud y bienestar.",
+  "@consejo09": {
+    "description": "Consejo con evidencia 9 (fuentes en los doc. 01, 03 y 05 de la investigación)"
+  },
+  "consejoCita09": "White et al. 2019",
+  "@consejoCita09": {
+    "description": "Cita corta del consejo 9"
+  },
+  "consejo10": "En meditación, las sesiones breves bastan: practicar más no mejoró más los resultados.",
+  "@consejo10": {
+    "description": "Consejo con evidencia 10 (fuentes en los doc. 01, 03 y 05 de la investigación)"
+  },
+  "consejoCita10": "Strohmaier 2020",
+  "@consejoCita10": {
+    "description": "Cita corta del consejo 10"
+  },
+  "consejo11": "Come al menos 400 g de frutas y verduras al día: unas 5 porciones.",
+  "@consejo11": {
+    "description": "Consejo con evidencia 11 (fuentes en los doc. 01, 03 y 05 de la investigación)"
+  },
+  "consejoCita11": "OMS",
+  "@consejoCita11": {
+    "description": "Cita corta del consejo 11"
+  },
+  "consejo12": "Una meta concreta («20 min») rinde más que «haz lo que puedas».",
+  "@consejo12": {
+    "description": "Consejo con evidencia 12 (fuentes en los doc. 01, 03 y 05 de la investigación)"
+  },
+  "consejoCita12": "Locke y Latham 2002",
+  "@consejoCita12": {
+    "description": "Cita corta del consejo 12"
+  },
+  "consejo13": "Anotar por qué agradeces una vez a la semana funcionó mejor que tres veces.",
+  "@consejo13": {
+    "description": "Consejo con evidencia 13 (fuentes en los doc. 01, 03 y 05 de la investigación)"
+  },
+  "consejoCita13": "Lyubomirsky et al. 2005",
+  "@consejoCita13": {
+    "description": "Cita corta del consejo 13"
+  },
+  "errorRecomendacionNoDisponible": "Esta recomendación ya no está disponible. Elige otra.",
+  "@errorRecomendacionNoDisponible": {
+    "description": "KZ018 (v1.7)"
+  },
+  "diaProtegido": "racha protegida ese día",
+  "@diaProtegido": {
+    "description": "Lectura de pantalla del escudo en el calendario"
+  },
+  "recomendadosIntro": "Elige un hábito saludable: ya trae su meta, su frecuencia y el mejor momento para hacerlo. Tú solo decides la prioridad y si quieres una cápsula.",
+  "@recomendadosIntro": {
+    "description": "Texto de la pantalla Nuevo hábito (recomendaciones)"
+  },
+  "habitoPersonalizado": "Hábito personalizado",
+  "@habitoPersonalizado": {
+    "description": "Botón que abre el formulario para crear un hábito propio"
+  },
+  "habitoPersonalizadoDetalle": "Elige tú la categoría, la meta y la frecuencia",
+  "@habitoPersonalizadoDetalle": {
+    "description": "Ayuda del botón Hábito personalizado"
+  },
+  "enQueNosBasamos": "¿En qué nos basamos?",
+  "@enQueNosBasamos": {
+    "description": "Enlace a Acerca de Kaizen"
+  },
+  "recomendadoCuando": "Cuándo",
+  "@recomendadoCuando": {
+    "description": "Etiqueta del momento sugerido de una recomendación"
+  },
+  "recomendadoPorQue": "Por qué",
+  "@recomendadoPorQue": {
+    "description": "Etiqueta de la explicación de una recomendación"
+  },
+  "recomendadoRango": "Dentro de lo recomendado: {desde}–{hasta} {unidad} cada vez",
+  "@recomendadoRango": {
+    "description": "Rango óptimo por sesión de una recomendación",
+    "placeholders": {
+      "desde": {
+        "type": "String"
+      },
+      "hasta": {
+        "type": "String"
+      },
+      "unidad": {
+        "type": "String"
+      }
+    }
+  },
+  "recomendadoRangoExacto": "Dentro de lo recomendado: {valor} {unidad} cada vez",
+  "@recomendadoRangoExacto": {
+    "description": "Rango óptimo cuando desde y hasta son iguales",
+    "placeholders": {
+      "valor": {
+        "type": "String"
+      },
+      "unidad": {
+        "type": "String"
+      }
+    }
+  },
+  "recomendadoSinRango": "No hay un rango científico para este hábito: la Escalera lo ajusta según tu constancia",
+  "@recomendadoSinRango": {
+    "description": "Recomendación sin referencia"
+  },
+  "recomendadoReducir": "Un paso para dejarlo: la Escalera te ayudará a bajar poco a poco",
+  "@recomendadoReducir": {
+    "description": "Recomendación de reducir que aún no está en el óptimo (tabaco)"
+  },
+  "recomendadoSoloEliges": "Solo eliges la prioridad y si quieres una cápsula",
+  "@recomendadoSoloEliges": {
+    "description": "Subtítulo del detalle de una recomendación"
+  },
+  "crearHabito": "Crear hábito",
+  "@crearHabito": {
+    "description": "Botón que crea el hábito recomendado"
+  },
+  "recomendadosVacio": "No hay recomendaciones en esta categoría",
+  "@recomendadosVacio": {
+    "description": "Estado vacío de una categoría sin recomendaciones"
+  },
+  "recomendadoSemantica": "{nombre}, {meta}, {cuando}",
+  "@recomendadoSemantica": {
+    "description": "Lectura de pantalla de una tarjeta de recomendación",
+    "placeholders": {
+      "nombre": {
+        "type": "String"
+      },
+      "meta": {
+        "type": "String"
+      },
+      "cuando": {
+        "type": "String"
+      }
+    }
+  },
+  "tituloAcerca": "Acerca de Kaizen",
+  "@tituloAcerca": {
+    "description": "Acerca de Kaizen (decisión del 27-nov)"
+  },
+  "subtituloAcerca": "En qué nos basamos para recomendarte",
+  "@subtituloAcerca": {
+    "description": "Acerca de Kaizen (decisión del 27-nov)"
+  },
+  "acercaQueEsTitulo": "Qué es Kaizen",
+  "@acercaQueEsTitulo": {
+    "description": "Acerca de Kaizen (decisión del 27-nov)"
+  },
+  "acercaQueEs": "Kaizen significa «mejora continua». La app te ayuda a formar hábitos con pasos pequeños y medibles, y cada recomendación que te damos —metas, rangos, rachas, colores y avisos— sale de estudios científicos, no de modas.",
+  "@acercaQueEs": {
+    "description": "Acerca de Kaizen (decisión del 27-nov)"
+  },
+  "acercaFormacionTitulo": "Cuánto tarda formar un hábito",
+  "@acercaFormacionTitulo": {
+    "description": "Acerca de Kaizen (decisión del 27-nov)"
+  },
+  "acercaFormacion": "En los estudios, volver automática una conducta tomó de 18 a 254 días, y la mediana fue de 66. Por eso celebramos el día 66 como «hábito formado» y las cápsulas son de 7, 30 y 66 días. Los famosos «21 días» son un mito. Al principio se avanza más rápido: los primeros días cuentan mucho. (F01, F02, F52)",
+  "@acercaFormacion": {
+    "description": "Acerca de Kaizen (decisión del 27-nov)"
+  },
+  "acercaCreacionTitulo": "Cómo creamos tus hábitos",
+  "@acercaCreacionTitulo": {
+    "description": "Acerca de Kaizen (decisión del 27-nov)"
+  },
+  "acercaCreacion": "Puedes elegir uno de nuestros 100 hábitos recomendados —20 por categoría—, que ya traen una meta dentro de lo recomendado, una frecuencia y el mejor momento para hacerlo; tú solo eliges su prioridad y si quieres una cápsula. O puedes crear uno personalizado: comparamos tu meta con los rangos de la evidencia y te avisamos si se pasa del máximo, sin impedirte guardarla. Te pedimos el «Después de ___» porque planear cuándo lo harás es la técnica con más evidencia para cumplir una meta. (F04, F06)",
+  "@acercaCreacion": {
+    "description": "Acerca de Kaizen (decisión del 27-nov)"
+  },
+  "acercaEscaleraTitulo": "La Escalera: micro-pasos",
+  "@acercaEscaleraTitulo": {
+    "description": "Acerca de Kaizen (decisión del 27-nov)"
+  },
+  "acercaEscalera": "Cada 14 días revisamos tu constancia. Si cumples el 85 % o más y tu meta está por debajo de lo recomendado, te proponemos subir un 10 % (nunca más del 30 % ni por encima del rango óptimo). Si cumples menos del 50 %, te proponemos bajar un 15 %, sin pasar de un mínimo saludable (por ejemplo, 7 horas de sueño). Si tu meta pasa del máximo recomendado, te proponemos bajarla de inmediato. Si eliges «Mantener», no volvemos a preguntar en 7 días. (F06, F07, F08)",
+  "@acercaEscalera": {
+    "description": "Acerca de Kaizen (decisión del 27-nov)"
+  },
+  "acercaRachasTitulo": "Rachas y protector",
+  "@acercaRachasTitulo": {
+    "description": "Acerca de Kaizen (decisión del 27-nov)"
+  },
+  "acercaRachas": "Fallar un día no echa a perder un hábito; fallar seguido, sí. Por eso cada semana tienes un protector: la primera falla no rompe tu racha y verás un escudo ese día en el calendario. La segunda falla de la misma semana sí la rompe. El símbolo de tu racha cambia conforme avanzas: chispa, llama, llama con aro, dorado al llegar a 66 días y emblema a los 100. (F01, F09, F47)",
+  "@acercaRachas": {
+    "description": "Acerca de Kaizen (decisión del 27-nov)"
+  },
+  "acercaColoresTitulo": "Colores",
+  "@acercaColoresTitulo": {
+    "description": "Acerca de Kaizen (decisión del 27-nov)"
+  },
+  "acercaColores": "Usamos verde para lo hecho y el progreso, azul para la estructura y teal para el bienestar; el rojo solo aparece en errores, nunca en tu racha. El color nunca va solo: siempre lo acompaña un ícono o un texto, para que se entienda aunque no distingas los colores. (F40–F45)",
+  "@acercaColores": {
+    "description": "Acerca de Kaizen (decisión del 27-nov)"
+  },
+  "acercaRangosTitulo": "Rangos recomendados",
+  "@acercaRangosTitulo": {
+    "description": "Acerca de Kaizen (decisión del 27-nov)"
+  },
+  "acercaRangosIntro": "Con estos rangos evaluamos tus metas. Están en la unidad y el periodo de cada estudio; la app los convierte a tu unidad y tu frecuencia.",
+  "@acercaRangosIntro": {
+    "description": "Acerca de Kaizen (decisión del 27-nov)"
+  },
+  "acercaRango": "Recomendado: {desde}–{hasta} {unidad} {periodo}",
+  "@acercaRango": {
+    "description": "Acerca de Kaizen (decisión del 27-nov)",
+    "placeholders": {
+      "desde": {
+        "type": "String"
+      },
+      "hasta": {
+        "type": "String"
+      },
+      "unidad": {
+        "type": "String"
+      },
+      "periodo": {
+        "type": "String"
+      }
+    }
+  },
+  "acercaMaximo": "Máximo: {maximo} {unidad}",
+  "@acercaMaximo": {
+    "description": "Acerca de Kaizen (decisión del 27-nov)",
+    "placeholders": {
+      "maximo": {
+        "type": "String"
+      },
+      "unidad": {
+        "type": "String"
+      }
+    }
+  },
+  "acercaSinRango": "Sin rango científico: el límite lo pones tú y la Escalera lo ajusta según tu constancia",
+  "@acercaSinRango": {
+    "description": "Acerca de Kaizen (decisión del 27-nov)"
+  },
+  "acercaPorDia": "al día",
+  "@acercaPorDia": {
+    "description": "Acerca de Kaizen (decisión del 27-nov)"
+  },
+  "acercaPorSemana": "a la semana",
+  "@acercaPorSemana": {
+    "description": "Acerca de Kaizen (decisión del 27-nov)"
+  },
+  "acercaConfianza": "Confianza: {nivel}",
+  "@acercaConfianza": {
+    "description": "Acerca de Kaizen (decisión del 27-nov)",
+    "placeholders": {
+      "nivel": {
+        "type": "String"
+      }
+    }
+  },
+  "acercaFuentesTitulo": "Fuentes",
+  "@acercaFuentesTitulo": {
+    "description": "Acerca de Kaizen (decisión del 27-nov)"
+  },
+  "acercaFuentesIntro": "Cada dato de la app cita una de estas fuentes por su clave (F01, F02…). Todas se revisaron en línea; la columna de confianza dice qué tan sólida es la evidencia para el uso que le damos.",
+  "@acercaFuentesIntro": {
+    "description": "Acerca de Kaizen (decisión del 27-nov)"
+  },
+  "acercaAviso": "Kaizen no sustituye el consejo de un profesional de la salud. Si tienes una condición médica, consulta antes de cambiar tu actividad, tu sueño o tu alimentación.",
+  "@acercaAviso": {
+    "description": "Acerca de Kaizen (decisión del 27-nov)"
+  },
+  "acercaSinDatos": "No se pudieron cargar los rangos y las fuentes.",
+  "@acercaSinDatos": {
+    "description": "Acerca de Kaizen (decisión del 27-nov)"
+  },
+  "temaFormacion": "Formación de hábitos y metas",
+  "@temaFormacion": {
+    "description": "Tema de una fuente"
+  },
+  "temaActividad": "Actividad física",
+  "@temaActividad": {
+    "description": "Tema de una fuente"
+  },
+  "temaSalud": "Salud: sueño, agua, alimentación y sustancias",
+  "@temaSalud": {
+    "description": "Tema de una fuente"
+  },
+  "temaEducacion": "Educación",
+  "@temaEducacion": {
+    "description": "Tema de una fuente"
+  },
+  "temaBienestar": "Bienestar",
+  "@temaBienestar": {
+    "description": "Tema de una fuente"
+  },
+  "temaColor": "Color y accesibilidad",
+  "@temaColor": {
+    "description": "Tema de una fuente"
+  },
+  "temaNotificaciones": "Notificaciones y motivación",
+  "@temaNotificaciones": {
+    "description": "Tema de una fuente"
+  },
+  "navAcerca": "Acerca de",
+  "@navAcerca": {
+    "description": "Destino del riel y de la barra superior: Acerca de Kaizen"
+  },
+  "animoEmpezar": "Hoy es un buen día para empezar: el primer paso es el que cuenta.",
+  "@animoEmpezar": {
+    "description": "Ánimo del próximo hito sin racha"
+  },
+  "animoManana": "¡Mañana lo logras! No lo sueltes.",
+  "@animoManana": {
+    "description": "Ánimo a un día del hito"
+  },
+  "animoYaCasi": "¡Ya casi! Unos días más y lo tienes.",
+  "@animoYaCasi": {
+    "description": "Ánimo a 2 o 3 días del hito"
+  },
+  "animoInicio": "Cada día cuenta: los primeros son los que más construyen el hábito.",
+  "@animoInicio": {
+    "description": "Ánimo en el primer tercio"
+  },
+  "animoMitad": "Vas muy bien: sigue a tu ritmo, un día a la vez.",
+  "@animoMitad": {
+    "description": "Ánimo a la mitad"
+  },
+  "animoFinal": "Ya recorriste la mayor parte del camino. ¡Sigue así!",
+  "@animoFinal": {
+    "description": "Ánimo en el último tercio"
+  },
+  "semanaPorHabitoTitulo": "Esta semana, por hábito",
+  "@semanaPorHabitoTitulo": {
+    "description": "Título del widget de la semana por hábito"
+  },
+  "semanaPorHabitoDetalle": "Cuánto llevas de lunes a hoy",
+  "@semanaPorHabitoDetalle": {
+    "description": "Subtítulo del widget de la semana por hábito"
+  },
+  "semanaPorHabitoSemantica": "{habito}: {pct} % esta semana",
+  "@semanaPorHabitoSemantica": {
+    "description": "Lectura de pantalla de una fila",
+    "placeholders": {
+      "habito": {
+        "type": "String"
+      },
+      "pct": {
+        "type": "int"
+      }
+    }
+  },
+  "kpiProximoHito": "Próximo hito: {hito}",
+  "@kpiProximoHito": {
+    "description": "Nota de la tarjeta Racha actual",
+    "placeholders": {
+      "hito": {
+        "type": "int"
+      }
+    }
+  },
+  "kpiMejorMarca": "Tu mejor marca",
+  "@kpiMejorMarca": {
+    "description": "Nota de la tarjeta Racha máxima"
+  },
+  "kpiRitmoParaSubir": "Ritmo para subir de nivel",
+  "@kpiRitmoParaSubir": {
+    "description": "Cumplimiento ≥ 85 % (umbral de la Escalera)"
+  },
+  "kpiConstante": "Vas constante",
+  "@kpiConstante": {
+    "description": "Cumplimiento de 50 a 84 %"
+  },
+  "kpiRetomar": "Puedes retomarlo hoy",
+  "@kpiRetomar": {
+    "description": "Cumplimiento menor a 50 % (sin culpa, F09)"
+  },
+  "tendenciaEjeY": "% de días cumplidos",
+  "@tendenciaEjeY": {
+    "description": "Título del eje Y de la tendencia"
+  },
+  "tendenciaEjeX": "Semana que empieza el…",
+  "@tendenciaEjeX": {
+    "description": "Título del eje X de la tendencia"
+  },
+  "tendenciaPunto": "Semana del {semana}\n{pct} %",
+  "@tendenciaPunto": {
+    "description": "Recuadro al tocar un punto",
+    "placeholders": {
+      "semana": {
+        "type": "String"
+      },
+      "pct": {
+        "type": "int"
+      }
+    }
+  },
+  "tendenciaUmbral": "85 %: la Escalera propone subir",
+  "@tendenciaUmbral": {
+    "description": "Etiqueta de la línea punteada"
+  },
+  "tendenciaLeyenda": "Cada punto es el % de los días programados que cumpliste esa semana (de lunes a domingo; la semana actual, hasta hoy). Con 85 % o más durante 14 días, la Escalera te propone subir la meta.",
+  "@tendenciaLeyenda": {
+    "description": "Explicación de la gráfica"
+  },
+  "acercaHeroTitulo": "Mejora continua, con ciencia",
+  "@acercaHeroTitulo": {
+    "description": "Acerca de Kaizen, rediseño (27-nov)"
+  },
+  "acercaPorQue": "Casi todas las apps de hábitos premian hacer más y más. Kaizen hace lo contrario: te ayuda a mejorar poco a poco y a quedarte dentro de lo que la ciencia recomienda. Cada meta, cada aviso y cada color de la app tiene una razón, y aquí te la contamos con sus fuentes.",
+  "@acercaPorQue": {
+    "description": "Acerca de Kaizen, rediseño (27-nov)"
+  },
+  "acercaDato66": "días: la mediana para formar un hábito",
+  "@acercaDato66": {
+    "description": "Acerca de Kaizen, rediseño (27-nov)"
+  },
+  "acercaDatoRangos": "rangos científicos por tipo de hábito",
+  "@acercaDatoRangos": {
+    "description": "Acerca de Kaizen, rediseño (27-nov)"
+  },
+  "acercaDatoFuentes": "fuentes revisadas una por una",
+  "@acercaDatoFuentes": {
+    "description": "Acerca de Kaizen, rediseño (27-nov)"
+  },
+  "acercaComoFunciona": "Cómo funciona",
+  "@acercaComoFunciona": {
+    "description": "Acerca de Kaizen, rediseño (27-nov)"
+  },
+  "acercaTodas": "Todas",
+  "@acercaTodas": {
+    "description": "Acerca de Kaizen, rediseño (27-nov)"
+  },
+  "acercaVerificada": "Verificada: {detalle}",
+  "@acercaVerificada": {
+    "description": "Acerca de Kaizen, rediseño (27-nov)",
+    "placeholders": {
+      "detalle": {
+        "type": "String"
+      }
+    }
+  },
+  "acercaFuentesConteo": "{n, plural, =1{1 fuente} other{{n} fuentes}}",
+  "@acercaFuentesConteo": {
+    "description": "Acerca de Kaizen, rediseño (27-nov)",
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "evidenciaVerFuentes": "¿En qué nos basamos?",
+  "@evidenciaVerFuentes": {
+    "description": "Enlace del detalle del hábito a Acerca de Kaizen"
+  },
+  "tuMesSemantica": "{mes}: {pct} % de cumplimiento",
+  "@tuMesSemantica": {
+    "description": "Lectura de pantalla del encabezado de Tu mes",
+    "placeholders": {
+      "mes": {
+        "type": "String"
+      },
+      "pct": {
+        "type": "int"
+      }
+    }
   }
 }

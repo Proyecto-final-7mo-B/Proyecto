@@ -1,4 +1,5 @@
 import '../../../domain/models/categoria.dart';
+import '../../../domain/models/recomendacion.dart';
 import '../../../utils/result.dart';
 import '../../services/api/cliente_api.dart';
 import 'categorias_repository.dart';
@@ -12,5 +13,11 @@ class CategoriasRepositoryApi implements CategoriasRepository {
   Future<Result<List<Categoria>>> listar() => _api.get(
     '/categorias',
     (d) => [for (final c in d as List<dynamic>) Categoria.fromJson(c as Map<String, dynamic>)],
+  );
+
+  @override
+  Future<Result<List<FuenteCientifica>>> fuentes() => _api.get(
+    '/fuentes',
+    (d) => [for (final f in d as List<dynamic>) FuenteCientifica.fromJson(f as Map<String, dynamic>)],
   );
 }

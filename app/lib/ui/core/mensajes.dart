@@ -36,6 +36,7 @@ String mensajeDeError(ErrorApp error, AppLocalizations t) => switch (error.tipo)
   TipoError.categoriaInactiva => t.errorCategoriaInactiva,
   TipoError.subcategoriaInactiva => t.errorSubcategoriaInactiva,
   TipoError.unidadNoPermitida => t.errorUnidadNoPermitida,
+  TipoError.recomendacionNoDisponible => t.errorRecomendacionNoDisponible,
   TipoError.enlaceInvalido => t.errorEnlaceInvalido,
   TipoError.credencialesInvalidas => t.errorCredenciales,
   TipoError.tokenInvalido => t.errorTokenInvalido,

@@ -22,17 +22,23 @@ import '../../core/mensajes.dart';
 import '../../core/tema/colores.dart';
 import '../../core/tema/iconos.dart';
 import '../../core/tema/medidas.dart';
-import '../../core/widgets/calendario_mes.dart';
+import '../../core/widgets/celebracion_hito.dart';
 import '../../core/widgets/encabezado_pantalla.dart';
 import '../../core/widgets/estados.dart';
 import '../../core/widgets/fila_habito.dart';
 import '../../core/widgets/tarjeta_kaizen.dart';
 import '../view_models/hoy_viewmodel.dart';
-import 'tarjetas_hoy.dart';
 import '../../core/apariencia_habito.dart';
+import 'panel_hoy.dart';
+import 'tarjetas_hoy.dart';
 
-/// `/hoy` (bosquejo 02). En el teléfono, una columna; con 900 px o más de contenido, dos columnas con el calendario
-/// del mes y el micro-paso a la derecha.
+/// `/hoy` (bosquejo 02). En el teléfono, una columna con la tarjeta compacta "Próximo hito", "Tu mes" (calendario y
+/// %) y el Consejo saludable al final; con 900 px o más de
+/// contenido, dos columnas: a la izquierda los hábitos y, en el espacio que quedaba vacío, la meta semanal OMS, el
+/// próximo hito y la semana por hábito; a la derecha el calendario del mes, el micro-paso, la señal y, en web, el consejo
+/// saludable del día (en escritorio va en el riel).
+///
+/// Lo pendiente va arriba por prioridad y lo hecho baja, con una animación corta, a "Hechos hoy" (doc. 07).
 class PantallaHoy extends StatefulWidget {
   const PantallaHoy({super.key});
 
@@ -51,6 +57,9 @@ class _PantallaHoyState extends State<PantallaHoy> with RecargaAlVolver {
   Future<void> recargarAlVolver() => _vm.cargar.ejecutar();
 
   late final HoyViewModel _vm;
+
+  /// El hábito que se acaba de marcar o desmarcar: su fila entra con la animación de cambio de sección.
+  String? _recienMovido;
 
   @override
   void initState() {
@@ -79,10 +88,16 @@ class _PantallaHoyState extends State<PantallaHoy> with RecargaAlVolver {
   }
 
   Future<void> _alternar(Habito h) async {
+    setState(() => _recienMovido = h.id);
     final error = await _vm.alternar(h);
-    if (error != null && mounted) {
+    if (!mounted) {
+      return;
+    }
+    if (error != null) {
       final t = AppLocalizations.of(context);
       _avisar(t.checkinNoGuardado(h.nombre, mensajeDeError(error, t)));
+    } else if (_vm.tomarCelebracion() case final c?) {
+      await mostrarCelebracion(context, hito: c.hito, habito: c.habito);
     }
   }
 
@@ -201,12 +216,21 @@ class _PantallaHoyState extends State<PantallaHoy> with RecargaAlVolver {
           Semantics(header: true, child: Text(t.paraHoy, style: texto.titleMedium)),
           const SizedBox(height: KaizenMedidas.e12),
           ..._filas(context),
+          if (_vm.habitoDelHito case final h?) ...[
+            const SizedBox(height: KaizenMedidas.e8),
+            TarjetaProximoHito(habito: h, compacta: true, onTap: () => context.push(Rutas.habito(h.id))),
+          ],
+          // El avance del mes, como en escritorio (revisión de Jael, 27-nov).
+          const SizedBox(height: KaizenMedidas.e8),
+          _tuMes(),
           if (s != null) ...[
             const SizedBox(height: KaizenMedidas.e8),
             TarjetaSugerencia(sugerencia: s, unidad: _unidadDe(s), onTap: () => _opcionesSugerencia(s)),
           ],
           const SizedBox(height: KaizenMedidas.e8),
           TarjetaSenal(onTap: () => context.go(Rutas.laboratorio)),
+          const SizedBox(height: KaizenMedidas.e8),
+          TarjetaConsejo(indice: _vm.consejoDelDia),
         ],
       ],
     );
@@ -254,6 +278,8 @@ class _PantallaHoyState extends State<PantallaHoy> with RecargaAlVolver {
                         TarjetaProgresoDia(cumplidos: _vm.cumplidosHoy, total: _vm.totalHoy),
                         const SizedBox(height: KaizenMedidas.e12),
                         ..._filas(context),
+                        const SizedBox(height: KaizenMedidas.e12),
+                        ..._panel(context),
                       ],
                     ),
                   ),
@@ -263,15 +289,7 @@ class _PantallaHoyState extends State<PantallaHoy> with RecargaAlVolver {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        TarjetaKaizen(
-                          relleno: const EdgeInsets.all(KaizenMedidas.e20),
-                          child: CalendarioMes(
-                            anio: _vm.hoy.year,
-                            mes: _vm.hoy.month,
-                            hoy: _vm.hoy,
-                            niveles: _vm.nivelesMes,
-                          ),
-                        ),
+                        _tuMes(),
                         if (s != null) ...[
                           const SizedBox(height: KaizenMedidas.e12),
                           TarjetaMicroPaso(
@@ -283,6 +301,11 @@ class _PantallaHoyState extends State<PantallaHoy> with RecargaAlVolver {
                         ],
                         const SizedBox(height: KaizenMedidas.e12),
                         TarjetaSenal(conDetalle: false, onTap: () => context.go(Rutas.laboratorio)),
+                        // En escritorio el consejo va en el riel; en web (sin riel), aquí.
+                        if (esWeb) ...[
+                          const SizedBox(height: KaizenMedidas.e12),
+                          TarjetaConsejo(indice: _vm.consejoDelDia),
+                        ],
                       ],
                     ),
                   ),
@@ -296,10 +319,49 @@ class _PantallaHoyState extends State<PantallaHoy> with RecargaAlVolver {
 
   // ───────────────────────── Comunes ─────────────────────────
 
+  /// "Tu mes": el calendario con la intensidad de cada día, su % y los escudos del protector. En el teléfono va
+  /// después del próximo hito; en escritorio, arriba a la derecha.
+  Widget _tuMes() => TarjetaMes(
+    anio: _vm.hoy.year,
+    mes: _vm.hoy.month,
+    hoy: _vm.hoy,
+    niveles: _vm.nivelesMes,
+    protegidos: _vm.protegidosMes,
+    porcentaje: _vm.cumplimientoMes,
+  );
+
+  /// Widgets del espacio vacío de escritorio y web (doc. 05).
+  List<Widget> _panel(BuildContext context) {
+    final actividad = _vm.actividadSemanal;
+    final h = _vm.habitoDelHito;
+    final hito = h == null ? null : TarjetaProximoHito(habito: h, onTap: () => context.push(Rutas.habito(h.id)));
+    return [
+      if (actividad != null && hito != null)
+        IntrinsicHeight(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Expanded(child: TarjetaMetaOms(actividad: actividad)),
+              const SizedBox(width: KaizenMedidas.e12),
+              Expanded(child: hito),
+            ],
+          ),
+        )
+      else if (actividad != null)
+        TarjetaMetaOms(actividad: actividad)
+      else
+        ?hito,
+      if (_vm.semanaPorHabito case final filas when filas.isNotEmpty) ...[
+        const SizedBox(height: KaizenMedidas.e12),
+        TarjetaSemanaHabitos(filas: filas),
+      ],
+    ];
+  }
+
   List<Widget> _filas(BuildContext context) {
     final t = AppLocalizations.of(context);
-    final lista = _vm.paraHoy;
-    if (lista.isEmpty) {
+    final texto = Theme.of(context).textTheme;
+    if (_vm.paraHoy.isEmpty) {
       return [
         Padding(
           padding: const EdgeInsets.symmetric(vertical: KaizenMedidas.e16),
@@ -307,24 +369,54 @@ class _PantallaHoyState extends State<PantallaHoy> with RecargaAlVolver {
         ),
       ];
     }
+    final hechos = _vm.hechos;
     return [
-      for (final h in lista)
+      for (final h in _vm.pendientes) _fila(h, t),
+      if (hechos.isNotEmpty) ...[
         Padding(
-          padding: const EdgeInsets.only(bottom: KaizenMedidas.e8),
-          child: FilaHabito(
-            key: ValueKey(h.id),
-            icono: h.icono,
-            colorIcono: h.color,
-            nombre: h.nombre,
-            subtitulo: subtituloHabito(h, t),
-            racha: h.racha.actual,
-            cumplido: h.hoy?.cumplido ?? false,
-            conCapsula: _vm.tieneCapsula(h.id),
-            onCheck: () => _alternar(h),
-            onTap: () => context.push(Rutas.habito(h.id)),
+          padding: const EdgeInsets.fromLTRB(KaizenMedidas.e4, KaizenMedidas.e8, 0, KaizenMedidas.e8),
+          child: Semantics(
+            header: true,
+            child: Row(
+              children: [
+                const Icon(KaizenIconos.cumplido, size: 18, color: KaizenColores.verdeProgreso),
+                const SizedBox(width: KaizenMedidas.e8),
+                Text(t.hechosHoy, style: texto.titleSmall),
+                const SizedBox(width: KaizenMedidas.e8),
+                Text(t.hechosHoyConteo(hechos.length), style: texto.bodySmall),
+              ],
+            ),
           ),
         ),
+        for (final h in hechos) _fila(h, t),
+      ],
     ];
+  }
+
+  Widget _fila(Habito h, AppLocalizations t) {
+    final cumplido = h.hoy?.cumplido ?? false;
+    return Padding(
+      // La clave cambia al cambiar de sección: la fila "entra" de nuevo con la animación.
+      key: ValueKey('${h.id}-$cumplido'),
+      padding: const EdgeInsets.only(bottom: KaizenMedidas.e8),
+      child: EntradaDeSeccion(
+        animar: h.id == _recienMovido,
+        child: FilaHabito(
+          key: ValueKey(h.id),
+          icono: h.icono,
+          colorIcono: h.color,
+          nombre: h.nombre,
+          subtitulo: subtituloHabito(h, t),
+          racha: h.racha.actual,
+          cumplido: cumplido,
+          conCapsula: _vm.tieneCapsula(h.id),
+          protegida: h.racha.protegidaEstaSemana,
+          prioridadAlta: h.prioridad == Prioridad.alta,
+          onCheck: () => _alternar(h),
+          onTap: () => context.push(Rutas.habito(h.id)),
+        ),
+      ),
+    );
   }
 
   Widget _vacio(BuildContext context) {
@@ -335,6 +427,34 @@ class _PantallaHoyState extends State<PantallaHoy> with RecargaAlVolver {
         mensaje: t.sinHabitosHoyTexto,
         accion: FilledButton(onPressed: () => context.push(Rutas.nuevoHabito), child: Text(t.crearPrimerHabito)),
       ),
+    );
+  }
+}
+
+/// La fila que cambia de sección entra deslizándose y apareciendo (350 ms). Sin animación si el sistema pide reducir
+/// movimiento.
+class EntradaDeSeccion extends StatelessWidget {
+  const EntradaDeSeccion({required this.animar, required this.child, super.key});
+
+  final bool animar;
+  final Widget child;
+
+  static const Duration duracion = Duration(milliseconds: 350);
+
+  @override
+  Widget build(BuildContext context) {
+    if (!animar || MediaQuery.disableAnimationsOf(context)) {
+      return child;
+    }
+    return TweenAnimationBuilder<double>(
+      tween: Tween(begin: 0, end: 1),
+      duration: duracion,
+      curve: Curves.easeOutCubic,
+      builder: (context, v, hijo) => Opacity(
+        opacity: v,
+        child: Transform.translate(offset: Offset(0, (1 - v) * -24), child: hijo),
+      ),
+      child: child,
     );
   }
 }

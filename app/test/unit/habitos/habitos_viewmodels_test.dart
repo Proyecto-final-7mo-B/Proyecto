@@ -8,6 +8,7 @@ import 'package:kaizen/domain/models/escalera.dart';
 import 'package:kaizen/domain/models/evidencia.dart';
 import 'package:kaizen/domain/models/frecuencia.dart';
 import 'package:kaizen/domain/models/habito.dart';
+import 'package:kaizen/domain/models/recomendacion.dart';
 import 'package:kaizen/domain/models/registro.dart';
 import 'package:kaizen/ui/habitos/view_models/detalle_habito_viewmodel.dart';
 import 'package:kaizen/ui/habitos/view_models/formulario_habito_viewmodel.dart';
@@ -50,6 +51,17 @@ class _HabitosEspia implements HabitosRepository {
   @override
   Future<Result<EscaleraHabito>> escalera(String id) async =>
       fallarEscalera ? const Result.fallo(ErrorApp(TipoError.servicioNoDisponible)) : _real.escalera(id);
+  @override
+  Future<Result<List<HabitoRecomendado>>> recomendados() => _real.recomendados();
+  @override
+  Future<Result<Habito>> crearRecomendado(String recomendacionId, {int prioridad = Prioridad.media}) {
+    creados++;
+    return _real.crearRecomendado(recomendacionId, prioridad: prioridad);
+  }
+
+  @override
+  Future<Result<Set<DateTime>>> diasProtegidos(String id, {required DateTime desde, required DateTime hasta}) =>
+      _real.diasProtegidos(id, desde: desde, hasta: hasta);
 }
 
 void main() {
@@ -441,12 +453,24 @@ void main() {
       final vm = detalle(idDe('Leer'));
       await vm.cargar.ejecutar();
       expect(vm.ultimoDiaContable, _hoy.subtract(const Duration(days: 1)));
-      expect(vm.cumplimientoMes, 100, reason: 'Leer se cumplió del 1 al 24; hoy aún no cuenta');
+      expect(vm.cumplimientoMes, closeTo(100 * 23 / 24, 1e-9),
+          reason: 'Leer se cumplió del 1 al 24 salvo el lunes 23 (protegido); hoy aún no cuenta');
+      expect(vm.protegidosMes, {23}, reason: 'el escudo del calendario');
       final agua = detalle(idDe('Tomar agua'));
       await agua.cargar.ejecutar();
       expect(agua.ultimoDiaContable, _hoy, reason: 'Tomar agua ya tiene check-in hoy');
       vm.dispose();
       agua.dispose();
+    });
+
+    test('días protegidos: solo los del mes que se ve; si fallan, el calendario sigue sin escudos', () async {
+      final vm = detalle(idDe('Leer'));
+      await vm.cargar.ejecutar();
+      expect(vm.protegidosMes, contains(23));
+      vm.mesAnterior();
+      expect(vm.protegidosMes.every((d) => d >= 1 && d <= 31), isTrue);
+      expect(vm.protegidosMes, isNot(contains(23)), reason: 'el 23 de noviembre no es de octubre');
+      vm.dispose();
     });
 
     test('cumplimiento de 30 días, su variación y la tendencia de 12 semanas', () async {

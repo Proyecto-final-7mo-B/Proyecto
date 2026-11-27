@@ -196,17 +196,21 @@ void main() {
       expect(f.ultimoError, 'tiempoAgotado');
     });
 
-    test('observar la cola: pendientes y rechazados al momento', () async {
-      final eventos = <({int pendientes, int rechazados})>[];
+    test('observar la cola: pendientes, rechazados y fallidos al momento', () async {
+      final eventos = <({int pendientes, int rechazados, int fallidos})>[];
       final sub = almacen.observarCola().listen(eventos.add);
       await pumpEventQueue();
       await almacen.guardarYEncolar(nuevo('n1'));
       await almacen.guardarYEncolar(nuevo('n2', fecha: ayer));
       await pumpEventQueue();
+      expect(eventos.last, (pendientes: 2, rechazados: 0, fallidos: 0), reason: 'encolado no es fallido');
+      await almacen.anotarIntento(['n2'], 'sinConexion');
+      await pumpEventQueue();
+      expect(eventos.last, (pendientes: 2, rechazados: 0, fallidos: 1));
       await almacen.marcarRechazado('n1', 'habito-archivado');
       await pumpEventQueue();
-      expect(eventos.first, (pendientes: 0, rechazados: 0));
-      expect(eventos.last, (pendientes: 1, rechazados: 1));
+      expect(eventos.first, (pendientes: 0, rechazados: 0, fallidos: 0));
+      expect(eventos.last, (pendientes: 1, rechazados: 1, fallidos: 1));
       await sub.cancel();
     });
   });

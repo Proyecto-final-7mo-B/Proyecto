@@ -8,6 +8,9 @@ abstract final class Rutas {
   static const String hoy = '/hoy';
   static const String habitos = '/habitos';
   static const String nuevoHabito = '/habitos/nuevo';
+
+  /// El formulario del Paso 7: "Hábito personalizado" desde la pantalla de recomendados.
+  static const String nuevoHabitoPersonalizado = '/habitos/nuevo/personalizado';
   static const String progreso = '/progreso';
   static const String miSemana = '/progreso/semana';
   static const String escalera = '/escalera';
@@ -16,6 +19,9 @@ abstract final class Rutas {
   static const String nuevaCapsula = '/capsulas/nueva';
   static const String perfil = '/perfil';
   static const String privacidad = '/perfil/privacidad';
+
+  /// "Acerca de Kaizen": en qué se basan las recomendaciones y las fuentes.
+  static const String acerca = '/acerca';
 
   // Solo rol admin, y nunca en Android ni iOS
   static const String admin = '/admin';

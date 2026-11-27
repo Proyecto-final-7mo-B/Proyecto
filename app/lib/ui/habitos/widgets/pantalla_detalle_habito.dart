@@ -6,9 +6,11 @@ import '../../../data/repositories/habitos/habitos_repository.dart';
 import '../../../domain/models/habito.dart';
 import '../../../l10n/gen/app_localizations.dart';
 import '../../../routing/rutas.dart';
+import '../../../utils/hitos.dart';
 import '../../../utils/reloj.dart';
 import '../../core/adaptativo/breakpoints.dart';
 import '../../core/adaptativo/recarga_al_volver.dart';
+import '../../core/apariencia_racha.dart';
 import '../../core/formatos.dart';
 import '../../core/mensajes.dart';
 import '../../core/tema/colores.dart';
@@ -176,11 +178,23 @@ class _PantallaDetalleHabitoState extends State<PantallaDetalleHabito> with Reca
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
                             Expanded(
-                              child: TarjetaKpi(valor: '${h.racha.actual}', etiqueta: t.rachaActual),
+                              child: TarjetaKpi(
+                                valor: '${h.racha.actual}',
+                                etiqueta: t.rachaActual,
+                                icono: NivelRacha.deDias(h.racha.actual).icono,
+                                color: NivelRacha.deDias(h.racha.actual).color,
+                                nota: t.kpiProximoHito(Hitos.siguiente(h.racha.actual)),
+                              ),
                             ),
                             const SizedBox(width: KaizenMedidas.e12),
                             Expanded(
-                              child: TarjetaKpi(valor: '${h.racha.maxima}', etiqueta: t.rachaMaxima),
+                              child: TarjetaKpi(
+                                valor: '${h.racha.maxima}',
+                                etiqueta: t.rachaMaxima,
+                                icono: KaizenIconos.rachaMaxima,
+                                color: KaizenColores.rachaDorada,
+                                nota: t.kpiMejorMarca,
+                              ),
                             ),
                             const SizedBox(width: KaizenMedidas.e12),
                             Expanded(
@@ -188,13 +202,16 @@ class _PantallaDetalleHabitoState extends State<PantallaDetalleHabito> with Reca
                                 valor: c30 == null ? '—' : t.porcentaje(c30.round()),
                                 etiqueta: t.cumplimiento30,
                                 variacion: _vm.variacion30,
+                                icono: KaizenIconos.cumplimiento,
+                                color: colorCumplimiento(c30),
+                                nota: c30 == null ? null : notaCumplimiento(c30, t),
                               ),
                             ),
                           ],
                         ),
                       ),
                       const SizedBox(height: KaizenMedidas.e12),
-                      TarjetaTendencia(valores: _vm.tendencia),
+                      TarjetaTendencia(valores: _vm.tendencia, lunes: _vm.lunesTendencia),
                       const SizedBox(height: KaizenMedidas.e12),
                       TarjetaNivel(
                         nivel: _vm.escalera?.nivelActual ?? h.nivel,
@@ -234,6 +251,7 @@ class _PantallaDetalleHabitoState extends State<PantallaDetalleHabito> with Reca
     mes: _vm.mes,
     hoy: _vm.hoy,
     niveles: _vm.nivelesMes,
+    protegidos: _vm.protegidosMes,
     porcentaje: _vm.cumplimientoMes,
     onAnterior: _vm.puedeRetroceder ? _vm.mesAnterior : null,
     onSiguiente: _vm.puedeAvanzar ? _vm.mesSiguiente : null,
@@ -259,3 +277,18 @@ class _PantallaDetalleHabitoState extends State<PantallaDetalleHabito> with Reca
     );
   }
 }
+
+/// Color del cumplimiento con los umbrales de la Escalera (doc. 02): ≥ 85 % verde (ritmo para subir), 50–84 % ámbar,
+/// < 50 % gris. Nunca el rojo de error (doc. 04).
+Color colorCumplimiento(double? pct) => switch (pct) {
+  null => KaizenColores.rachaSinRacha,
+  >= 85 => KaizenColores.verdeProgreso,
+  >= 50 => KaizenColores.rachaChispa,
+  _ => KaizenColores.rachaSinRacha,
+};
+
+String notaCumplimiento(double pct, AppLocalizations t) => switch (pct) {
+  >= 85 => t.kpiRitmoParaSubir,
+  >= 50 => t.kpiConstante,
+  _ => t.kpiRetomar,
+};

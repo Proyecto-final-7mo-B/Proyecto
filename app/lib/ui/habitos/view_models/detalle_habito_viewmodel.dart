@@ -43,6 +43,7 @@ class DetalleHabitoViewModel extends ChangeNotifier {
 
   Habito? _habito;
   Map<DateTime, Registro> _registros = const {};
+  Set<DateTime> _protegidos = const {};
   EscaleraHabito? _escalera;
   late DateTime _mes = _primeroDeMes(hoy);
 
@@ -84,6 +85,12 @@ class DetalleHabitoViewModel extends ChangeNotifier {
   /// Último día que cuenta para los porcentajes: hoy solo si ya tiene check-in (si no, el día no ha terminado y
   /// contarlo como fallido haría "caer" el mes, los 30 días y la semana actual).
   DateTime get ultimoDiaContable => _registros.containsKey(hoy) ? hoy : hoy.subtract(const Duration(days: 1));
+
+  /// Días del mes que se ve con escudo: el protector de racha perdonó esa falla.
+  Set<int> get protegidosMes => {
+    for (final d in _protegidos)
+      if (d.year == _mes.year && d.month == _mes.month) d.day,
+  };
 
   Map<int, int> get nivelesMes =>
       EstadisticasHabito.nivelesMes(registros: _registros, anio: _mes.year, mes: _mes.month, meta: _habito?.meta ?? 1);
@@ -147,6 +154,13 @@ class DetalleHabitoViewModel extends ChangeNotifier {
           );
   }
 
+  /// El lunes de cada semana de [tendencia] (las semanas sin datos, antes de crear el hábito, no están).
+  List<DateTime> get lunesTendencia {
+    final n = tendencia.length;
+    final lunes = Fechas.inicioSemana(ultimoDiaContable);
+    return [for (var i = 0; i < n; i++) lunes.subtract(Duration(days: 7 * (n - 1 - i)))];
+  }
+
   /// Los check-ins más recientes primero.
   List<Registro> get historial {
     final lista = _registros.values.toList()..sort((a, b) => b.fecha.compareTo(a.fecha));
@@ -202,6 +216,11 @@ class DetalleHabitoViewModel extends ChangeNotifier {
         hasta: dia,
       ),
       _repoHabitos.escalera(habitoId),
+      _repoHabitos.diasProtegidos(
+        habitoId,
+        desde: dia.subtract(const Duration(days: Limites.historialMaxDias - 1)),
+        hasta: dia,
+      ),
     ]);
     for (final r in resultados.take(2)) {
       if (r case Fallo(:final error)) {
@@ -212,6 +231,8 @@ class DetalleHabitoViewModel extends ChangeNotifier {
     final registros = resultados[1].valorONulo! as List<Registro>;
     _registros = {for (final r in registros) Fechas.soloFecha(r.fecha): r};
     _escalera = resultados[2].valorONulo as EscaleraHabito?;
+    // Los escudos son opcionales: si fallan, el calendario se ve sin ellos.
+    _protegidos = {for (final d in (resultados[3].valorONulo as Set<DateTime>?) ?? const <DateTime>{}) Fechas.soloFecha(d)};
     notifyListeners();
     return const Result.exito(null);
   }

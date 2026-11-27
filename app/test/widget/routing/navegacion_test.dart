@@ -186,9 +186,9 @@ void main() {
   });
 
   group('riel lateral (escritorio)', () {
-    testWidgets('extendido: marca, 6 secciones y usuario; Admin solo para admin', (tester) async {
+    testWidgets('extendido: marca, 7 secciones (con Acerca de) y usuario; Admin solo para admin', (tester) async {
       await montarApp(tester, plataforma: Plataforma.escritorio, tamano: escritorio);
-      for (final e in ['Hoy', 'Hábitos', 'Progreso', 'Escalera', 'Laboratorio', 'Cápsulas']) {
+      for (final e in ['Hoy', 'Hábitos', 'Progreso', 'Escalera', 'Laboratorio', 'Cápsulas', 'Acerca de']) {
         expect(
           find.descendant(of: find.byType(RielLateral), matching: find.text(e)),
           findsOneWidget,

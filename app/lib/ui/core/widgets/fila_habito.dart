@@ -6,8 +6,8 @@ import '../tema/iconos.dart';
 import '../tema/medidas.dart';
 import 'indicador_racha.dart';
 
-/// Fila de un hábito en "Para hoy": ícono de su categoría, nombre, subtítulo ("2 L · diario"), racha y el círculo del
-/// check-in de un toque.
+/// Fila de un hábito en "Para hoy": ícono de su categoría, nombre, subtítulo ("2 L · diario"), racha por niveles y el
+/// círculo del check-in de un toque. Con [prioridadAlta], una bandera y "Alta" antes del subtítulo (doc. 07).
 class FilaHabito extends StatelessWidget {
   const FilaHabito({
     required this.icono,
@@ -16,6 +16,8 @@ class FilaHabito extends StatelessWidget {
     required this.racha,
     required this.cumplido,
     this.conCapsula = false,
+    this.protegida = false,
+    this.prioridadAlta = false,
     this.colorIcono,
     this.onCheck,
     this.onTap,
@@ -31,6 +33,10 @@ class FilaHabito extends StatelessWidget {
   final int racha;
   final bool cumplido;
   final bool conCapsula;
+
+  /// El protector de racha ya se usó esta semana (escudo junto a la racha).
+  final bool protegida;
+  final bool prioridadAlta;
 
   /// Toque en el círculo; `null` = sin check-in (p. ej., hábito no programado hoy).
   final VoidCallback? onCheck;
@@ -77,12 +83,40 @@ class FilaHabito extends StatelessWidget {
                   children: [
                     Text(nombre, style: texto.titleMedium, maxLines: 1, overflow: TextOverflow.ellipsis),
                     const SizedBox(height: 2),
-                    Text(subtitulo, style: texto.bodySmall, maxLines: 1, overflow: TextOverflow.ellipsis),
+                    Row(
+                      children: [
+                        if (prioridadAlta) ...[
+                          Semantics(
+                            label: AppLocalizations.of(context).prioridadAltaSemantica,
+                            child: ExcludeSemantics(
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  const Icon(KaizenIconos.prioridadAlta, size: 14, color: KaizenColores.marino800),
+                                  const SizedBox(width: 2),
+                                  Text(
+                                    AppLocalizations.of(context).prioridadAlta,
+                                    style: texto.bodySmall!.copyWith(
+                                      color: KaizenColores.marino800,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                          Text(' · ', style: texto.bodySmall),
+                        ],
+                        Flexible(
+                          child: Text(subtitulo, style: texto.bodySmall, maxLines: 1, overflow: TextOverflow.ellipsis),
+                        ),
+                      ],
+                    ),
                   ],
                 ),
               ),
               const SizedBox(width: KaizenMedidas.e8),
-              IndicadorRacha(dias: racha, conCapsula: conCapsula),
+              IndicadorRacha(dias: racha, conCapsula: conCapsula, protegida: protegida),
               const SizedBox(width: KaizenMedidas.e20),
               BotonCheck(cumplido: cumplido, nombreHabito: nombre, onTap: onCheck),
             ],
@@ -93,7 +127,8 @@ class FilaHabito extends StatelessWidget {
   }
 }
 
-/// Círculo del check-in: relleno `marino800` con palomita si está cumplido; vacío con borde si no.
+/// Círculo del check-in: relleno `verdeProgreso` con palomita si está cumplido (el verde es "hecho", doc. 04); vacío
+/// con borde si no.
 class BotonCheck extends StatelessWidget {
   const BotonCheck({required this.cumplido, required this.nombreHabito, this.onTap, super.key});
 
@@ -113,7 +148,7 @@ class BotonCheck extends StatelessWidget {
       onTap: onTap,
       child: ExcludeSemantics(
         child: Material(
-          color: cumplido ? KaizenColores.marino800 : KaizenColores.superficie,
+          color: cumplido ? KaizenColores.verdeProgreso : KaizenColores.superficie,
           shape: CircleBorder(
             side: cumplido ? BorderSide.none : const BorderSide(color: KaizenColores.bordeControl, width: 1.5),
           ),

@@ -65,6 +65,17 @@ class AlmacenLocal {
         HabitosCompanion.insert(id: h.id, datos: jsonEncode(h.toJson()), activo: h.activo, guardadoEn: DateTime.now()),
       );
 
+  /// Copias de catálogos que casi no cambian (hábitos recomendados, fuentes; v1.7): se guardan como JSON en `marcas`,
+  /// sin tablas nuevas.
+  Future<void> guardarJson(String clave, Object? valor) => base
+      .into(base.marcas)
+      .insertOnConflictUpdate(MarcasCompanion.insert(clave: 'json:$clave', valor: jsonEncode(valor)));
+
+  Future<Object?> leerJson(String clave) async {
+    final fila = await (base.select(base.marcas)..where((m) => m.clave.equals('json:$clave'))).getSingleOrNull();
+    return fila == null ? null : jsonDecode(fila.valor);
+  }
+
   /// `true` si la lista de hábitos ya se guardó alguna vez (aunque haya estado vacía).
   Future<bool> hayHabitosGuardados() async =>
       await (base.select(base.marcas)..where((m) => m.clave.equals(_marcaHabitos))).getSingleOrNull() != null;
@@ -249,12 +260,16 @@ class AlmacenLocal {
   });
 
   /// Cuántos faltan por enviar y cuántos rechazó el servidor; se actualiza solo con cada cambio de la cola.
-  Stream<({int pendientes, int rechazados})> observarCola() => base
+  /// `fallidos`: pendientes con al menos un intento de envío que no llegó (los que de verdad esperan la red).
+  Stream<({int pendientes, int rechazados, int fallidos})> observarCola() => base
       .select(base.colaPendientes)
       .watch()
       .map(
-        (filas) =>
-            (pendientes: filas.where((f) => !f.rechazado).length, rechazados: filas.where((f) => f.rechazado).length),
+        (filas) => (
+          pendientes: filas.where((f) => !f.rechazado).length,
+          rechazados: filas.where((f) => f.rechazado).length,
+          fallidos: filas.where((f) => !f.rechazado && f.intentos > 0).length,
+        ),
       );
 
   // ───────────────────────── Estado de hoy sin conexión ─────────────────────────

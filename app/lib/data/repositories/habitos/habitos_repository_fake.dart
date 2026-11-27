@@ -1,6 +1,7 @@
 import '../../../domain/models/categoria.dart';
 import '../../../domain/models/escalera.dart';
 import '../../../domain/models/habito.dart';
+import '../../../domain/models/recomendacion.dart';
 import '../../../domain/models/registro.dart';
 import '../../../utils/result.dart';
 import '../../../utils/validadores.dart';
@@ -209,4 +210,64 @@ class HabitosRepositoryFake implements HabitosRepository {
       ],
     );
   });
+
+  /// Como `GET /habitos/recomendados`: las activas de subcategorías activas, en el orden del catálogo.
+  @override
+  Future<Result<List<HabitoRecomendado>>> recomendados() => _datos.ejecutar(() {
+    _datos.usuarioDeSesion();
+    return [
+      for (final r in _datos.recomendados)
+        if (!_datos.recomendadosInactivos.contains(r.id) && (_datos.categorias.subcategoria(r.subcategoria.id)?.activa ?? false))
+          r,
+    ];
+  });
+
+  /// Como el trigger `trg_habito_0_recomendacion`: copia nombre, subcategoría, unidad, meta, frecuencia e intención;
+  /// solo la prioridad la elige el usuario. KZ018 si la recomendación no está disponible.
+  @override
+  Future<Result<Habito>> crearRecomendado(String recomendacionId, {int prioridad = Prioridad.media}) =>
+      _datos.ejecutar(() {
+        final u = _datos.usuarioDeSesion();
+        if (!Prioridad.todas.contains(prioridad)) {
+          throw DatosDemo.validacion({'prioridad': '1, 2 o 3'});
+        }
+        final r = _datos.recomendados.where((x) => x.id == recomendacionId).firstOrNull;
+        final sub = r == null ? null : _datos.categorias.subcategoria(r.subcategoria.id);
+        if (r == null || sub == null || !sub.activa || _datos.recomendadosInactivos.contains(r.id)) {
+          throw DatosDemo.error(TipoError.recomendacionNoDisponible, 422, 'La recomendación no está disponible');
+        }
+        final h = HabitoDemo(
+          id: _datos.nuevoId(),
+          usuarioId: u.id,
+          nombre: r.nombre,
+          unidad: r.unidad,
+          meta: r.meta,
+          nivel: 1,
+          subcategoriaId: sub.id,
+          categoriaId: _datos.categorias.categoriaDe(sub.id)!.id,
+          prioridad: prioridad,
+          intencion: r.momento,
+          recomendacionId: r.id,
+          frecuencia: r.frecuencia,
+          escaleraActiva: true,
+          activo: true,
+          fechaCreacion: _datos.ahora,
+        );
+        _datos.habitos[h.id] = h;
+        _datos.niveles[h.id] = [Nivel(nivel: 1, meta: r.meta, desde: _datos.hoy)];
+        return _datos.aHabito(h, _datos.hoy);
+      });
+
+  @override
+  Future<Result<Set<DateTime>>> diasProtegidos(String id, {required DateTime desde, required DateTime hasta}) =>
+      _datos.ejecutar(() {
+        if (Validadores.rangoFechas(desde, hasta) != null) {
+          throw DatosDemo.validacion({'desde': 'Rango de máximo 366 días'});
+        }
+        final h = _datos.habitoPropio(id);
+        return {
+          for (final d in _datos.diasProtegidos(h))
+            if (!d.isBefore(desde) && !d.isAfter(hasta)) d,
+        };
+      });
 }

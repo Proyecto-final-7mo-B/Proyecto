@@ -17,6 +17,7 @@ import 'package:kaizen/data/services/api/interceptor_zona_horaria.dart';
 import 'package:kaizen/data/services/gestor_tokens.dart';
 import 'package:kaizen/domain/models/admin.dart';
 import 'package:kaizen/domain/models/capsula.dart';
+import 'package:kaizen/domain/models/evidencia.dart';
 import 'package:kaizen/domain/models/frecuencia.dart';
 import 'package:kaizen/domain/models/habito.dart';
 import 'package:kaizen/domain/models/laboratorio.dart';
@@ -196,6 +197,70 @@ void main() {
     });
     expect((await repo.escalera('h1')).valorONulo!.escaleraActiva, isFalse);
     expect(ultima().path, '/habitos/h1/escalera');
+  });
+
+  test('hábitos (v1.7): recomendados, crear desde una recomendación y días protegidos', () async {
+    final repo = HabitosRepositoryApi(api);
+    responde([
+      {
+        'id': 'r1',
+        'clave': 'caminar_rapido',
+        'nombre': 'Caminar a paso rápido',
+        'categoria': {'id': 'c1', 'clave': 'ejercicio', 'nombre': 'Ejercicio', 'color': '#D9480F', 'icono': 'fitness_center'},
+        'subcategoria': {
+          'id': 's1',
+          'clave': 'aerobico_moderado',
+          'nombre': 'Aeróbico moderado',
+          'icono': 'directions_walk',
+          'sentido': 'aumentar',
+        },
+        'unidad': 'min',
+        'meta': 30,
+        'frecuencia': {'tipo': 'dias_semana', 'dias_semana': 31, 'veces_semana': null},
+        'momento': 'Después de comer',
+        'porque': 'La OMS recomienda de 150 a 300 minutos…',
+        'fuentes': 'F11',
+        'zona': 'optimo',
+        'optimo_desde': 30,
+        'optimo_hasta': 60,
+      },
+    ]);
+    final recs = (await repo.recomendados()).valorONulo!;
+    expect(red.rutas.last, 'GET /habitos/recomendados');
+    expect(recs.single.frecuencia, const DiasSemana(31));
+    expect(recs.single.zona, ZonaEvidencia.optimo);
+    expect((recs.single.optimoDesde, recs.single.optimoHasta), (30.0, 60.0));
+
+    responde({...habito, 'recomendacion_id': 'r1'});
+    final creado = (await repo.crearRecomendado('r1', prioridad: Prioridad.alta)).valorONulo!;
+    expect(red.rutas.last, 'POST /habitos');
+    expect(ultima().data, {'recomendacion_id': 'r1', 'prioridad': 1}, reason: 'la base copia lo demás');
+    expect(creado.recomendacionId, 'r1');
+
+    responde({
+      'fechas': ['2026-11-16', '2026-11-23'],
+    });
+    final dias = (await repo.diasProtegidos('h 1', desde: hoy.subtract(const Duration(days: 30)), hasta: hoy)).valorONulo!;
+    expect(ultima().path, '/habitos/h%201/protegidos');
+    expect(ultima().queryParameters, {'desde': '2026-10-24', 'hasta': '2026-11-23'});
+    expect(dias, {DateTime.utc(2026, 11, 16), DateTime.utc(2026, 11, 23)});
+  });
+
+  test('fuentes (v1.7)', () async {
+    responde([
+      {
+        'clave': 'F01',
+        'tema': 'formacion',
+        'referencia': 'Lally et al. (2010)…',
+        'enlace': '10.1002/ejsp.674',
+        'dato': '18 a 254 días',
+        'verificada': 'Sí',
+        'confianza': 'Media',
+      },
+    ]);
+    final f = (await CategoriasRepositoryApi(api).fuentes()).valorONulo!;
+    expect(red.rutas.last, 'GET /fuentes');
+    expect(f.single.clave, 'F01');
   });
 
   test('registros: check-in y lote de la cola', () async {

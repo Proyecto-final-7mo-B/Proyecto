@@ -1,7 +1,9 @@
 import 'package:flutter/painting.dart';
 
-/// Paleta de Kaizen (solo tema claro). Los valores se midieron con cuentagotas sobre los bosquejos de Figma
-/// (`Escritorio 02 Inicio`, `Escritorio 08 Cápsula`, `Móvil 03 Crear hábito`, `Web 01 Login`).
+/// Paleta de Kaizen (solo tema claro). La estructura se midió con cuentagotas sobre los bosquejos de Figma
+/// (`Escritorio 02 Inicio`, `Escritorio 08 Cápsula`, `Móvil 03 Crear hábito`, `Web 01 Login`); los tokens de progreso,
+/// bienestar y racha por niveles salen de la investigación de color (`12_investigacion_cientifica/04_colores.md`), con
+/// su contraste WCAG medido en `test/unit/tema/contraste_test.dart`.
 ///
 /// Regla: ninguna pantalla escribe un `Color(0x…)` propio; todo sale de aquí o del `ColorScheme` del tema.
 abstract final class KaizenColores {
@@ -57,8 +59,22 @@ abstract final class KaizenColores {
   static const Color textoSecundario = Color(0xFF606882);
 
   // Acentos
-  /// **Acento de racha**: llama y número de racha, reloj de arena, botón "Abrir", estado "Suspendido".
+  /// **Acento de racha** (nivel 7–29 días): llama y número de racha, reloj de arena, botón "Abrir", estado
+  /// "Suspendido".
   static const Color naranjaRacha = Color(0xFFC2410C);
+
+  // Racha por niveles (doc. 04 y 05): la calidez y la saturación crecen con la racha (F42). Nunca el rojo de error.
+  /// 0 días: neutro, sin mensaje de falla (F09, F40). 4.83:1.
+  static const Color rachaSinRacha = Color(0xFF6B7280);
+
+  /// 1–6 días: chispa ámbar. 5.02:1.
+  static const Color rachaChispa = Color(0xFFB45309);
+
+  /// 30–65 días: llama naranja profundo con aro. 7.31:1.
+  static const Color rachaProfunda = Color(0xFF9A3412);
+
+  /// 66 días o más: "hábito formado", dorado (asociación cultural con el logro; confianza baja). 4.92:1.
+  static const Color rachaDorada = Color(0xFFA16207);
 
   /// Rayo de la cápsula abierta y anillo de progreso de la cápsula.
   static const Color naranjaClaro = Color(0xFFF0763F);
@@ -75,11 +91,24 @@ abstract final class KaizenColores {
   /// Fondo del ícono del estado de error.
   static const Color errorFondo = Color(0xFFFBE9E7);
 
-  /// Escala de intensidad 0 → 4 del calendario y del mapa de calor (sin registro → meta completa).
-  /// Progreso y "dentro de lo recomendado": verde esmeralda (emociones positivas y logro, F42/F44; doc. 04).
-  /// 5.48:1 sobre blanco. El rojo queda solo para errores.
+  // Progreso y bienestar (doc. 04)
+  /// Checks hechos, barras de avance, "N de M", "Ritmo ideal": verde esmeralda (emociones positivas y logro,
+  /// F42/F44). 5.48:1 sobre blanco. El rojo queda solo para errores.
   static const Color verdeProgreso = Color(0xFF047857);
+
+  /// Fondo de "Hechos hoy" y de las tarjetas de logro (brillo alto, saturación baja: calma). Ícono encima: 4.63:1.
   static const Color verdeProgresoFondo = Color(0xFFE1EFEB);
+
+  /// Barra de avance **sobre la tarjeta marino** ("2 de 5"): el mismo esmeralda, más claro, porque `verdeProgreso`
+  /// sobre marino solo da 2.49:1. 7.10:1 contra `marino800` y 4.40:1 contra su pista `marino700`.
+  static const Color verdeProgresoSobreMarino = Color(0xFF34D399);
+
+  /// Bienestar, Laboratorio y señal del día: azul-verde, el tono que mejor combina agrado y baja activación (F42).
+  /// 5.47:1 sobre blanco.
+  static const Color tealBienestar = Color(0xFF0F766E);
+
+  /// El mismo teal, claro, para íconos **sobre el riel marino** (consejo saludable). 9.22:1 contra `marino800`.
+  static const Color tealSobreMarino = Color(0xFF5EEAD4);
 
   /// Color de una categoría a partir de su hex del catálogo (`#D9480F`). Si el texto no es válido, el marino.
   static Color deHex(String hex) {
@@ -91,6 +120,8 @@ abstract final class KaizenColores {
   /// Fondo del ícono de una categoría: su color al 12 % sobre blanco (contraste del ícono ≥ 3:1, doc. 04).
   static Color fondoDe(Color color) => Color.lerp(superficie, color, 0.12)!;
 
+  /// Escala de intensidad 0 → 4 del calendario y del mapa de calor (sin registro → meta completa). Es azul y no
+  /// verde a propósito: la intensidad se lee por brillo (F42), y el verde queda para "hecho".
   static const List<Color> intensidad = [azul50, azul200, azul400, azul600, marino800];
 
   /// Color de la escala para un nivel; fuera de rango se recorta a 0–4.

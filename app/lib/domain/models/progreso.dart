@@ -42,14 +42,51 @@ class ProgresoHabito {
 
 @JsonSerializable()
 class MejorRacha {
-  const MejorRacha({required this.categoria, required this.rachaMaxima});
+  const MejorRacha({required this.categoria, required this.rachaMaxima, this.categoriaClave = ''});
 
   factory MejorRacha.fromJson(Map<String, dynamic> json) => _$MejorRachaFromJson(json);
 
   final String categoria;
+
+  /// Clave estable de la categoría (v1.6), para su color.
+  @JsonKey(defaultValue: '')
+  final String categoriaClave;
   final int rachaMaxima;
 
   Map<String, dynamic> toJson() => _$MejorRachaToJson(this);
+}
+
+/// Minutos de actividad aeróbica de la semana ISO contra la recomendación de la OMS (contrato v1.6, §6.7). Suma los
+/// check-ins cumplidos de `aerobico_moderado` y `vigoroso`; 1 min vigoroso = 2 moderados.
+@JsonSerializable()
+class ActividadSemanal {
+  const ActividadSemanal({
+    required this.semana,
+    required this.minutosModerados,
+    required this.minutosVigorosos,
+    required this.equivalenteModerado,
+    required this.recomendadoDesde,
+    required this.recomendadoHasta,
+    required this.cita,
+  });
+
+  factory ActividadSemanal.fromJson(Map<String, dynamic> json) => _$ActividadSemanalFromJson(json);
+
+  /// `2026-W48`.
+  final String semana;
+  final double minutosModerados;
+  final double minutosVigorosos;
+  final double equivalenteModerado;
+  final double recomendadoDesde;
+  final double recomendadoHasta;
+  final String cita;
+
+  /// Lo que falta para el mínimo recomendado (0 si ya se alcanzó).
+  double get faltante => (recomendadoDesde - equivalenteModerado).clamp(0, recomendadoDesde).toDouble();
+
+  bool get cumplida => equivalenteModerado >= recomendadoDesde;
+
+  Map<String, dynamic> toJson() => _$ActividadSemanalToJson(this);
 }
 
 /// `GET /progreso?periodo=&fecha=`. La semana va de lunes a domingo.
@@ -66,6 +103,7 @@ class Progreso {
     required this.mejoresRachas,
     required this.crecimientoMetas,
     this.variacion,
+    this.actividadSemanal,
   });
 
   factory Progreso.fromJson(Map<String, dynamic> json) => _$ProgresoFromJson(json);
@@ -84,6 +122,9 @@ class Progreso {
   final List<ProgresoHabito> porHabito;
   final List<MejorRacha> mejoresRachas;
   final double crecimientoMetas;
+
+  /// `null` si el usuario no tiene hábitos aeróbicos.
+  final ActividadSemanal? actividadSemanal;
 
   Map<String, dynamic> toJson() => _$ProgresoToJson(this);
 }

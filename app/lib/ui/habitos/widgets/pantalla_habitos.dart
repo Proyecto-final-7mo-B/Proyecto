@@ -206,7 +206,8 @@ class FilaHabitoLista extends StatelessWidget {
               ),
             ),
             const SizedBox(width: KaizenMedidas.e8),
-            if (h.activo) IndicadorRacha(dias: h.racha.actual, conCapsula: conCapsula),
+            if (h.activo)
+              IndicadorRacha(dias: h.racha.actual, conCapsula: conCapsula, protegida: h.racha.protegidaEstaSemana),
             const SizedBox(width: KaizenMedidas.e4),
             const Icon(KaizenIconos.siguiente, color: KaizenColores.textoSecundario),
           ],
