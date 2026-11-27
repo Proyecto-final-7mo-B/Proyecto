@@ -2,14 +2,21 @@
 
 import ipaddress
 from typing import Annotated
+from uuid import UUID
 from zoneinfo import available_timezones
 
-from fastapi import Header, Request
+from fastapi import Depends, Header, Request
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
+from kaizen.aplicacion.puertos import UsuarioActual
 from kaizen.aplicacion.servicios.autenticacion import ServicioAutenticacion
-from kaizen.dominio.excepciones import ValidacionError
+from kaizen.aplicacion.servicios.habitos import ServicioHabitos
+from kaizen.dominio.excepciones import TokenInvalido, ValidacionError
+from kaizen.infraestructura.seguridad.tokens import EmisorTokens
 
 _ZONAS = available_timezones()
+# auto_error=False: sin token respondemos nosotros con problem+json (401 token-invalido)
+_bearer = HTTPBearer(auto_error=False, description="Token de acceso del login")
 
 
 def zona_horaria(request: Request, x_zona_horaria: Annotated[str | None, Header()] = None) -> str:
@@ -35,3 +42,23 @@ def ip_cliente(request: Request) -> str | None:
         return str(ipaddress.ip_address(request.client.host))
     except ValueError:
         return None
+
+
+def servicio_habitos(request: Request) -> ServicioHabitos:
+    servicio: ServicioHabitos = request.app.state.servicio_habitos
+    return servicio
+
+
+def usuario_actual(
+    request: Request,
+    credenciales: Annotated[HTTPAuthorizationCredentials | None, Depends(_bearer)],
+) -> UsuarioActual:
+    """Verifica el token de acceso (firma EdDSA, vencimiento, typ=acceso) y dice quién es."""
+    if credenciales is None:
+        raise TokenInvalido("Falta el token de acceso")
+    emisor: EmisorTokens = request.app.state.emisor
+    claims = emisor.verificar(credenciales.credentials, "acceso")
+    try:
+        return UsuarioActual(id=UUID(claims["sub"]), region=claims["region"], rol=claims["rol"])
+    except (KeyError, ValueError) as error:
+        raise TokenInvalido("Token sin los datos del usuario") from error

@@ -3,15 +3,23 @@
 import base64
 import uuid
 from dataclasses import replace
-from datetime import UTC, datetime
+from datetime import UTC, date, datetime
+from typing import Any
 from uuid import UUID
 
 import pytest
 from fastapi.testclient import TestClient
 
 from kaizen.api.main import construir_app
-from kaizen.aplicacion.puertos import CuentaLogin
+from kaizen.aplicacion.puertos import (
+    ConsultaEvaluacion,
+    CuentaLogin,
+    NuevoHabito,
+    Objeto,
+    UsuarioActual,
+)
 from kaizen.aplicacion.servicios.autenticacion import ServicioAutenticacion
+from kaizen.aplicacion.servicios.habitos import ServicioHabitos
 from kaizen.infraestructura.seguridad.contrasenas import HasherContrasenas
 from kaizen.infraestructura.seguridad.seudonimos import GeneradorHmac
 from kaizen.infraestructura.seguridad.tokens import EmisorTokens, ParTokens
@@ -85,6 +93,100 @@ class RepoFalso:
         self.bitacora.append((usuario_id, accion, resultado))
 
 
+CATEGORIA = {
+    "id": uuid.uuid4(),
+    "clave": "ejercicio",
+    "nombre": "Ejercicio",
+    "color": "#D9480F",
+    "icono": "fitness_center",
+}
+SUBCATEGORIA = {
+    "id": uuid.uuid4(),
+    "clave": "aerobico_moderado",
+    "nombre": "Aeróbico moderado",
+    "icono": "directions_bike",
+    "sentido": "aumentar",
+}
+EVALUACION_OPTIMA = {"zona": "optimo", "sentido": "aumentar", "paso": 5.0}
+
+
+class RepoHabitosFalso:
+    """Implementa RepositorioHabitos en memoria. Cada hábito recuerda a su dueño (como la RLS)."""
+
+    def __init__(self) -> None:
+        self.habitos: dict[UUID, tuple[UUID, Objeto]] = {}  # id -> (dueño, hábito)
+        self.consultas: list[ConsultaEvaluacion] = []
+
+    def categorias(self, zona: str) -> list[Objeto]:
+        unidad = {"unidad": "min", "factor_a_base": 1, "paso": 5, "minimo": 1, "maximo": 1440}
+        sub = SUBCATEGORIA | {"unidades": [unidad], "referencia": None}
+        return [CATEGORIA | {"subcategorias": [sub]}]
+
+    def evaluar(self, usuario: UsuarioActual, zona: str, consulta: ConsultaEvaluacion) -> Objeto:
+        self.consultas.append(consulta)
+        return EVALUACION_OPTIMA
+
+    def listar(
+        self,
+        usuario: UsuarioActual,
+        zona: str,
+        fecha: date,
+        archivados: bool,
+        habito_id: UUID | None = None,
+    ) -> list[Objeto]:
+        visibles = [
+            h | {"hoy": {"fecha": fecha, "programado": True, "registro": None}}
+            for dueno, h in self.habitos.values()
+            if dueno == usuario.id
+            and (archivados or h["activo"])
+            and (habito_id is None or h["id"] == habito_id)
+        ]
+        return sorted(visibles, key=lambda h: (h["prioridad"], h["nombre"]))
+
+    def crear(self, usuario: UsuarioActual, zona: str, nuevo: NuevoHabito) -> UUID:
+        habito_id = uuid.uuid4()
+        f = nuevo.frecuencia
+        self.habitos[habito_id] = (
+            usuario.id,
+            {
+                "id": habito_id,
+                "nombre": nuevo.nombre,
+                "unidad": nuevo.unidad,
+                "meta": float(nuevo.meta),
+                "nivel": 1,
+                "categoria": CATEGORIA,
+                "subcategoria": SUBCATEGORIA,
+                "prioridad": nuevo.prioridad,
+                "intencion": nuevo.intencion,
+                "frecuencia": {
+                    "tipo": f.tipo,
+                    "dias_semana": f.dias_semana,
+                    "veces_semana": f.veces_semana,
+                },
+                "escalera_activa": nuevo.escalera_activa,
+                "activo": True,
+                "fecha_creacion": datetime.now(UTC),
+                "racha": {
+                    "actual": 0,
+                    "maxima": 0,
+                    "ultima_fecha": None,
+                    "protegida_esta_semana": False,
+                },
+                "evaluacion": EVALUACION_OPTIMA,
+            },
+        )
+        return habito_id
+
+    def actualizar(
+        self, usuario: UsuarioActual, zona: str, habito_id: UUID, cambios: dict[str, Any]
+    ) -> bool:
+        dueno, h = self.habitos.get(habito_id, (None, {}))
+        if dueno != usuario.id:
+            return False
+        h.update({k: v for k, v in cambios.items() if k != "subcategoria_id"})
+        return True
+
+
 class Reloj:
     """Reloj controlable para probar el bloqueo de 15 minutos sin esperar."""
 
@@ -116,5 +218,29 @@ def servicio(repo: RepoFalso, reloj: Reloj, emisor: EmisorTokens) -> ServicioAut
 
 
 @pytest.fixture
-def cliente(servicio: ServicioAutenticacion) -> TestClient:
-    return TestClient(construir_app(servicio, revisar_base=lambda: True))
+def repo_habitos() -> RepoHabitosFalso:
+    return RepoHabitosFalso()
+
+
+@pytest.fixture
+def servicio_habitos(repo_habitos: RepoHabitosFalso, reloj: Reloj) -> ServicioHabitos:
+    return ServicioHabitos(repo_habitos, reloj)
+
+
+@pytest.fixture
+def cliente(
+    servicio: ServicioAutenticacion, servicio_habitos: ServicioHabitos, emisor: EmisorTokens
+) -> TestClient:
+    return TestClient(construir_app(servicio, servicio_habitos, emisor, revisar_base=lambda: True))
+
+
+@pytest.fixture
+def usuario_id() -> UUID:
+    return uuid.uuid4()
+
+
+@pytest.fixture
+def cabeceras(emisor: EmisorTokens, usuario_id: UUID) -> dict[str, str]:
+    """Cabecera Authorization con un token de acceso válido (como el que da el login)."""
+    par = emisor.emitir_par(usuario_id, "MX-NORTE", "usuario")
+    return {"Authorization": f"Bearer {par.acceso}"}

@@ -9,11 +9,22 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 
 from kaizen.dominio.excepciones import (
+    CategoriaInactiva,
+    ConsentimientoRequerido,
     CredencialesInvalidas,
     CuentaBloqueada,
     CuentaSuspendida,
+    FechaFueraDeRango,
+    HabitoArchivado,
     KaizenError,
+    NoEncontrado,
+    NombreDuplicado,
+    OperacionNoPermitida,
+    RegionInvalida,
+    RolInsuficiente,
+    SubcategoriaInactiva,
     TokenInvalido,
+    UnidadNoPermitida,
     ValidacionError,
 )
 
@@ -31,7 +42,28 @@ TABLA: dict[type[KaizenError], tuple[str, int, str]] = {
         "Tu cuenta está suspendida. Contacta al administrador",
     ),
     CuentaBloqueada: ("cuenta-bloqueada", 429, "Demasiados intentos. Intenta más tarde"),
+    RegionInvalida: ("region-invalida", 422, "País o estado fuera del servicio"),
+    FechaFueraDeRango: ("fecha-fuera-de-rango", 422, "Fecha no válida"),
+    CategoriaInactiva: ("categoria-inactiva", 422, "La categoría ya no está disponible"),
+    SubcategoriaInactiva: ("subcategoria-inactiva", 422, "La subcategoría ya no está disponible"),
+    UnidadNoPermitida: ("unidad-no-permitida", 422, "Unidad no permitida para la subcategoría"),
+    ConsentimientoRequerido: ("consentimiento-requerido", 403, "Falta tu consentimiento"),
+    RolInsuficiente: ("rol-insuficiente", 403, "No tienes permiso para esta operación"),
+    NoEncontrado: ("no-encontrado", 404, "No encontrado"),
+    OperacionNoPermitida: ("operacion-no-permitida", 409, "Operación no permitida"),
+    HabitoArchivado: ("habito-archivado", 409, "El hábito está archivado"),
+    NombreDuplicado: ("nombre-duplicado", 409, "Ya existe una categoría con ese nombre"),
 }
+
+# Para estos tipos el texto del error (de la regla o de la base) sí ayuda al usuario
+CON_DETALLE = (
+    FechaFueraDeRango,
+    UnidadNoPermitida,
+    SubcategoriaInactiva,
+    CategoriaInactiva,
+    OperacionNoPermitida,
+    RegionInvalida,
+)
 
 
 def problema(
@@ -64,6 +96,8 @@ def respuesta_de(error: KaizenError) -> JSONResponse:
                 headers = {"Retry-After": str(error.segundos)}
             if isinstance(error, ValidacionError):
                 extra["errores"] = [{"campo": error.campo, "detalle": str(error)}]
+            if isinstance(error, CON_DETALLE):
+                extra["detail"] = str(error)
             return problema(tipo, status, titulo, headers, **extra)
     return error_interno(error)
 
