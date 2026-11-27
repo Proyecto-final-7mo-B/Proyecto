@@ -121,12 +121,14 @@ Habito _$HabitoFromJson(Map<String, dynamic> json) => $checkedCreate(
         'hoy',
         (v) => v == null ? null : HoyHabito.fromJson(v as Map<String, dynamic>),
       ),
+      recomendacionId: $checkedConvert('recomendacion_id', (v) => v as String?),
     );
     return val;
   },
   fieldKeyMap: const {
     'escaleraActiva': 'escalera_activa',
     'fechaCreacion': 'fecha_creacion',
+    'recomendacionId': 'recomendacion_id',
   },
 );
 
@@ -141,6 +143,7 @@ Map<String, dynamic> _$HabitoToJson(Habito instance) => <String, dynamic>{
   'prioridad': instance.prioridad,
   'intencion': instance.intencion,
   'evaluacion': instance.evaluacion?.toJson(),
+  'recomendacion_id': instance.recomendacionId,
   'frecuencia': instance.frecuencia.toJson(),
   'escalera_activa': instance.escaleraActiva,
   'activo': instance.activo,

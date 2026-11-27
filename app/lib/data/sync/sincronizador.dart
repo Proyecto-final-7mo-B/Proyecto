@@ -51,6 +51,7 @@ class Sincronizador extends ChangeNotifier {
   bool _enLinea = true;
   int _pendientes = 0;
   int _rechazados = 0;
+  int _fallidos = 0;
 
   /// Hay red y el último intento llegó al servidor.
   bool get enLinea => _enLinea;
@@ -58,8 +59,10 @@ class Sincronizador extends ChangeNotifier {
   int get rechazados => _rechazados;
   bool get sincronizando => _enCurso != null;
 
-  /// El aviso de "sin conexión" se muestra si no hay red o si quedaron cosas sin enviar.
-  bool get mostrarAviso => !_enLinea || (_pendientes > 0 && !sincronizando);
+  /// El aviso de "sin conexión" se muestra solo cuando **de verdad falló**: no hay red, o algún envío ya se intentó y
+  /// no llegó. Un check-in que se está enviando también está en la cola (se guarda antes de mandarse), pero mientras
+  /// no falle no se avisa nada.
+  bool get mostrarAviso => !_enLinea || _fallidos > 0;
 
   /// Rechazos de cada envío, para avisarle al usuario una vez.
   Stream<List<Rechazo>> get rechazos => _rechazos.stream;
@@ -94,6 +97,7 @@ class Sincronizador extends ChangeNotifier {
         _almacenCola.observarCola().listen((c) {
           _pendientes = c.pendientes;
           _rechazados = c.rechazados;
+          _fallidos = c.fallidos;
           _programarReintento();
           notifyListeners();
         }),

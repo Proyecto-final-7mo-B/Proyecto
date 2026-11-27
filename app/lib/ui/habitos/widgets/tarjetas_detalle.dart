@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import '../../../domain/models/registro.dart';
 import '../../../l10n/gen/app_localizations.dart';
 import '../../../utils/fechas.dart';
+import '../../../utils/hitos.dart';
+import '../../core/apariencia_racha.dart';
 import '../../core/formatos.dart';
 import '../../core/tema/colores.dart';
 import '../../core/tema/iconos.dart';
@@ -12,7 +14,8 @@ import '../../core/widgets/barra_progreso.dart';
 import '../../core/widgets/calendario_mes.dart';
 import '../../core/widgets/tarjeta_kaizen.dart';
 
-/// Teléfono: racha grande con la llama y la mejor racha a la derecha (bosquejo móvil 04).
+/// Teléfono: racha grande con el símbolo de su nivel (en blanco sobre marino; doc. 05) y la mejor racha a la derecha
+/// (bosquejo móvil 04).
 class TarjetaRacha extends StatelessWidget {
   const TarjetaRacha({required this.actual, required this.maxima, super.key});
 
@@ -40,7 +43,7 @@ class TarjetaRacha extends StatelessWidget {
                   alignment: Alignment.centerLeft,
                   child: Row(
                     children: [
-                      const Icon(KaizenIconos.racha, color: blanco, size: 36),
+                      Icon(NivelRacha.deDias(actual).icono, color: blanco, size: 36),
                       const SizedBox(width: KaizenMedidas.e12),
                       Text('$actual', style: texto.displayMedium!.copyWith(color: blanco)),
                       const SizedBox(width: KaizenMedidas.e8),
@@ -81,12 +84,16 @@ class TarjetaCalendarioHabito extends StatelessWidget {
     required this.porcentaje,
     required this.onAnterior,
     required this.onSiguiente,
+    this.protegidos = const {},
     super.key,
   });
 
   final DateTime mes;
   final DateTime hoy;
   final Map<int, int> niveles;
+
+  /// Días con escudo (el protector de racha perdonó la falla).
+  final Set<int> protegidos;
   final double? porcentaje;
 
   /// `null` = no hay más meses hacia ese lado.
@@ -122,7 +129,14 @@ class TarjetaCalendarioHabito extends StatelessWidget {
             ],
           ),
           const SizedBox(height: KaizenMedidas.e4),
-          CalendarioMes(anio: mes.year, mes: mes.month, hoy: hoy, niveles: niveles, mostrarTitulo: false),
+          CalendarioMes(
+            anio: mes.year,
+            mes: mes.month,
+            hoy: hoy,
+            niveles: niveles,
+            protegidos: protegidos,
+            mostrarTitulo: false,
+          ),
         ],
       ),
     );
@@ -189,25 +203,38 @@ class _CirculoCheck extends StatelessWidget {
     height: 28,
     decoration: BoxDecoration(
       shape: BoxShape.circle,
-      color: cumplido ? KaizenColores.marino800 : KaizenColores.superficie,
-      border: Border.all(color: cumplido ? KaizenColores.marino800 : KaizenColores.borde, width: 2),
+      color: cumplido ? KaizenColores.verdeProgreso : KaizenColores.superficie,
+      border: Border.all(color: cumplido ? KaizenColores.verdeProgreso : KaizenColores.borde, width: 2),
     ),
     child: cumplido ? const Icon(KaizenIconos.cumplido, size: 16, color: KaizenColores.superficie) : null,
   );
 }
 
-/// Escritorio: cumplimiento por semana (últimas 12), con `fl_chart`.
+/// Escritorio: tendencia del cumplimiento por semana (fl_chart, dibujada en la app con los check-ins que ya trae el
+/// detalle). Eje Y: % de días cumplidos (0–100); eje X: la semana, por su lunes. Cada semana lleva su punto y, al
+/// tocarlo, su valor. La línea punteada del 85 % es el umbral con el que la Escalera propone subir (doc. 02).
 class TarjetaTendencia extends StatelessWidget {
-  const TarjetaTendencia({required this.valores, super.key});
+  const TarjetaTendencia({required this.valores, this.lunes = const [], super.key});
 
   /// % de cada semana, de la más antigua a la actual.
   final List<double> valores;
+
+  /// El lunes de cada semana de [valores] (mismo orden). Vacío = sin fechas en el eje X.
+  final List<DateTime> lunes;
+
+  /// Cumplimiento con el que la Escalera propone subir (doc. 02).
+  static const double umbralSubir = 85;
+
+  String _semana(int i) => i < lunes.length ? Fechas.corta(lunes[i]) : '${i + 1}';
 
   @override
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
     final texto = Theme.of(context).textTheme;
+    final etiqueta = texto.labelSmall!.copyWith(color: KaizenColores.textoSecundario);
     final puntos = [for (var i = 0; i < valores.length; i++) FlSpot(i.toDouble(), valores[i])];
+    // Con muchas semanas, una etiqueta sí y otra no en el eje X.
+    final cada = valores.length > 7 ? 2 : 1;
     return TarjetaKaizen(
       relleno: const EdgeInsets.all(KaizenMedidas.e20),
       child: Column(
@@ -217,10 +244,13 @@ class TarjetaTendencia extends StatelessWidget {
           Text(t.tendenciaDetalle, style: texto.bodySmall),
           const SizedBox(height: KaizenMedidas.e16),
           Semantics(
-            label: t.tendenciaSemantica(valores.length, [for (final v in valores) '${v.round()} %'].join(', ')),
+            label: t.tendenciaSemantica(
+              valores.length,
+              [for (var i = 0; i < valores.length; i++) '${_semana(i)}: ${valores[i].round()} %'].join(', '),
+            ),
             child: ExcludeSemantics(
               child: SizedBox(
-                height: 180,
+                height: 230,
                 child: valores.length < 2
                     ? Center(child: Text(t.sinDatos, style: texto.bodyMedium))
                     : LineChart(
@@ -230,13 +260,82 @@ class TarjetaTendencia extends StatelessWidget {
                           maxX: (valores.length - 1).toDouble(),
                           minY: 0,
                           maxY: 100,
-                          titlesData: const FlTitlesData(show: false),
-                          borderData: FlBorderData(show: false),
-                          lineTouchData: const LineTouchData(enabled: false),
+                          titlesData: FlTitlesData(
+                            topTitles: const AxisTitles(),
+                            rightTitles: const AxisTitles(),
+                            leftTitles: AxisTitles(
+                              axisNameWidget: Text(t.tendenciaEjeY, style: etiqueta),
+                              axisNameSize: 18,
+                              sideTitles: SideTitles(
+                                showTitles: true,
+                                reservedSize: 40,
+                                interval: 25,
+                                getTitlesWidget: (v, _) => Text('${v.round()} %', style: etiqueta),
+                              ),
+                            ),
+                            bottomTitles: AxisTitles(
+                              axisNameWidget: Text(t.tendenciaEjeX, style: etiqueta),
+                              axisNameSize: 18,
+                              sideTitles: SideTitles(
+                                showTitles: true,
+                                reservedSize: 24,
+                                interval: 1,
+                                getTitlesWidget: (v, _) {
+                                  final i = v.round();
+                                  final ultimo = valores.length - 1;
+                                  if (v != i || (i % cada != ultimo % cada)) {
+                                    return const SizedBox.shrink();
+                                  }
+                                  return Padding(
+                                    padding: const EdgeInsets.only(top: 4),
+                                    child: Text(_semana(i), style: etiqueta),
+                                  );
+                                },
+                              ),
+                            ),
+                          ),
+                          borderData: FlBorderData(
+                            show: true,
+                            border: const Border(
+                              left: BorderSide(color: KaizenColores.bordeControl),
+                              bottom: BorderSide(color: KaizenColores.bordeControl),
+                            ),
+                          ),
+                          lineTouchData: LineTouchData(
+                            touchTooltipData: LineTouchTooltipData(
+                              getTooltipColor: (_) => KaizenColores.marino800,
+                              getTooltipItems: (tocados) => [
+                                for (final p in tocados)
+                                  LineTooltipItem(
+                                    t.tendenciaPunto(_semana(p.x.round()), p.y.round()),
+                                    texto.labelMedium!.copyWith(color: KaizenColores.superficie),
+                                  ),
+                              ],
+                            ),
+                          ),
                           gridData: FlGridData(
                             drawVerticalLine: false,
-                            horizontalInterval: 50,
+                            horizontalInterval: 25,
                             getDrawingHorizontalLine: (_) => const FlLine(color: KaizenColores.borde, strokeWidth: 1),
+                          ),
+                          extraLinesData: ExtraLinesData(
+                            horizontalLines: [
+                              HorizontalLine(
+                                y: umbralSubir,
+                                color: KaizenColores.verdeProgreso,
+                                strokeWidth: 1.5,
+                                dashArray: [6, 4],
+                                label: HorizontalLineLabel(
+                                  show: true,
+                                  alignment: Alignment.topRight,
+                                  style: texto.labelSmall!.copyWith(
+                                    color: KaizenColores.verdeProgreso,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                  labelResolver: (_) => t.tendenciaUmbral,
+                                ),
+                              ),
+                            ],
                           ),
                           lineBarsData: [
                             LineChartBarData(
@@ -244,9 +343,11 @@ class TarjetaTendencia extends StatelessWidget {
                               color: KaizenColores.azul600,
                               barWidth: 2.5,
                               dotData: FlDotData(
-                                checkToShowDot: (punto, _) => punto.x == puntos.last.x,
-                                getDotPainter: (_, _, _, _) =>
-                                    FlDotCirclePainter(color: KaizenColores.marino800, radius: 5, strokeWidth: 0),
+                                getDotPainter: (punto, _, _, _) => FlDotCirclePainter(
+                                  color: punto.x == puntos.last.x ? KaizenColores.marino800 : KaizenColores.azul600,
+                                  radius: punto.x == puntos.last.x ? 5 : 3.5,
+                                  strokeWidth: 0,
+                                ),
                               ),
                             ),
                           ],
@@ -255,6 +356,8 @@ class TarjetaTendencia extends StatelessWidget {
               ),
             ),
           ),
+          const SizedBox(height: KaizenMedidas.e12),
+          Text(t.tendenciaLeyenda, style: texto.bodySmall),
         ],
       ),
     );

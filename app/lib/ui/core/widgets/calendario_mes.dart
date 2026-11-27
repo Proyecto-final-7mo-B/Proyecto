@@ -3,15 +3,18 @@ import 'package:flutter/material.dart';
 import '../../../l10n/gen/app_localizations.dart';
 import '../../../utils/fechas.dart';
 import '../tema/colores.dart';
+import '../tema/iconos.dart';
 import '../tema/medidas.dart';
 
 /// Calendario de un mes (semana L–D) con la intensidad de cumplimiento de cada día (escala 0–4 de
-/// [KaizenColores.intensidad]). Se usa en Hoy (escritorio) y en el detalle de un hábito.
+/// [KaizenColores.intensidad]). Se usa en Hoy (escritorio) y en el detalle de un hábito. Los días de [protegidos]
+/// llevan un escudo pequeño: el protector de racha perdonó esa falla (decisión del 27-nov).
 class CalendarioMes extends StatelessWidget {
   const CalendarioMes({
     required this.anio,
     required this.mes,
     this.niveles = const {},
+    this.protegidos = const {},
     this.hoy,
     this.onDia,
     this.altoCelda = 36,
@@ -26,6 +29,9 @@ class CalendarioMes extends StatelessWidget {
 
   /// Día del mes → nivel 0–4. Los días que no están valen 0.
   final Map<int, int> niveles;
+
+  /// Días del mes que perdonó el protector de racha.
+  final Set<int> protegidos;
 
   /// Si cae en este mes, ese día lleva un contorno.
   final DateTime? hoy;
@@ -51,7 +57,8 @@ class CalendarioMes extends StatelessWidget {
         return SizedBox(height: altoCelda);
       }
       final nivel = nivelDe(dia);
-      final contenido = Container(
+      final protegido = protegidos.contains(dia);
+      final celdaDia = Container(
         height: altoCelda,
         alignment: Alignment.center,
         decoration: BoxDecoration(
@@ -67,8 +74,28 @@ class CalendarioMes extends StatelessWidget {
           ),
         ),
       );
+      final contenido = !protegido
+          ? celdaDia
+          : Stack(
+              children: [
+                celdaDia,
+                Positioned(
+                  top: 2,
+                  right: 2,
+                  child: Icon(
+                    KaizenIconos.protector,
+                    key: ValueKey('escudo-$dia'),
+                    size: 11,
+                    color: nivel >= 3 ? KaizenColores.superficie : KaizenColores.azul600,
+                  ),
+                ),
+              ],
+            );
       return Semantics(
-        label: '${Fechas.diaYMes(dia, mes)}: ${t.nivelDeCuatro(nivel)}',
+        label: [
+          '${Fechas.diaYMes(dia, mes)}: ${t.nivelDeCuatro(nivel)}',
+          if (protegido) t.diaProtegido,
+        ].join(', '),
         button: onDia != null,
         selected: dia == diaHoy,
         child: ExcludeSemantics(

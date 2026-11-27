@@ -4,8 +4,9 @@ import '../tema/colores.dart';
 
 /// Barra de progreso redondeada (0–1).
 ///
-/// - Sobre la tarjeta destacada ("2 de 5"): barra blanca sobre pista `marino700`.
-/// - Sobre fondo claro: `marino800` sobre `azul50`, o el color que se pida (p. ej., `naranjaRacha` en las cápsulas).
+/// El avance es verde (doc. 04):
+/// - Sobre la tarjeta destacada ("2 de 5"): `verdeProgresoSobreMarino` sobre pista `marino700`.
+/// - Sobre fondo claro: `verdeProgreso` sobre `azul50`, o el color que se pida (p. ej., `naranjaRacha` en las cápsulas).
 class BarraProgreso extends StatelessWidget {
   const BarraProgreso({
     required this.valor,
@@ -24,7 +25,8 @@ class BarraProgreso extends StatelessWidget {
 
   double get valorRecortado => valor.isNaN ? 0 : valor.clamp(0, 1).toDouble();
 
-  Color get colorBarra => color ?? (sobreOscuro ? KaizenColores.superficie : KaizenColores.marino800);
+  Color get colorBarra =>
+      color ?? (sobreOscuro ? KaizenColores.verdeProgresoSobreMarino : KaizenColores.verdeProgreso);
 
   Color get colorPista => sobreOscuro ? KaizenColores.marino700 : KaizenColores.azul50;
 

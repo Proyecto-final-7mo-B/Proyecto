@@ -19,6 +19,52 @@ class ProgresoRepositoryFake implements ProgresoRepository {
 
   static double _redondear(double x) => (x * 100).roundToDouble() / 100;
 
+  /// Recomendación semanal de la OMS 2020 para actividad moderada (F11); igual que `sp_otorgar_logros_semanales`.
+  static const double omsDesde = 150;
+  static const double omsHasta = 300;
+  static const String citaOms = 'OMS 2020: 150–300 min/semana';
+
+  /// `actividad_semanal` (contrato §6.7): semana ISO de [fecha]; `coalesce(valor, meta) × factor` de los check-ins
+  /// cumplidos de `aerobico_moderado` y `vigoroso`; 1 min vigoroso = 2 moderados. `null` sin hábitos aeróbicos.
+  ActividadSemanal? actividadSemanal(List<HabitoDemo> habitos, DateTime fecha) {
+    final lunes = Fechas.inicioSemana(fecha);
+    var moderados = 0.0;
+    var vigorosos = 0.0;
+    var hay = false;
+    for (final h in habitos) {
+      final sub = _datos.subcategoria(h.subcategoriaId);
+      final factor = sub.unidad(h.unidad)?.factorABase;
+      if ((sub.clave != 'aerobico_moderado' && sub.clave != 'vigoroso') || factor == null) {
+        continue;
+      }
+      hay = true;
+      for (var i = 0; i < 7; i++) {
+        final r = _datos.registros[h.id]?[lunes.add(Duration(days: i))];
+        if (r == null || !r.cumplido) {
+          continue;
+        }
+        final minutos = (r.valor ?? h.meta) * factor;
+        if (sub.clave == 'vigoroso') {
+          vigorosos += minutos;
+        } else {
+          moderados += minutos;
+        }
+      }
+    }
+    if (!hay) {
+      return null;
+    }
+    return ActividadSemanal(
+      semana: Fechas.semanaIso(fecha),
+      minutosModerados: _redondear(moderados),
+      minutosVigorosos: _redondear(vigorosos),
+      equivalenteModerado: _redondear(moderados + 2 * vigorosos),
+      recomendadoDesde: omsDesde,
+      recomendadoHasta: omsHasta,
+      cita: citaOms,
+    );
+  }
+
   @override
   Future<Result<Progreso>> obtener(Periodo periodo, {required DateTime fecha}) => _datos.ejecutar(() {
     final u = _datos.usuarioDeSesion();
@@ -33,7 +79,7 @@ class ProgresoRepositoryFake implements ProgresoRepository {
         var p = 0;
         var c = 0;
         for (final h in habitos) {
-          if (d.isBefore(Fechas.soloFecha(h.fechaCreacion)) || !h.frecuencia.programadoEn(d)) {
+          if (d.isBefore(_datos.diaDe(h.fechaCreacion)) || !h.frecuencia.programadoEn(d)) {
             continue;
           }
           p++;
@@ -59,9 +105,11 @@ class ProgresoRepositoryFake implements ProgresoRepository {
     );
 
     final mejores = <String, int>{};
+    final claves = <String, String>{};
     for (final h in habitos) {
-      final nombre = _datos.categoria(h.categoriaId).nombre;
-      mejores[nombre] = max(mejores[nombre] ?? 0, _datos.racha(h).maxima);
+      final categoria = _datos.categoria(h.categoriaId);
+      mejores[categoria.nombre] = max(mejores[categoria.nombre] ?? 0, _datos.racha(h).maxima);
+      claves[categoria.nombre] = categoria.clave;
     }
     final crecimientos = [
       for (final h in habitos)
@@ -94,11 +142,15 @@ class ProgresoRepositoryFake implements ProgresoRepository {
             }(),
           ),
       ],
-      mejoresRachas: [for (final e in mejores.entries) MejorRacha(categoria: e.key, rachaMaxima: e.value)]
+      mejoresRachas: [
+        for (final e in mejores.entries)
+          MejorRacha(categoria: e.key, categoriaClave: claves[e.key]!, rachaMaxima: e.value),
+      ]
         ..sort((a, b) => b.rachaMaxima.compareTo(a.rachaMaxima)),
       crecimientoMetas: crecimientos.isEmpty
           ? 0
           : _redondear(crecimientos.reduce((a, b) => a + b) / crecimientos.length),
+      actividadSemanal: actividadSemanal(habitos, fecha),
     );
   });
 }

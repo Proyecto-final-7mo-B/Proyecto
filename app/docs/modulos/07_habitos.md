@@ -17,7 +17,7 @@ cápsulas de **7, 30 y 66** días. Ver "Respaldo científico".
 | Ruta | Pantalla | Bosquejo |
 |---|---|---|
 | `/habitos` | `PantallaHabitos`: pestañas **Activos** y **Archivados** | — (no hay bosquejo; sigue el estilo de las filas de Hoy) |
-| `/habitos/nuevo` | `PantallaFormularioHabito` (crear) | 03 (móvil, escritorio y web) |
+| `/habitos/nuevo/personalizado` | `PantallaFormularioHabito` (crear). Desde el Paso 9, `/habitos/nuevo` muestra los hábitos recomendados y este formulario es "Hábito personalizado" ([09](09_identidad_visual.md)) | 03 (móvil, escritorio y web) |
 | `/habitos/:id/editar` | `PantallaFormularioHabito` (editar y archivar) | 03 |
 | `/habitos/:id` | `PantallaDetalleHabito` | 04 (móvil, escritorio y web) |
 
@@ -238,7 +238,7 @@ flutter run -d linux --dart-define=KAIZEN_FUENTE=fake
 ```
 
 En la app, con *fakes* (contraseña: `KaizenDemo2026!`), entra como **Daniela**:
-1. **Hábitos** → **Nuevo hábito**: elige Ejercicio → Aeróbico moderado. La meta arranca en 25 min ("Dentro de lo
+1. **Hábitos** → **Nuevo hábito** → **Hábito personalizado** (desde el Paso 9): elige Ejercicio → Aeróbico moderado. La meta arranca en 25 min ("Dentro de lo
    recomendado"). Cambia a "h" y súbela a 2 h: aparece "Más de lo recomendado" con la fuente (OMS 2020) y
    **Usar 1.25 h**. Elige prioridad, escribe "Después de desayunar" y 30 días de cápsula. Al guardar se abre la cápsula.
 2. Abre **Leer**: racha de 34, "Lo que dice la evidencia" (por debajo: 30–60 min por día, Bavishi 2016), "Te faltan

@@ -15,7 +15,7 @@ class RegistrosRepositoryFake implements RegistrosRepository {
     if (!h.activo) {
       throw DatosDemo.error(TipoError.habitoArchivado, 409, 'El hábito está archivado');
     }
-    final creacion = DateTime.utc(h.fechaCreacion.year, h.fechaCreacion.month, h.fechaCreacion.day);
+    final creacion = _datos.diaDe(h.fechaCreacion);
     if (r.fecha.isBefore(creacion) || r.fecha.isAfter(_datos.hoy.add(const Duration(days: 1)))) {
       throw DatosDemo.error(TipoError.fechaFueraDeRango, 422, 'Fecha no válida');
     }

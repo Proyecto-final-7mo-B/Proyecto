@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 
 import '../config/entorno.dart';
 import '../l10n/gen/app_localizations.dart';
+import '../ui/acerca/widgets/pantalla_acerca.dart';
 import '../ui/auth/widgets/pantalla_entrar.dart';
 import '../ui/auth/widgets/pantalla_restablecer.dart';
 import '../ui/core/adaptativo/plataforma.dart';
@@ -11,6 +12,7 @@ import '../ui/dev/galeria_componentes.dart';
 import '../ui/habitos/widgets/pantalla_detalle_habito.dart';
 import '../ui/habitos/widgets/pantalla_formulario_habito.dart';
 import '../ui/habitos/widgets/pantalla_habitos.dart';
+import '../ui/habitos/widgets/pantalla_recomendados.dart';
 import '../ui/hoy/widgets/pantalla_hoy.dart';
 import '../ui/provisional/pantallas_provisionales.dart';
 import 'estado_sesion.dart';
@@ -76,7 +78,14 @@ GoRouter crearRouter({
               GoRoute(
                 path: 'nuevo',
                 pageBuilder: (context, estado) =>
-                    NoTransitionPage<void>(key: estado.pageKey, child: const PantallaFormularioHabito()),
+                    NoTransitionPage<void>(key: estado.pageKey, child: const PantallaRecomendados()),
+                routes: [
+                  GoRoute(
+                    path: 'personalizado',
+                    pageBuilder: (context, estado) =>
+                        NoTransitionPage<void>(key: estado.pageKey, child: const PantallaFormularioHabito()),
+                  ),
+                ],
               ),
               GoRoute(
                 path: ':id',
@@ -120,6 +129,11 @@ GoRouter crearRouter({
                 ),
               ),
             ],
+          ),
+          GoRoute(
+            path: Rutas.acerca,
+            pageBuilder: (context, estado) =>
+                NoTransitionPage<void>(key: estado.pageKey, child: const PantallaAcerca()),
           ),
           GoRoute(
             path: Rutas.perfil,

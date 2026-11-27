@@ -159,6 +159,16 @@ class _GaleriaComponentesState extends State<GaleriaComponentes> {
                   ],
                 ),
                 const SizedBox(height: 16),
+                // Los seis niveles de la racha (doc. 05): 0 · chispa · llama · aro · formado · emblema.
+                Wrap(
+                  spacing: 20,
+                  runSpacing: 12,
+                  children: [
+                    for (final dias in const [0, 3, 8, 34, 70, 120]) IndicadorRacha(dias: dias, tamano: 18),
+                    const IndicadorRacha(dias: 12, protegida: true, tamano: 18),
+                  ],
+                ),
+                const SizedBox(height: 16),
                 const BarraProgreso(valor: 14 / 21, color: KaizenColores.naranjaRacha),
                 const SizedBox(height: 16),
                 const BarraSemana(niveles: [2, 1, 0, 0, 2, 1, null]),

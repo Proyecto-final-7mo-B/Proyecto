@@ -102,6 +102,8 @@ void main() {
       final p = preparar();
       await montarApp(tester, ubicacion: Rutas.habitos, dependencias: p.deps);
       await tocar(tester, find.byTooltip('Nuevo hábito'));
+      // "Nuevo hábito" abre las recomendaciones; el formulario es "Hábito personalizado".
+      await tocar(tester, find.text('Hábito personalizado'));
       expect(find.byType(PantallaFormularioHabito), findsOneWidget);
       expect(find.text('Empieza pequeño: 5 minutos bastan para crear el hábito.'), findsOneWidget);
 
@@ -134,7 +136,7 @@ void main() {
     testWidgets('valida antes de llamar a la API: nombre, categoría y días', (tester) async {
       final p = preparar();
       final antes = p.deps.datosDemo!.habitos.length;
-      await montarApp(tester, ubicacion: Rutas.nuevoHabito, dependencias: p.deps);
+      await montarApp(tester, ubicacion: Rutas.nuevoHabitoPersonalizado, dependencias: p.deps);
       await tocar(tester, find.text('Días'));
       for (final d in ['L', 'Ma', 'Mi', 'J', 'V']) {
         await tocar(tester, find.text(d));
@@ -148,7 +150,7 @@ void main() {
     });
 
     testWidgets('"N por sem." muestra el contador de veces', (tester) async {
-      await montarApp(tester, ubicacion: Rutas.nuevoHabito);
+      await montarApp(tester, ubicacion: Rutas.nuevoHabitoPersonalizado);
       await tocar(tester, find.text('N por sem.'));
       expect(find.text('Veces por semana'), findsOneWidget);
       expect(find.text('3 veces'), findsOneWidget);
@@ -156,7 +158,7 @@ void main() {
 
     testWidgets('con cápsula: al guardar abre la pantalla de la cápsula de ese hábito', (tester) async {
       final p = preparar();
-      await montarApp(tester, ubicacion: Rutas.nuevoHabito, dependencias: p.deps);
+      await montarApp(tester, ubicacion: Rutas.nuevoHabitoPersonalizado, dependencias: p.deps);
       await tester.enterText(campo('Nombre'), 'Meditar');
       await tocar(tester, find.text('Bienestar'));
       await tocar(tester, find.text('Meditación'));
@@ -169,7 +171,7 @@ void main() {
 
     testWidgets('si el servidor falla, avisa y se queda en el formulario', (tester) async {
       final p = preparar();
-      await montarApp(tester, ubicacion: Rutas.nuevoHabito, dependencias: p.deps);
+      await montarApp(tester, ubicacion: Rutas.nuevoHabitoPersonalizado, dependencias: p.deps);
       await tester.enterText(campo('Nombre'), 'Meditar');
       await tocar(tester, find.text('Bienestar'));
       await tocar(tester, find.text('Meditación'));
@@ -181,7 +183,7 @@ void main() {
 
     testWidgets('un error del servidor en un campo sale junto al campo', (tester) async {
       final p = preparar();
-      await montarApp(tester, ubicacion: Rutas.nuevoHabito, dependencias: p.deps);
+      await montarApp(tester, ubicacion: Rutas.nuevoHabitoPersonalizado, dependencias: p.deps);
       await tester.enterText(campo('Nombre'), 'Meditar');
       await tocar(tester, find.text('Bienestar'));
       await tocar(tester, find.text('Meditación'));
@@ -202,6 +204,7 @@ void main() {
         dependencias: p.deps,
       );
       await tocar(tester, find.widgetWithText(FilledButton, 'Nuevo hábito'));
+      await tocar(tester, find.widgetWithText(OutlinedButton, 'Hábito personalizado'));
       expect(find.byType(VistaPreviaHabito), findsOneWidget);
       expect(find.text('Un hábito pequeño es un hábito que dura'), findsOneWidget);
       expect(find.text('Recordatorio'), findsNothing);
@@ -222,7 +225,7 @@ void main() {
 
   group('evidencia, prioridad e intención (teléfono)', () {
     testWidgets('2 h diarias de ejercicio: "Más de lo recomendado" y "Usar 85 min" lo corrige', (tester) async {
-      await montarApp(tester, ubicacion: Rutas.nuevoHabito);
+      await montarApp(tester, ubicacion: Rutas.nuevoHabitoPersonalizado);
       await tocar(tester, find.text('Ejercicio'));
       await tocar(tester, find.text('Aeróbico moderado'));
       await tocar(tester, find.text('h'));
@@ -231,15 +234,16 @@ void main() {
       }
       expect(find.text('2 h'), findsOneWidget);
       expect(find.text('Más de lo recomendado'), findsOneWidget);
-      expect(find.textContaining('Fuente: OMS 2020'), findsOneWidget);
-      expect(find.textContaining('Evidencia sólida'), findsOneWidget);
+      // Solo lo recomendado y la medición: la fuente va en el detalle del hábito y en "Acerca de Kaizen".
+      expect(find.textContaining('Fuente:'), findsNothing);
+      expect(find.textContaining('Evidencia sólida'), findsNothing);
       await tocar(tester, find.text('Usar 1.25 h'));
       expect(find.text('1.25 h'), findsOneWidget);
       expect(find.text('Más de lo necesario'), findsOneWidget, reason: '525 min/semana: arriba del óptimo, sin pasar de 600');
     });
 
     testWidgets('sin rango científico (ahorro) lo dice; km sugiere minutos', (tester) async {
-      await montarApp(tester, ubicacion: Rutas.nuevoHabito);
+      await montarApp(tester, ubicacion: Rutas.nuevoHabitoPersonalizado);
       await tocar(tester, find.text('Finanzas'));
       await tocar(tester, find.text('Ahorro'));
       expect(find.text('Sin rango científico: la meta la defines tú.'), findsOneWidget);
@@ -251,7 +255,7 @@ void main() {
 
     testWidgets('prioridad e intención se guardan; el aviso lleva la intención', (tester) async {
       final p = preparar();
-      await montarApp(tester, ubicacion: Rutas.nuevoHabito, dependencias: p.deps);
+      await montarApp(tester, ubicacion: Rutas.nuevoHabitoPersonalizado, dependencias: p.deps);
       await tester.enterText(campo('Nombre'), 'Agua');
       await tocar(tester, find.text('Salud'));
       await tocar(tester, find.text('Hidratación'));
@@ -270,7 +274,7 @@ void main() {
     testWidgets('intención de más de 120 caracteres no se guarda', (tester) async {
       final p = preparar();
       final antes = p.deps.datosDemo!.habitos.length;
-      await montarApp(tester, ubicacion: Rutas.nuevoHabito, dependencias: p.deps);
+      await montarApp(tester, ubicacion: Rutas.nuevoHabitoPersonalizado, dependencias: p.deps);
       await tester.enterText(campo('Nombre'), 'Agua');
       await tocar(tester, find.text('Salud'));
       await tocar(tester, find.text('Hidratación'));
@@ -342,8 +346,11 @@ void main() {
         scrollable: find.descendant(of: find.byType(PantallaDetalleHabito), matching: find.byType(Scrollable)).first,
       );
       expect(find.text('Noviembre'), findsOneWidget);
-      expect(find.text('100 %'), findsOneWidget);
+      // El lunes 23 falló y el protector lo perdonó: 23 de 24 días (hoy aún no cuenta) y un escudo ese día.
+      expect(find.text('96 %'), findsOneWidget);
       expect(find.byType(CalendarioMes), findsOneWidget);
+      expect(find.byKey(const ValueKey('escudo-23')), findsOneWidget);
+      expect(find.bySemanticsLabel(RegExp('23 de noviembre.*racha protegida ese día')), findsOneWidget);
       expect(find.byType(TarjetaKpi), findsNothing, reason: 'los KPI son de escritorio');
       await tocar(tester, find.byTooltip('Mes anterior'));
       expect(find.text('Octubre'), findsOneWidget);
@@ -376,7 +383,8 @@ void main() {
       expect(find.byType(TarjetaEvidenciaHabito), findsOneWidget);
       expect(find.text('Por debajo de lo recomendado'), findsOneWidget);
       expect(find.text('Te faltan 32 días para los 66, la mediana para formar un hábito.'), findsOneWidget);
-      expect(find.text('Protector disponible: fallar un día esta semana no rompe tu racha.'), findsOneWidget);
+      expect(find.text('Ya usaste el protector esta semana: un fallo más rompe la racha.'), findsOneWidget);
+      expect(find.textContaining('Fuente:'), findsOneWidget, reason: 'en el detalle sí va la fuente');
       expect(find.text('Cuándo: Antes de dormir'), findsOneWidget);
       await tocar(tester, find.text('Ver escalera'));
       expect(find.text('Escalera del hábito'), findsWidgets);

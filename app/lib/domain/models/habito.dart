@@ -80,6 +80,7 @@ class Habito {
     this.intencion,
     this.evaluacion,
     this.hoy,
+    this.recomendacionId,
   });
 
   factory Habito.fromJson(Map<String, dynamic> json) => _$HabitoFromJson(json);
@@ -107,6 +108,9 @@ class Habito {
 
   /// Zona según la evidencia (`v_habito_evidencia`). `null` si la API no la mandó.
   final Evaluacion? evaluacion;
+
+  /// Recomendación de la que salió (v1.7); `null` = personalizado.
+  final String? recomendacionId;
   final Frecuencia frecuencia;
   final bool escaleraActiva;
   final bool activo;
@@ -147,6 +151,7 @@ class Habito {
       fechaCreacion: fechaCreacion,
       racha: racha ?? this.racha,
       hoy: hoy ?? this.hoy,
+      recomendacionId: recomendacionId,
     );
   }
 

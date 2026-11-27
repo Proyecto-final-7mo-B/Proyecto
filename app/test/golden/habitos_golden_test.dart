@@ -10,7 +10,8 @@ import 'package:kaizen/ui/core/widgets/contador_meta.dart';
 import '../helpers/app.dart';
 
 /// Módulo Hábitos con los datos de Daniela, para compararlo con los bosquejos 03 y 04 (con el respaldo científico
-/// del 27-nov: subcategoría, unidad permitida, "Lo que dice la evidencia", prioridad e intención).
+/// del 27-nov: subcategoría, unidad permitida, "Lo que dice la evidencia", prioridad e intención), más los hábitos
+/// recomendados y "Acerca de Kaizen".
 /// Regenerar (solo si el cambio es intencional): `flutter test --update-goldens --tags golden`.
 void main() {
   const movil = Size(390, 844);
@@ -40,7 +41,7 @@ void main() {
       'habitos_nuevo_movil',
       Plataforma.movil,
       movil,
-      (String _) => Rutas.nuevoHabito,
+      (String _) => Rutas.nuevoHabitoPersonalizado,
       (WidgetTester t) async {
         await t.enterText(find.byType(TextField).first, 'Caminar');
         await tocar(t, find.text('Ejercicio'));
@@ -56,7 +57,7 @@ void main() {
       'habitos_nuevo_escritorio',
       Plataforma.escritorio,
       escritorio,
-      (String _) => Rutas.nuevoHabito,
+      (String _) => Rutas.nuevoHabitoPersonalizado,
       (WidgetTester t) async {
         await t.enterText(find.byType(TextField).first, 'Leer novelas');
         await tocar(t, find.text('Educación'));
@@ -68,7 +69,7 @@ void main() {
       'habitos_nuevo_excesivo_escritorio',
       Plataforma.escritorio,
       escritorio,
-      (String _) => Rutas.nuevoHabito,
+      (String _) => Rutas.nuevoHabitoPersonalizado,
       (WidgetTester t) async {
         await t.enterText(find.byType(TextField).first, 'Bici');
         await tocar(t, find.text('Ejercicio'));
@@ -81,6 +82,19 @@ void main() {
     ('habitos_detalle_movil', Plataforma.movil, movil, Rutas.habito, null),
     ('habitos_detalle_escritorio', Plataforma.escritorio, escritorio, Rutas.habito, null),
     ('habitos_editar_movil', Plataforma.movil, movil, Rutas.editarHabito, null),
+    // Nuevo hábito = recomendaciones (decisión del 27-nov)
+    ('habitos_recomendados_movil', Plataforma.movil, movil, (String _) => Rutas.nuevoHabito, null),
+    ('habitos_recomendados_escritorio', Plataforma.escritorio, escritorio, (String _) => Rutas.nuevoHabito, null),
+    (
+      'habitos_recomendado_detalle_movil',
+      Plataforma.movil,
+      movil,
+      (String _) => Rutas.nuevoHabito,
+      (WidgetTester t) async {
+        await tocar(t, find.text('Caminar a paso rápido'));
+      },
+    ),
+    ('acerca_escritorio', Plataforma.escritorio, escritorio, (String _) => Rutas.acerca, null),
   ]) {
     testWidgets(nombre, (tester) async {
       final deps = dependenciasPrueba();

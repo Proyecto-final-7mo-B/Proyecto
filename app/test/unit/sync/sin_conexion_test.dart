@@ -80,6 +80,34 @@ void main() {
       expect(leer.categoria.color, '#2563EB');
     });
 
+    test('recomendaciones y fuentes (v1.7): sin red, de la copia; crear una recomendada sí exige red', () async {
+      red.hayRed = false;
+      expect((await d.habitos.recomendados()).errorONulo!.tipo, TipoError.sinConexion, reason: 'nunca se guardó');
+      expect((await d.categorias.fuentes()).errorONulo!.tipo, TipoError.sinConexion);
+      red.hayRed = true;
+      final recs = (await d.habitos.recomendados()).valorONulo!;
+      expect((await d.categorias.fuentes()).valorONulo, hasLength(53));
+      red.hayRed = false;
+      final copia = (await d.habitos.recomendados()).valorONulo!;
+      expect(copia, hasLength(100));
+      expect(copia.first.toJson(), recs.first.toJson(), reason: 'la copia es igual a lo del servidor');
+      expect((await d.categorias.fuentes()).valorONulo!.first.clave, 'F01');
+      expect((await d.habitos.crearRecomendado(recs.first.id)).errorONulo!.tipo, TipoError.sinConexion);
+    });
+
+    test('días protegidos sin red: sin escudos, en lugar de un error (no es indispensable)', () async {
+      final leer = idDe('Leer');
+      expect(
+        (await d.habitos.diasProtegidos(leer, desde: _hoy.subtract(const Duration(days: 30)), hasta: _hoy)).valorONulo,
+        isNotEmpty,
+      );
+      red.hayRed = false;
+      expect(
+        (await d.habitos.diasProtegidos(leer, desde: _hoy.subtract(const Duration(days: 30)), hasta: _hoy)).valorONulo,
+        isEmpty,
+      );
+    });
+
     test('un error que no es de red no usa la copia', () async {
       await d.categorias.listar();
       datos.fallarSiguiente(const ErrorApp(TipoError.errorInterno));
@@ -204,6 +232,30 @@ void main() {
       expect(d.sincronizador.mostrarAviso, isFalse);
       expect((await d.almacenLocal.habito(leer))!.racha.actual, 35);
       d.sincronizador.dispose();
+    });
+
+    test('el aviso no sale mientras un check-in se envía; solo si de verdad falló', () async {
+      await d.sincronizador.iniciar();
+      final leer = idDe('Leer');
+      // Con red: el check-in pasa por la cola (se guarda antes de mandarse), pero nunca se avisa.
+      final avisos = <bool>[];
+      void escuchar() => avisos.add(d.sincronizador.mostrarAviso);
+      d.sincronizador.addListener(escuchar);
+      final enCola = datos.nuevoId();
+      await d.almacenLocal.guardarYEncolar(checkin(idDe('Dormir 7 h'), id: enCola));
+      await pumpEventQueue();
+      expect(d.sincronizador.pendientes, 1);
+      expect(d.sincronizador.mostrarAviso, isFalse, reason: 'se está enviando, no ha fallado');
+      await d.registros.registrar(checkin(leer, id: datos.nuevoId()));
+      await pumpEventQueue();
+      expect(avisos, everyElement(isFalse));
+      // Un intento que no llegó (p. ej., un 500 en el lote) sí muestra el aviso.
+      await d.almacenLocal.anotarIntento([enCola], 'servidor');
+      await pumpEventQueue();
+      expect(d.sincronizador.mostrarAviso, isTrue);
+      d.sincronizador
+        ..removeListener(escuchar)
+        ..dispose();
     });
 
     test('lotes de máximo 100 y fechas atrasadas con su fecha original', () async {

@@ -6,6 +6,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:kaizen/ui/core/tema/colores.dart';
 import 'package:kaizen/ui/core/widgets/calendario_mes.dart';
 import 'package:kaizen/ui/core/widgets/campo_validado.dart';
+import 'package:kaizen/ui/core/widgets/celebracion_hito.dart';
+import 'package:kaizen/ui/core/widgets/indicador_racha.dart';
 import 'package:kaizen/ui/core/widgets/chips_seleccion.dart';
 import 'package:kaizen/ui/core/widgets/contador_meta.dart';
 import 'package:kaizen/ui/core/widgets/fila_habito.dart';
@@ -193,5 +195,24 @@ void main() {
         ],
       ),
     );
+  });
+
+  testWidgets('racha por niveles (doc. 05): 0 · chispa · llama · aro · formado · emblema · protegida', (tester) async {
+    await comparar(
+      tester,
+      'racha_niveles',
+      Wrap(
+        spacing: 20,
+        runSpacing: 12,
+        children: [
+          for (final dias in const [0, 3, 8, 34, 70, 120]) IndicadorRacha(dias: dias, tamano: 20),
+          const IndicadorRacha(dias: 12, protegida: true, tamano: 20),
+        ],
+      ),
+    );
+  });
+
+  testWidgets('celebración del hito de 66 días', (tester) async {
+    await comparar(tester, 'celebracion_66', const CelebracionHito(hito: 66, habito: 'Leer'), ancho: 420);
   });
 }

@@ -10,11 +10,13 @@ import '../tema/medidas.dart';
 import '../widgets/avatar_usuario.dart';
 import '../widgets/icono_escalera.dart';
 import '../widgets/logo_kaizen.dart';
+import 'consejo_riel.dart';
 import 'destinos.dart';
 import 'plataforma.dart';
 
 /// Riel lateral `marino900` (bosquejos de escritorio). [extendido] (≥ 1200 px) muestra los nombres al lado de los
-/// íconos y al usuario abajo; si no (600–1199 px), es un riel angosto con los nombres debajo.
+/// íconos, el "Consejo saludable" del día y al usuario abajo; si no (600–1199 px), es un riel angosto con los nombres
+/// debajo.
 class ShellEscritorio extends StatelessWidget {
   const ShellEscritorio({required this.ubicacion, required this.child, required this.extendido, super.key});
 
@@ -111,6 +113,7 @@ class RielLateral extends StatelessWidget {
                 ),
               ),
             ),
+            if (extendido) const ConsejoRiel(),
             if (usuario != null)
               _PieUsuario(usuario: usuario!, extendido: extendido, onTap: () => onElegir(Rutas.perfil)),
           ],

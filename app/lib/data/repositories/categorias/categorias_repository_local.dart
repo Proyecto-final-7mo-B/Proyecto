@@ -1,4 +1,5 @@
 import '../../../domain/models/categoria.dart';
+import '../../../domain/models/recomendacion.dart';
 import '../../../utils/result.dart';
 import '../../services/base_local/almacen_local.dart';
 import '../cache.dart';
@@ -19,6 +20,20 @@ class CategoriasRepositoryLocal implements CategoriasRepository {
     local: () async {
       final lista = await almacen.categorias();
       return lista.isEmpty ? null : lista;
+    },
+    reportar: reportar,
+  );
+
+  /// Las fuentes casi no cambian: se guardan para leer "Acerca de Kaizen" sin red.
+  @override
+  Future<Result<List<FuenteCientifica>>> fuentes() => leerConCache<List<FuenteCientifica>>(
+    remoto: remoto.fuentes,
+    guardar: (lista) => almacen.guardarJson('fuentes', [for (final f in lista) f.toJson()]),
+    local: () async {
+      final json = await almacen.leerJson('fuentes');
+      return json == null
+          ? null
+          : [for (final f in json as List<dynamic>) FuenteCientifica.fromJson(f as Map<String, dynamic>)];
     },
     reportar: reportar,
   );

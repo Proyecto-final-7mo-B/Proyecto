@@ -28,7 +28,30 @@ void main() {
     expect(find.byIcon(KaizenIconos.racha), findsOneWidget);
   });
 
-  testWidgets('el círculo vacío no lleva palomita; el cumplido sí, sobre marino800', (tester) async {
+  testWidgets('prioridad alta: bandera y "Alta" antes del subtítulo, con su lectura de pantalla (doc. 07)', (tester) async {
+    final manejador = tester.ensureSemantics();
+    await montar(tester, fila());
+    expect(find.byIcon(KaizenIconos.prioridadAlta), findsNothing);
+    await montar(
+      tester,
+      const FilaHabito(
+        icono: Icons.water_drop_outlined,
+        nombre: 'Tomar agua',
+        subtitulo: '2 L · diario',
+        racha: 21,
+        cumplido: false,
+        prioridadAlta: true,
+        protegida: true,
+      ),
+    );
+    expect(find.byIcon(KaizenIconos.prioridadAlta), findsOneWidget);
+    expect(find.text('Alta'), findsOneWidget);
+    expect(find.bySemanticsLabel(RegExp('Prioridad alta')), findsOneWidget);
+    expect(find.byIcon(KaizenIconos.protector), findsOneWidget);
+    manejador.dispose();
+  });
+
+  testWidgets('el círculo vacío no lleva palomita; el cumplido sí, sobre verdeProgreso (doc. 04)', (tester) async {
     await montar(tester, fila());
     expect(find.byIcon(KaizenIconos.cumplido), findsNothing);
 
@@ -38,7 +61,7 @@ void main() {
     final material = tester.widget<Material>(
       find.ancestor(of: find.byIcon(KaizenIconos.cumplido), matching: find.byType(Material)).first,
     );
-    expect(material.color, KaizenColores.marino800);
+    expect(material.color, KaizenColores.verdeProgreso);
   });
 
   testWidgets('tocar el círculo hace el check-in; tocar la fila abre el detalle', (tester) async {

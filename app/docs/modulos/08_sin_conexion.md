@@ -71,7 +71,7 @@ Se actualizaron las pruebas y `06_hoy.md`.
 | `registros` | Check-ins, hasta 366 días por hábito; **`UNIQUE (habito_id, fecha)`** | Paso 8 |
 | `cola_pendientes` | `id` UUID, **fecha local original**, intentos, último error, `rechazado`; uno por hábito y día | Paso 8 |
 | `recordatorios` | Hora por hábito (copia de las notificaciones programadas) | Paso 8 |
-| `marcas` | Si la lista de hábitos ya se guardó alguna vez ("nunca se cargó" ≠ "no hay hábitos") | Paso 8 |
+| `marcas` | Si la lista de hábitos ya se guardó alguna vez ("nunca se cargó" ≠ "no hay hábitos"). Desde el Paso 9 guarda también, como JSON, los hábitos recomendados y las fuentes (`json:recomendados`, `json:fuentes`) | Paso 8 |
 | `senales` | Ánimo y energía recientes | Paso 10 |
 | `sugerencias` | Sugerencias de la Escalera | Paso 9 |
 | `capsulas` | Solo metadatos y la **ruta local de la foto**; **nunca el mensaje** | Paso 11 |
@@ -95,7 +95,7 @@ Se actualizaron las pruebas y `06_hoy.md`.
 | `data/repositories/*/…_repository_local.dart` | Categorías, hábitos y check-ins con copia local (envuelven al remoto) |
 | `data/services/recordatorios/servicio_recordatorios_con_copia.dart` | Copia la hora de cada recordatorio en la tabla `recordatorios` |
 | `data/sync/monitor_conexion.dart` | ¿Hay red? `MonitorConexionPlus` (`connectivity_plus`) y `MonitorConexionManual` (pruebas) |
-| `data/sync/sincronizador.dart` | Envía la cola y expone `enLinea`, `pendientes`, `rechazados` y `mostrarAviso` |
+| `data/sync/sincronizador.dart` | Envía la cola y expone `enLinea`, `pendientes`, `rechazados` y `mostrarAviso`. Desde el Paso 9, el aviso solo sale sin red o si un envío **ya falló** (`fallidos`: pendientes con intentos); un check-in que se está enviando no lo muestra |
 | `web/sqlite3.wasm`, `web/drift_worker.js` | SQLite en el navegador (ver abajo) |
 | `tool/drift_worker.dart` | Fuente de `web/drift_worker.js` |
 

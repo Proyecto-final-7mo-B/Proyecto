@@ -34,6 +34,20 @@ abstract final class KaizenIconos {
   static const IconData reactivar = Icons.unarchive_outlined;
   static const IconData recordatorio = Icons.notifications_none;
 
+  // Racha por niveles (doc. 05) y Hoy
+  static const IconData rachaChispa = Icons.auto_awesome;
+  static const IconData rachaLlena = Icons.local_fire_department;
+  static const IconData rachaEmblema = Icons.military_tech;
+  static const IconData protector = Icons.shield_outlined;
+  static const IconData prioridadAlta = Icons.flag_outlined;
+  static const IconData hito = Icons.flag;
+  static const IconData consejo = Icons.lightbulb_outline;
+  static const IconData actividad = Icons.directions_run;
+  static const IconData constancia = Icons.grid_view;
+  static const IconData acerca = Icons.info_outline;
+  static const IconData rachaMaxima = Icons.emoji_events_outlined;
+  static const IconData cumplimiento = Icons.task_alt;
+
   /// Ícono genérico cuando el nombre no está en [_porNombre] (el admin puede crear subcategorías nuevas).
   static const IconData categoriaGenerica = Icons.check_circle_outline;
 

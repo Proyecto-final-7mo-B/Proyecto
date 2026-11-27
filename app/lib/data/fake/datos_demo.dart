@@ -11,6 +11,7 @@ import '../../domain/models/frecuencia.dart';
 import '../../domain/models/habito.dart';
 import '../../domain/models/laboratorio.dart';
 import '../../domain/models/problema.dart';
+import '../../domain/models/recomendacion.dart';
 import '../../domain/models/registro.dart';
 import '../../domain/models/usuario.dart';
 import '../../utils/evidencia.dart';
@@ -19,6 +20,8 @@ import '../../utils/paises_estados.dart';
 import '../../utils/result.dart';
 import '../services/api/errores_api.dart';
 import 'catalogo_demo.dart';
+import 'fuentes_demo.dart';
+import 'recomendados_demo.dart';
 
 /// "Servidor" en memoria para desarrollar y probar sin backend (`KAIZEN_FUENTE=fake`).
 ///
@@ -65,10 +68,19 @@ class DatosDemo {
   DateTime get ahora => _reloj().toUtc();
   DateTime get hoy => Fechas.soloFecha(_reloj());
 
+  /// El día **del usuario** en que ocurrió un instante guardado en UTC (como `fecha_creacion` en la base). Sin esto,
+  /// un hábito creado después de las 18:00 en México quedaba "creado mañana" y rechazaba el check-in de hoy.
+  DateTime diaDe(DateTime instante) => Fechas.soloFecha(instante.toLocal());
+
   // ───────────────────────────── Estado ─────────────────────────────
 
   final Map<String, UsuarioDemo> usuarios = {};
   final List<Categoria> categorias = [];
+
+  /// Los 100 hábitos recomendados del clúster (mismos ids) y las 53 fuentes (v1.7).
+  final List<HabitoRecomendado> recomendados = [];
+  final Set<String> recomendadosInactivos = {};
+  final List<FuenteCientifica> fuentes = [];
   final Map<String, HabitoDemo> habitos = {};
   final Map<String, Map<DateTime, Registro>> registros = {};
   final Map<String, List<Nivel>> niveles = {};
@@ -207,9 +219,35 @@ class DatosDemo {
   /// hoy todavía no rompe la racha si aún no hay check-in. Los "N por semana" cuentan semanas cumplidas.
   /// **Protector** (igual que `fn_rachas` desde el 27-nov): el primer día programado fallado de cada semana ISO no
   /// rompe la racha (ese día no suma); el segundo de la misma semana sí.
+  /// Los días que perdonó el protector de racha (como `fn_dias_protegidos`): un día programado fallado por semana ISO
+  /// no rompe la racha; hoy todavía no cuenta. En "N por semana" no aplica.
+  Set<DateTime> diasProtegidos(HabitoDemo h) {
+    final regs = registros[h.id] ?? const {};
+    final protegidos = <DateTime>{};
+    if (h.frecuencia is NPorSemana) {
+      return protegidos;
+    }
+    DateTime? semanaProtegida;
+    var actual = 0;
+    for (var d = diaDe(h.fechaCreacion); d.isBefore(hoy); d = d.add(const Duration(days: 1))) {
+      if (!h.frecuencia.programadoEn(d)) {
+        continue;
+      }
+      if (regs[d]?.cumplido ?? false) {
+        actual++;
+      } else if (actual > 0 && semanaProtegida != Fechas.inicioSemana(d)) {
+        semanaProtegida = Fechas.inicioSemana(d);
+        protegidos.add(d);
+      } else {
+        actual = 0;
+      }
+    }
+    return protegidos;
+  }
+
   Racha racha(HabitoDemo h, {DateTime? desde}) {
     final hasta = hoy;
-    final inicio = desde ?? Fechas.soloFecha(h.fechaCreacion);
+    final inicio = desde ?? diaDe(h.fechaCreacion);
     final regs = registros[h.id] ?? const {};
     DateTime? ultima;
     DateTime? protegido;
@@ -273,6 +311,7 @@ class DatosDemo {
       subcategoria: sub.resumen,
       prioridad: h.prioridad,
       intencion: h.intencion,
+      recomendacionId: h.recomendacionId,
       evaluacion: EvaluadorEvidencia.evaluar(sub, h.unidad, h.meta, h.frecuencia),
       frecuencia: h.frecuencia,
       escaleraActiva: h.escaleraActiva,
@@ -310,6 +349,13 @@ class DatosDemo {
     // El catálogo es el mismo del clúster (mismos ids, unidades y referencias científicas).
     categorias.addAll([
       for (final c in jsonDecode(catalogoDemoJson) as List<dynamic>) Categoria.fromJson(c as Map<String, dynamic>),
+    ]);
+    recomendados.addAll([
+      for (final r in jsonDecode(recomendadosDemoJson) as List<dynamic>)
+        HabitoRecomendado.fromJson(r as Map<String, dynamic>),
+    ]);
+    fuentes.addAll([
+      for (final f in jsonDecode(fuentesDemoJson) as List<dynamic>) FuenteCientifica.fromJson(f as Map<String, dynamic>),
     ]);
 
     final hace = ahora.subtract(const Duration(days: 120));
@@ -384,6 +430,8 @@ class DatosDemo {
       racha: 34,
       metas: const [7, 8.5, 10],
       intencion: 'Antes de dormir',
+      // El lunes de esta semana falló y el protector lo perdonó: escudo en Hoy y en el calendario.
+      falloProtegidoTras: 1,
     );
     _habito(
       demo.id,
@@ -392,7 +440,8 @@ class DatosDemo {
       20,
       'idiomas',
       const DiasSemana(DiasSemana.lunesAViernes),
-      racha: 5,
+      // A un día del primer hito: marcarlo hoy muestra la celebración de 7 días (Paso 9).
+      racha: 6,
       escalera: false,
       prioridad: Prioridad.baja,
     );
@@ -463,6 +512,7 @@ class DatosDemo {
     double constancia = 0.7,
     int prioridad = Prioridad.media,
     String? intencion,
+    int? falloProtegidoTras,
   }) {
     final creado = ahora.subtract(const Duration(days: 120));
     final sub = subcategoriaPorClave(subcategoriaClave);
@@ -499,9 +549,12 @@ class DatosDemo {
 
     // Historial: los últimos [racha] días programados cumplidos; antes, fallos hasta que dos caen en la misma semana
     // (así el protector no alarga la racha y la racha queda exactamente en [racha]); antes de eso, al azar.
+    // Con [falloProtegidoTras], dentro de la racha hay una falla que el protector perdonó (no suma ni rompe), después
+    // de esos días cumplidos contando hacia atrás: es el escudo del calendario y de la fila (Paso 9).
     final regs = registros.putIfAbsent(h.id, () => {});
     final inicio = Fechas.soloFecha(creado);
     var pendientes = racha;
+    var falloPendiente = falloProtegidoTras != null;
     var corte = false;
     DateTime? semanaDelFallo;
     for (
@@ -516,6 +569,9 @@ class DatosDemo {
       bool cumplido;
       if (frecuencia is NPorSemana) {
         cumplido = _azar.nextDouble() < 0.35;
+      } else if (falloPendiente && racha - pendientes == falloProtegidoTras) {
+        cumplido = false;
+        falloPendiente = false;
       } else if (pendientes > 0) {
         cumplido = true;
         pendientes--;
@@ -660,10 +716,14 @@ class HabitoDemo {
     required this.fechaCreacion,
     this.prioridad = Prioridad.media,
     this.intencion,
+    this.recomendacionId,
   });
 
   final String id;
   final String usuarioId;
+
+  /// Recomendación de la que salió (v1.7); `null` = personalizado.
+  final String? recomendacionId;
   String nombre;
   String unidad;
   double meta;

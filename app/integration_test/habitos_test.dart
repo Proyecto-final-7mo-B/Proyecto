@@ -7,6 +7,7 @@ import 'package:kaizen/config/entorno.dart';
 import 'package:kaizen/data/fake/datos_demo.dart';
 import 'package:kaizen/ui/core/widgets/campo_validado.dart';
 import 'package:kaizen/ui/core/widgets/contador_meta.dart';
+import 'package:kaizen/ui/core/widgets/fila_habito.dart';
 import 'package:kaizen/ui/habitos/widgets/pantalla_detalle_habito.dart';
 import 'package:kaizen/ui/habitos/widgets/pantalla_formulario_habito.dart';
 import 'package:kaizen/ui/hoy/widgets/pantalla_hoy.dart';
@@ -50,6 +51,8 @@ void main() {
     // 2. Crear "Caminar" desde Hoy con 2 h diarias: la evidencia avisa y "Usar 1.25 h" la corrige. Al volver, Hoy
     //    ya lo cuenta.
     await tocar(tester, find.widgetWithText(FilledButton, 'Nuevo hábito'));
+    // "Nuevo hábito" abre las recomendaciones (27-nov); el formulario es "Hábito personalizado".
+    await tocar(tester, find.text('Hábito personalizado'));
     expect(find.byType(PantallaFormularioHabito), findsOneWidget);
     await tester.enterText(campo('Nombre'), 'Caminar');
     await tocar(tester, find.text('Ejercicio'));
@@ -65,7 +68,8 @@ void main() {
     expect(find.text('2 de 6'), findsOneWidget);
 
     // 3. Abrirlo, editarlo y archivarlo: Hoy deja de contarlo.
-    await tocar(tester, find.text('Caminar'));
+    // "Caminar" también está en "Esta semana, por hábito": se toca su fila.
+    await tocar(tester, find.widgetWithText(FilaHabito, 'Caminar'));
     expect(find.byType(PantallaDetalleHabito), findsOneWidget);
     await tocar(tester, find.text('Editar'));
     // El aviso de "hábito creado" puede tapar el botón de abajo en ventanas bajas: se quita antes de tocar.
@@ -81,7 +85,12 @@ void main() {
     expect(deps.datosDemo!.habitosDe('u-demo').firstWhere((h) => h.nombre == 'Caminar').meta, 1.25);
 
     // 4. Crear "Meditar" con cápsula de 30 días: se abre la pantalla de la cápsula de ese hábito.
+    //    Hoy conserva su desplazamiento: se regresa arriba, donde está "Nuevo hábito".
+    final hoy = find.descendant(of: find.byType(PantallaHoy), matching: find.byType(Scrollable)).first;
+    tester.state<ScrollableState>(hoy).position.jumpTo(0);
+    await tester.pumpAndSettle();
     await tocar(tester, find.widgetWithText(FilledButton, 'Nuevo hábito'));
+    await tocar(tester, find.text('Hábito personalizado'));
     await tester.enterText(campo('Nombre'), 'Meditar');
     await tocar(tester, find.text('Bienestar'));
     await tocar(tester, find.text('Meditación'));

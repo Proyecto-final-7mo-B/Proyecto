@@ -17,7 +17,12 @@ void main() {
         id: 'h1',
         nombre: 'Tomar agua',
         categoria: const Categoria(id: 'cat-salud', clave: 'salud', nombre: 'Salud'),
-        subcategoria: const Subcategoria(id: 'sub-hidratacion', clave: 'hidratacion', nombre: 'Hidratación', icono: 'water_drop'),
+        subcategoria: const Subcategoria(
+          id: 'sub-hidratacion',
+          clave: 'hidratacion',
+          nombre: 'Hidratación',
+          icono: 'water_drop',
+        ),
         frecuencia: frecuencia,
         meta: meta,
         unidad: unidad,

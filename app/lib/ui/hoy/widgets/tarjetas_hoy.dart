@@ -2,12 +2,14 @@ import 'package:flutter/material.dart';
 
 import '../../../domain/models/escalera.dart';
 import '../../../l10n/gen/app_localizations.dart';
+import '../../../utils/fechas.dart';
 import '../../core/formatos.dart';
 import '../../core/tema/colores.dart';
 import '../../core/tema/iconos.dart';
 import '../../core/tema/medidas.dart';
 import '../../core/widgets/barra_progreso.dart';
 import '../../core/widgets/barra_semana.dart';
+import '../../core/widgets/calendario_mes.dart';
 import '../../core/widgets/icono_escalera.dart';
 import '../../core/widgets/tarjeta_kaizen.dart';
 
@@ -212,7 +214,8 @@ class TarjetaSenal extends StatelessWidget {
       onTap: onTap,
       child: Row(
         children: [
-          const Icon(KaizenIconos.laboratorio),
+          // Bienestar: teal (doc. 04).
+          const Icon(KaizenIconos.laboratorio, color: KaizenColores.tealBienestar),
           const SizedBox(width: KaizenMedidas.e16),
           Expanded(
             child: Column(
@@ -224,6 +227,65 @@ class TarjetaSenal extends StatelessWidget {
             ),
           ),
           const Icon(KaizenIconos.siguiente),
+        ],
+      ),
+    );
+  }
+}
+
+/// "Tu mes": el nombre del mes con su % de cumplimiento y el calendario (intensidad por día y escudo en los días que
+/// el protector perdonó a algún hábito). Va en el teléfono y en escritorio.
+class TarjetaMes extends StatelessWidget {
+  const TarjetaMes({
+    required this.anio,
+    required this.mes,
+    required this.hoy,
+    required this.niveles,
+    this.protegidos = const {},
+    this.porcentaje,
+    super.key,
+  });
+
+  final int anio;
+  final int mes;
+  final DateTime hoy;
+  final Map<int, int> niveles;
+  final Set<int> protegidos;
+
+  /// `null` = no se muestra.
+  final double? porcentaje;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context);
+    final texto = Theme.of(context).textTheme;
+    final pct = porcentaje;
+    return TarjetaKaizen(
+      relleno: const EdgeInsets.all(KaizenMedidas.e20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Semantics(
+            header: true,
+            label: pct == null ? Fechas.nombreMes(mes) : t.tuMesSemantica(Fechas.nombreMes(mes), pct.round()),
+            child: ExcludeSemantics(
+              child: Row(
+                children: [
+                  Expanded(child: Text(Fechas.nombreMes(mes), style: texto.titleMedium)),
+                  if (pct != null)
+                    Text(
+                      t.porcentaje(pct.round()),
+                      style: texto.titleMedium!.copyWith(
+                        color: KaizenColores.verdeProgreso,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: KaizenMedidas.e8),
+          CalendarioMes(anio: anio, mes: mes, hoy: hoy, niveles: niveles, protegidos: protegidos, mostrarTitulo: false),
         ],
       ),
     );

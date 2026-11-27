@@ -19,7 +19,8 @@ abstract final class Busqueda {
   /// Qué navegadores tienen la paleta abierta (por navegador, no global: cada app/ventana tiene el suyo).
   static final Expando<bool> _abiertaEn = Expando('paleta abierta');
 
-  /// Lo que se puede buscar: todos los destinos de la plataforma, más Perfil, Privacidad, Mi semana y Nuevo hábito.
+  /// Lo que se puede buscar: todos los destinos de la plataforma (Acerca de incluido), más Perfil, Privacidad, Mi
+  /// semana y Nuevo hábito.
   static List<Destino> opciones(BuildContext context) {
     final t = AppLocalizations.of(context);
     final plataforma = PlataformaApp.de(context);
