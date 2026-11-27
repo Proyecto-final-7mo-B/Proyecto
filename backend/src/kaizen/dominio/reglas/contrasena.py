@@ -32,8 +32,10 @@ class PoliticaContrasena:
     def validar(self, contrasena: str, correo: str) -> None:
         """Lanza ValidacionError si la contraseña no cumple. Si cumple, no regresa nada."""
         if not MINIMO <= len(contrasena) <= MAXIMO:
-            raise ValidacionError(f"La contraseña debe tener entre {MINIMO} y {MAXIMO} caracteres")
+            raise ValidacionError(
+                f"La contraseña debe tener entre {MINIMO} y {MAXIMO} caracteres", "contrasena"
+            )
         if contrasena.strip().lower() == correo.strip().lower():
-            raise ValidacionError("La contraseña no puede ser igual al correo")
+            raise ValidacionError("La contraseña no puede ser igual al correo", "contrasena")
         if contrasena.lower() in self._comunes:
-            raise ValidacionError("La contraseña es demasiado común")
+            raise ValidacionError("La contraseña es demasiado común", "contrasena")

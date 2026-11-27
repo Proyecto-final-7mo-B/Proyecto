@@ -1,0 +1,21 @@
+# API de Kaizen en local, conectada a la base del entorno de Jael (red kaizen-local_default).
+# Uso (desde backend/, con el .env copiado del entorno):  docker compose up --build
+name: kaizen-api
+
+services:
+  api:
+    build: .
+    container_name: kaizen-api
+    env_file: .env
+    environment:
+      # Dentro de Docker la base se llama kaizen-pg (el contenedor de Jael), no localhost
+      KAIZEN_DB_CONNINFO: "host=kaizen-pg port=5432 dbname=kaizen user=kaizen_api application_name=kaizen-api options='-c search_path=kaizen'"
+    ports:
+      - "127.0.0.1:8000:8000"
+    networks:
+      - kaizen
+
+networks:
+  kaizen:
+    external: true
+    name: kaizen-local_default
