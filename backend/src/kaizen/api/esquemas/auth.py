@@ -13,7 +13,12 @@ class Estricto(BaseModel):
 
 
 class SolicitudLogin(Estricto):
-    email: str = Field(max_length=254, pattern=PATRON_CORREO)
+    model_config = ConfigDict(
+        extra="forbid",
+        json_schema_extra={"examples": [{"email": "demo@kaizen.test", "contrasena": "…"}]},
+    )
+
+    email: str = Field(max_length=254, pattern=PATRON_CORREO, examples=["demo@kaizen.test"])
     contrasena: str = Field(min_length=1, max_length=128)
 
 
