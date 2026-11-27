@@ -32,3 +32,27 @@ backend/
 
 Referencias: el contrato de la API está en [`docs/api/`](../docs/api/) y el entorno local de desarrollo se entrega
 aparte (Docker con la misma base que producción).
+
+## Cómo correr la API en local
+
+1. Levanta el entorno de Jael (`docker compose up -d` y `docker compose run --rm poblar`).
+2. Copia su `.env` a esta carpeta (`backend/.env`; no se sube a Git):
+   ```powershell
+   copy ..\..\entorno_local_backend\.env .env
+   ```
+3. Instala y arranca:
+   ```powershell
+   py -3.12 -m venv .venv; .venv\Scripts\Activate.ps1
+   pip install --require-hashes -r requirements/base.txt -r requirements/dev.txt
+   pip install --no-deps -e .
+   uvicorn kaizen.api.main:crear_app --factory --reload
+   ```
+4. Prueba: http://localhost:8000/api/v1/salud y la documentación en http://localhost:8000/docs
+   (login con `demo@kaizen.test` y la contraseña `KAIZEN_DEMO_PASSWORD` del `.env`).
+
+## Pruebas
+
+```powershell
+ruff check . ; mypy src ; pytest                          # unitarias y de API (sin base)
+$env:KAIZEN_PRUEBAS_INTEGRACION=1; pytest tests/integracion # contra el PostgreSQL local
+```
