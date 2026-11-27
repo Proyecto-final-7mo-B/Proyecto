@@ -14,10 +14,27 @@ import 'gestor_tokens.dart';
 /// - **restaurar**: al abrir la app, si hay un token de renovación guardado, pide tokens nuevos. Sin red, abre la
 ///   sesión con el usuario guardado (la app funciona sin conexión); si el servidor rechaza el token, no la abre.
 /// - Si una renovación falla por sesión inválida (p. ej., cuenta suspendida), cierra la sesión sola.
+/// - Al salir (o al cerrarse sola) borra la base local: los datos de una cuenta no deben quedar para la siguiente.
+///   Antes intenta enviar lo pendiente de la cola sin conexión.
 class ServicioSesion {
-  ServicioSesion({required this.auth, required this.tokens, required this.estado}) {
-    _expirada = tokens.sesionExpirada.listen((_) => estado.cerrar());
+  ServicioSesion({
+    required this.auth,
+    required this.tokens,
+    required this.estado,
+    this.enviarPendientes,
+    this.borrarDatosLocales,
+  }) {
+    _expirada = tokens.sesionExpirada.listen((_) async {
+      estado.cerrar();
+      await borrarDatosLocales?.call();
+    });
   }
+
+  /// Envía la cola sin conexión antes de salir (si hay red).
+  final Future<void> Function()? enviarPendientes;
+
+  /// Borra la base local.
+  final Future<void> Function()? borrarDatosLocales;
 
   final AuthRepository auth;
   final GestorTokens tokens;
@@ -43,13 +60,15 @@ class ServicioSesion {
     }
   }
 
-  /// Cierra la sesión. Los tokens se borran aunque el servidor no responda.
+  /// Cierra la sesión. Los tokens y la base local se borran aunque el servidor no responda.
   Future<void> salir() async {
+    await enviarPendientes?.call();
     final renovacion = await tokens.tokenRenovacion();
     if (renovacion != null) {
       await auth.salir(renovacion);
     }
     await tokens.borrar();
+    await borrarDatosLocales?.call();
     estado.cerrar();
   }
 

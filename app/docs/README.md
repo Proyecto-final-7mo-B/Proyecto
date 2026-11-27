@@ -80,3 +80,4 @@ flutter build windows                             # en la máquina Windows
 | 5 · Autenticación | [05_auth.md](modulos/05_auth.md) |
 | 6 · Hoy | [06_hoy.md](modulos/06_hoy.md) |
 | 7 · Hábitos | [07_habitos.md](modulos/07_habitos.md) |
+| 8 · Sin conexión | [08_sin_conexion.md](modulos/08_sin_conexion.md) |

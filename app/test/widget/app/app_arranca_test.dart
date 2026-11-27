@@ -9,7 +9,7 @@ import '../../helpers/app.dart';
 
 void main() {
   testWidgets('prueba de humo: la app arranca en español y, sin sesión, muestra la entrada', (tester) async {
-    await tester.pumpWidget(KaizenApp(entorno: entornoPrueba));
+    await tester.pumpWidget(KaizenApp(entorno: entornoPrueba, dependencias: dependenciasPrueba()));
     await tester.pumpAndSettle();
 
     expect(find.text('Kaizen'), findsOneWidget);
@@ -23,7 +23,7 @@ void main() {
   });
 
   testWidgets('usa el tema de Kaizen: claro, fondo y fuente de los bosquejos', (tester) async {
-    await tester.pumpWidget(KaizenApp(entorno: entornoPrueba));
+    await tester.pumpWidget(KaizenApp(entorno: entornoPrueba, dependencias: dependenciasPrueba()));
     final app = tester.widget<MaterialApp>(find.byType(MaterialApp));
     expect(app.themeMode, ThemeMode.light);
     expect(app.darkTheme, isNull, reason: 'solo tema claro');
@@ -32,14 +32,16 @@ void main() {
   });
 
   testWidgets('sin herramientas de depuración (release) no hay entrada de prueba ni galería', (tester) async {
-    await tester.pumpWidget(KaizenApp(entorno: entornoPrueba, mostrarHerramientasDev: false));
+    await tester.pumpWidget(
+      KaizenApp(entorno: entornoPrueba, mostrarHerramientasDev: false, dependencias: dependenciasPrueba()),
+    );
     await tester.pumpAndSettle();
     expect(find.text('Cuentas de prueba (solo en desarrollo)'), findsNothing);
     expect(find.text('Ver componentes'), findsNothing);
   });
 
   testWidgets('al quitar la app se liberan el router y la sesión', (tester) async {
-    await tester.pumpWidget(KaizenApp(entorno: entornoPrueba));
+    await tester.pumpWidget(KaizenApp(entorno: entornoPrueba, dependencias: dependenciasPrueba()));
     await tester.pumpWidget(const SizedBox());
     expect(tester.takeException(), isNull);
   });

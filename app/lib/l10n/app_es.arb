@@ -1187,6 +1187,18 @@
       }
     }
   },
+  "checkinsRechazados": "{n, plural, =1{Un check-in hecho sin conexión no se guardó} other{{n} check-ins hechos sin conexión no se guardaron}}: {motivo}",
+  "@checkinsRechazados": {
+    "description": "Aviso cuando el servidor rechaza check-ins de la cola",
+    "placeholders": {
+      "n": {
+        "type": "int"
+      },
+      "motivo": {
+        "type": "String"
+      }
+    }
+  },
   "errorSubcategoriaInactiva": "Ese tipo de hábito ya no está disponible.",
   "@errorSubcategoriaInactiva": {
     "description": "Hábitos con evidencia (Paso 7, 27-nov)"

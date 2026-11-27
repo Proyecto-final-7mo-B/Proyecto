@@ -72,7 +72,8 @@ Deslizar hacia abajo recarga todo.
 - **Check-in de un toque (optimista):**
   - al tocar el círculo, la fila se marca, "N de M" cambia y la racha sube (o baja al desmarcar) **al instante**;
   - después se usa la racha que confirma el servidor (`racha_actual` de la respuesta);
-  - si el servidor falla, la fila **vuelve a como estaba** y sale "No se guardó el check-in de Leer: …";
+  - si el servidor lo **rechaza**, la fila **vuelve a como estaba** y sale "No se guardó el check-in de Leer: …";
+    **sin red** (desde el Paso 8) el check-in se queda marcado y en la cola sin conexión (ver `08_sin_conexion.md`);
   - un segundo toque mientras se envía se ignora;
   - el `id` del check-in es un UUID hecho en la app y se **reusa** si ya hay check-in de hoy: marcar, desmarcar y
     volver a marcar deja **un solo** registro (idempotente, como pide el contrato). Esto es lo que permitirá

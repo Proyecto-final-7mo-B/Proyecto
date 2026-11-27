@@ -371,6 +371,7 @@ void main() {
       await vm.guardar.ejecutar();
       expect(habitos.actualizaciones.single.toJson(), {
         'subcategoria_id': sub('idiomas'),
+        'unidad': 'min',
         'prioridad': Prioridad.baja,
         'intencion': null,
       });

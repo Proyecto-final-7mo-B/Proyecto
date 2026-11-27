@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:kaizen/data/fake/datos_demo.dart';
 import 'package:kaizen/data/services/api/errores_api.dart';
 import 'package:kaizen/routing/rutas.dart';
 import 'package:kaizen/ui/core/adaptativo/plataforma.dart';
@@ -73,10 +74,10 @@ void main() {
       expect(tester.widget<IndicadorRacha>(racha('Leer')).dias, antes + 1);
     });
 
-    testWidgets('si el check-in falla, se avisa y vuelve a como estaba', (tester) async {
+    testWidgets('si el servidor rechaza el check-in, se avisa y vuelve a como estaba', (tester) async {
       final deps = dependenciasPrueba();
       await montarApp(tester, dependencias: deps);
-      deps.datosDemo!.fallarSiguiente(const ErrorApp(TipoError.sinConexion));
+      deps.datosDemo!.fallarSiguiente(DatosDemo.error(TipoError.habitoArchivado, 409, 'El hábito está archivado'));
       await tocar(tester, check('Leer'));
       expect(find.textContaining('No se guardó el check-in de Leer'), findsOneWidget);
       expect(find.text('2 de 5'), findsOneWidget);

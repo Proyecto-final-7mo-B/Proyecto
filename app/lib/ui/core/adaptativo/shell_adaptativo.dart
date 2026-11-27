@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+import '../../../data/sync/sincronizador.dart';
+import '../widgets/banner_sin_conexion.dart';
 
 import 'breakpoints.dart';
 import 'busqueda.dart';
@@ -15,7 +19,7 @@ import 'shell_web.dart';
 /// | 600–1199 | riel angosto | riel angosto | riel angosto |
 /// | ≥ 1200 | riel extendido | riel extendido | barra superior |
 ///
-/// En escritorio y web, Ctrl+K (⌘K) abre la búsqueda.
+/// En escritorio y web, Ctrl+K (⌘K) abre la búsqueda. Sin conexión, arriba va el aviso con lo que falta enviar.
 class ShellAdaptativo extends StatelessWidget {
   const ShellAdaptativo({required this.ubicacion, required this.child, super.key});
 
@@ -31,6 +35,30 @@ class ShellAdaptativo extends StatelessWidget {
       (TamanoPantalla.amplio, Plataforma.web) => ShellWeb(ubicacion: ubicacion, child: child),
       (TamanoPantalla.amplio, _) => ShellEscritorio(ubicacion: ubicacion, extendido: true, child: child),
     };
-    return plataforma.tieneTeclado ? AtajoBusqueda(child: shell) : shell;
+    final conAviso = _ConAvisoSinConexion(child: shell);
+    return plataforma.tieneTeclado ? AtajoBusqueda(child: conAviso) : conAviso;
+  }
+}
+
+/// Arriba de todo, "Sin conexión · N registros por enviar" mientras no haya red o quede algo en la cola (Paso 8).
+class _ConAvisoSinConexion extends StatelessWidget {
+  const _ConAvisoSinConexion({required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    final sync = context.watch<Sincronizador?>();
+    if (sync == null || !sync.mostrarAviso) {
+      return child;
+    }
+    return Column(
+      children: [
+        SafeArea(bottom: false, child: BannerSinConexion(pendientes: sync.pendientes)),
+        Expanded(
+          child: MediaQuery.removePadding(context: context, removeTop: true, child: child),
+        ),
+      ],
+    );
   }
 }
