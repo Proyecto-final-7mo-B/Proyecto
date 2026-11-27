@@ -5,8 +5,9 @@ un repositorio falso en memoria y en producción se usa el de PostgreSQL (invers
 """
 
 from dataclasses import dataclass
-from datetime import datetime
-from typing import Protocol
+from datetime import date, datetime
+from decimal import Decimal
+from typing import Any, Protocol
 from uuid import UUID
 
 from kaizen.infraestructura.seguridad.tokens import ParTokens
@@ -45,3 +46,72 @@ class RepositorioAuth(Protocol):
         resultado: str,
         ip: str | None,
     ) -> None: ...
+
+
+# ---------------------------------------------------------------------------------------------
+# Hábitos y catálogo (contrato v1.6, §6.3 y §6.4)
+# ---------------------------------------------------------------------------------------------
+
+
+@dataclass(frozen=True, slots=True)
+class UsuarioActual:
+    """Quién hace la petición: sale del token de acceso, nunca del cuerpo (anti-IDOR)."""
+
+    id: UUID
+    region: str
+    rol: str
+
+
+@dataclass(frozen=True, slots=True)
+class FrecuenciaDatos:
+    tipo: str  # diaria | dias_semana | n_por_semana
+    dias_semana: int | None = None
+    veces_semana: int | None = None
+
+
+@dataclass(frozen=True, slots=True)
+class NuevoHabito:
+    nombre: str
+    subcategoria_id: UUID
+    frecuencia: FrecuenciaDatos
+    meta: Decimal
+    unidad: str
+    escalera_activa: bool = True
+    prioridad: int = 2
+    intencion: str | None = None
+
+
+@dataclass(frozen=True, slots=True)
+class ConsultaEvaluacion:
+    subcategoria_id: UUID
+    unidad: str
+    meta: Decimal
+    frecuencia: FrecuenciaDatos
+
+
+# Los repositorios regresan diccionarios con la forma de los objetos del contrato (§5);
+# la API los valida con sus modelos de Pydantic antes de responder.
+Objeto = dict[str, Any]
+
+
+class RepositorioHabitos(Protocol):
+    def categorias(self, zona: str) -> list[Objeto]: ...
+
+    def evaluar(
+        self, usuario: UsuarioActual, zona: str, consulta: ConsultaEvaluacion
+    ) -> Objeto: ...
+
+    def listar(
+        self,
+        usuario: UsuarioActual,
+        zona: str,
+        fecha: date,
+        archivados: bool,
+        habito_id: UUID | None = None,
+    ) -> list[Objeto]: ...
+
+    def crear(self, usuario: UsuarioActual, zona: str, nuevo: NuevoHabito) -> UUID: ...
+
+    def actualizar(
+        self, usuario: UsuarioActual, zona: str, habito_id: UUID, cambios: dict[str, Any]
+    ) -> bool: ...

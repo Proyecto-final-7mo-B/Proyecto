@@ -10,10 +10,11 @@ from collections.abc import Iterator
 from contextlib import contextmanager
 from uuid import UUID
 
-from psycopg import Connection
+from psycopg import Connection, Error
 from psycopg_pool import ConnectionPool
 
 from kaizen.config import Configuracion
+from kaizen.infraestructura.postgres.errores import traducir
 
 
 def crear_pool(cfg: Configuracion) -> ConnectionPool:
@@ -37,13 +38,19 @@ class UnidadDeTrabajo:
     def transaccion(
         self, usuario_id: UUID | None = None, zona: str | None = None
     ) -> Iterator[Connection]:
-        with self._pool.connection() as conn, conn.transaction():
-            conn.execute(
-                "SELECT set_config('kaizen.usuario_id', %s, true),"
-                " set_config('TimeZone', %s, true)",
-                (str(usuario_id) if usuario_id else "", zona or self._zona_defecto),
-            )
-            yield conn  # commit al salir sin error; rollback si hay excepción
+        try:
+            with self._pool.connection() as conn, conn.transaction():
+                conn.execute(
+                    "SELECT set_config('kaizen.usuario_id', %s, true),"
+                    " set_config('TimeZone', %s, true)",
+                    (str(usuario_id) if usuario_id else "", zona or self._zona_defecto),
+                )
+                yield conn  # commit al salir sin error; rollback si hay excepción
+        except Error as error:  # ya se hizo rollback: se traduce el SQLSTATE (KZ0xx)
+            propio = traducir(error)
+            if propio is None:
+                raise
+            raise propio from error
 
     def base_disponible(self) -> bool:
         try:
