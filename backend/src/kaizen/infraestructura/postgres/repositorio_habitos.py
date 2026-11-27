@@ -298,7 +298,8 @@ class RepositorioHabitosPg:
                     nuevo.intencion,
                 ),
             ).fetchone()
-        assert fila is not None  # noqa: S101 - INSERT ... RETURNING siempre regresa la fila
+        if fila is None:  # pragma: no cover - INSERT ... RETURNING siempre regresa la fila
+            raise RuntimeError("La base no regresó el id del hábito")
         habito_id: UUID = fila[0]
         return habito_id
 
