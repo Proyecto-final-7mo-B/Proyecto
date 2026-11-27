@@ -37,7 +37,7 @@ void main() {
   testWidgets('proveedores: cada interfaz se puede pedir con context.read', (tester) async {
     const catalogo = CatalogoRegiones(paises: [], estadosMx: []);
     final d = Dependencias.fake(catalogo: catalogo);
-    expect(d.proveedores(), hasLength(14));
+    expect(d.proveedores(), hasLength(15));
     late AuthRepository auth;
     late CatalogoRegiones leido;
     await tester.pumpWidget(
@@ -54,7 +54,7 @@ void main() {
     );
     expect(auth, same(d.auth));
     expect(leido, same(catalogo));
-    expect(Dependencias.fake().proveedores(), hasLength(14), reason: 'el catálogo se registra aunque sea nulo');
+    expect(Dependencias.fake().proveedores(), hasLength(15), reason: 'el catálogo se registra aunque sea nulo');
   });
 
   test('almacén nativo (flutter_secure_storage simulado) y almacén en memoria', () async {

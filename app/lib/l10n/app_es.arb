@@ -802,5 +802,627 @@
         "type": "String"
       }
     }
+  },
+  "habitosActivos": "Activos",
+  "@habitosActivos": {
+    "description": "Pestaña de la lista de hábitos"
+  },
+  "habitosArchivados": "Archivados",
+  "@habitosArchivados": {
+    "description": "Pestaña de la lista de hábitos"
+  },
+  "sinArchivados": "No tienes hábitos archivados.",
+  "@sinArchivados": {
+    "description": "Lista de archivados vacía"
+  },
+  "etiquetaArchivado": "Archivado",
+  "@etiquetaArchivado": {
+    "description": "Marca de un hábito archivado"
+  },
+  "subtituloNuevoHabito": "Un hábito pequeño es un hábito que dura",
+  "@subtituloNuevoHabito": {
+    "description": "Subtítulo de Nuevo hábito"
+  },
+  "campoNombreHabito": "Nombre",
+  "@campoNombreHabito": {
+    "description": "Campo del formulario de hábito"
+  },
+  "pistaNombreHabito": "Ej. Leer",
+  "@pistaNombreHabito": {
+    "description": "Pista del nombre del hábito"
+  },
+  "ayudaNombreHabito": "Empieza pequeño: 5 minutos bastan para crear el hábito.",
+  "@ayudaNombreHabito": {
+    "description": "Ayuda bajo el nombre"
+  },
+  "campoCategoria": "Categoría",
+  "@campoCategoria": {
+    "description": "Campo del formulario de hábito"
+  },
+  "campoFrecuencia": "Frecuencia",
+  "@campoFrecuencia": {
+    "description": "Campo del formulario de hábito"
+  },
+  "opcionDiario": "Diario",
+  "@opcionDiario": {
+    "description": "Segmento de frecuencia"
+  },
+  "opcionDias": "Días",
+  "@opcionDias": {
+    "description": "Segmento de frecuencia: días de la semana"
+  },
+  "opcionVeces": "N por sem.",
+  "@opcionVeces": {
+    "description": "Segmento de frecuencia: N veces por semana"
+  },
+  "queDias": "¿Qué días?",
+  "@queDias": {
+    "description": "Días de la semana"
+  },
+  "vecesPorSemana": "Veces por semana",
+  "@vecesPorSemana": {
+    "description": "Contador de N por semana"
+  },
+  "vecesUnidad": "{n, plural, =1{vez} other{veces}}",
+  "@vecesUnidad": {
+    "description": "Unidad del contador de veces",
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "validacionDias": "Elige al menos un día.",
+  "@validacionDias": {
+    "description": "Frecuencia por días sin días"
+  },
+  "campoMeta": "Meta inicial",
+  "@campoMeta": {
+    "description": "Campo del formulario de hábito"
+  },
+  "campoMetaActual": "Meta actual",
+  "@campoMetaActual": {
+    "description": "Meta en el formulario de edición"
+  },
+  "campoUnidad": "Unidad",
+  "@campoUnidad": {
+    "description": "Campo del formulario de hábito"
+  },
+  "pistaUnidad": "min, páginas, L…",
+  "@pistaUnidad": {
+    "description": "Pista de la unidad"
+  },
+  "escaleraKaizen": "Escalera Kaizen",
+  "@escaleraKaizen": {
+    "description": "Interruptor de la Escalera"
+  },
+  "escaleraKaizenDetalle": "Sube la meta en micro-pasos según tu constancia",
+  "@escaleraKaizenDetalle": {
+    "description": "Detalle del interruptor"
+  },
+  "campoCapsula": "Cápsula para tu yo futuro",
+  "@campoCapsula": {
+    "description": "Opciones de cápsula"
+  },
+  "sinCapsula": "Sin cápsula",
+  "@sinCapsula": {
+    "description": "Opción de cápsula"
+  },
+  "nDias": "{n, plural, =1{1 día} other{{n} días}}",
+  "@nDias": {
+    "description": "Días",
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "campoRecordatorio": "Recordatorio",
+  "@campoRecordatorio": {
+    "description": "Campo del formulario de hábito"
+  },
+  "sinRecordatorio": "Sin recordatorio",
+  "@sinRecordatorio": {
+    "description": "Recordatorio vacío"
+  },
+  "quitarRecordatorio": "Quitar recordatorio",
+  "@quitarRecordatorio": {
+    "description": "Botón para quitar la hora"
+  },
+  "guardarHabito": "Guardar hábito",
+  "@guardarHabito": {
+    "description": "Botón del formulario"
+  },
+  "guardarCambios": "Guardar cambios",
+  "@guardarCambios": {
+    "description": "Botón del formulario de edición"
+  },
+  "asiSeVera": "Así se verá",
+  "@asiSeVera": {
+    "description": "Vista previa del hábito"
+  },
+  "tuEscaleraInicial": "Tu escalera inicial",
+  "@tuEscaleraInicial": {
+    "description": "Vista previa de la Escalera"
+  },
+  "aquiVas": "Aquí vas",
+  "@aquiVas": {
+    "description": "Nivel actual en la escalera"
+  },
+  "proyeccionEscalera": "Los siguientes niveles son una proyección: +10 % cada uno, sin pasar de lo que recomienda la evidencia.",
+  "@proyeccionEscalera": {
+    "description": "Nota de la escalera inicial"
+  },
+  "metaNoEditable": "La meta y la frecuencia no se editan: la meta cambia con la Escalera.",
+  "@metaNoEditable": {
+    "description": "Aviso en editar"
+  },
+  "archivarHabito": "Archivar hábito",
+  "@archivarHabito": {
+    "description": "Botón de editar"
+  },
+  "archivarTitulo": "¿Archivar {habito}?",
+  "@archivarTitulo": {
+    "description": "Título de la confirmación",
+    "placeholders": {
+      "habito": {
+        "type": "String"
+      }
+    }
+  },
+  "archivarMensaje": "Deja de aparecer en Hoy y se apaga su recordatorio. Su historial se conserva y puedes reactivarlo cuando quieras.",
+  "@archivarMensaje": {
+    "description": "Mensaje de la confirmación"
+  },
+  "archivar": "Archivar",
+  "@archivar": {
+    "description": "Confirmar archivar"
+  },
+  "habitoCreado": "Listo: {habito} ya está en tu lista.",
+  "@habitoCreado": {
+    "description": "Aviso al crear",
+    "placeholders": {
+      "habito": {
+        "type": "String"
+      }
+    }
+  },
+  "cambiosGuardados": "Cambios guardados.",
+  "@cambiosGuardados": {
+    "description": "Aviso al editar"
+  },
+  "habitoArchivadoAviso": "{habito} quedó archivado.",
+  "@habitoArchivadoAviso": {
+    "description": "Aviso al archivar",
+    "placeholders": {
+      "habito": {
+        "type": "String"
+      }
+    }
+  },
+  "habitoReactivado": "{habito} está activo de nuevo.",
+  "@habitoReactivado": {
+    "description": "Aviso al reactivar",
+    "placeholders": {
+      "habito": {
+        "type": "String"
+      }
+    }
+  },
+  "recordatorioSinPermiso": "Sin permiso de notificaciones: el hábito se guardó sin recordatorio.",
+  "@recordatorioSinPermiso": {
+    "description": "Permiso negado"
+  },
+  "recordatorioCuerpo": "Es hora de: {habito}",
+  "@recordatorioCuerpo": {
+    "description": "Texto de la notificación",
+    "placeholders": {
+      "habito": {
+        "type": "String"
+      }
+    }
+  },
+  "volver": "Volver",
+  "@volver": {
+    "description": "Botón para regresar"
+  },
+  "diasDeRacha": "días",
+  "@diasDeRacha": {
+    "description": "Unidad de la racha grande"
+  },
+  "mejorRacha": "Mejor racha",
+  "@mejorRacha": {
+    "description": "Tarjeta de racha"
+  },
+  "rachaSemantica": "Racha actual: {actual} días. Mejor racha: {maxima} días.",
+  "@rachaSemantica": {
+    "description": "Lectura de la tarjeta de racha",
+    "placeholders": {
+      "actual": {
+        "type": "int"
+      },
+      "maxima": {
+        "type": "int"
+      }
+    }
+  },
+  "rachaActual": "Racha actual",
+  "@rachaActual": {
+    "description": "KPI del detalle"
+  },
+  "rachaMaxima": "Racha máxima",
+  "@rachaMaxima": {
+    "description": "KPI del detalle"
+  },
+  "cumplimiento30": "Cumplimiento 30 días",
+  "@cumplimiento30": {
+    "description": "KPI del detalle"
+  },
+  "porcentaje": "{n} %",
+  "@porcentaje": {
+    "description": "Porcentaje",
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "tendencia": "Tendencia",
+  "@tendencia": {
+    "description": "Gráfica del detalle"
+  },
+  "tendenciaDetalle": "Cumplimiento por semana",
+  "@tendenciaDetalle": {
+    "description": "Detalle de la gráfica"
+  },
+  "tendenciaSemantica": "Cumplimiento de las últimas {n} semanas: {valores}",
+  "@tendenciaSemantica": {
+    "description": "Lectura de la gráfica",
+    "placeholders": {
+      "n": {
+        "type": "int"
+      },
+      "valores": {
+        "type": "String"
+      }
+    }
+  },
+  "nivelActual": "Nivel actual",
+  "@nivelActual": {
+    "description": "Tarjeta de nivel"
+  },
+  "nivelDeTotal": "Nivel {nivel} de {total} · {meta} {unidad}",
+  "@nivelDeTotal": {
+    "description": "Nivel con proyección",
+    "placeholders": {
+      "nivel": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      },
+      "meta": {
+        "type": "String"
+      },
+      "unidad": {
+        "type": "String"
+      }
+    }
+  },
+  "siguienteMicroPaso": "Siguiente micro-paso: {meta} {unidad}",
+  "@siguienteMicroPaso": {
+    "description": "Próxima meta",
+    "placeholders": {
+      "meta": {
+        "type": "String"
+      },
+      "unidad": {
+        "type": "String"
+      }
+    }
+  },
+  "escaleraApagada": "La Escalera está apagada en este hábito: la meta no cambia.",
+  "@escaleraApagada": {
+    "description": "Escalera apagada"
+  },
+  "verEscalera": "Ver escalera",
+  "@verEscalera": {
+    "description": "Enlace a la escalera del hábito"
+  },
+  "historial": "Historial",
+  "@historial": {
+    "description": "Lista de check-ins"
+  },
+  "historialCumplido": "{fecha} · Cumplido",
+  "@historialCumplido": {
+    "description": "Renglón del historial",
+    "placeholders": {
+      "fecha": {
+        "type": "String"
+      }
+    }
+  },
+  "historialNoCumplido": "{fecha} · No cumplido",
+  "@historialNoCumplido": {
+    "description": "Renglón del historial",
+    "placeholders": {
+      "fecha": {
+        "type": "String"
+      }
+    }
+  },
+  "sinRegistros": "Aún no hay check-ins.",
+  "@sinRegistros": {
+    "description": "Historial vacío"
+  },
+  "editar": "Editar",
+  "@editar": {
+    "description": "Acción del detalle"
+  },
+  "reactivar": "Reactivar",
+  "@reactivar": {
+    "description": "Acción para un archivado"
+  },
+  "estaArchivado": "Este hábito está archivado: no aparece en Hoy.",
+  "@estaArchivado": {
+    "description": "Aviso en el detalle"
+  },
+  "mesAnterior": "Mes anterior",
+  "@mesAnterior": {
+    "description": "Botón del calendario"
+  },
+  "mesSiguiente": "Mes siguiente",
+  "@mesSiguiente": {
+    "description": "Botón del calendario"
+  },
+  "cumplimientoMes": "{n} % en {mes}",
+  "@cumplimientoMes": {
+    "description": "Lectura del porcentaje del mes",
+    "placeholders": {
+      "n": {
+        "type": "int"
+      },
+      "mes": {
+        "type": "String"
+      }
+    }
+  },
+  "errorSubcategoriaInactiva": "Ese tipo de hábito ya no está disponible.",
+  "@errorSubcategoriaInactiva": {
+    "description": "Hábitos con evidencia (Paso 7, 27-nov)"
+  },
+  "errorUnidadNoPermitida": "Esa unidad no se puede usar con este tipo de hábito.",
+  "@errorUnidadNoPermitida": {
+    "description": "Hábitos con evidencia (Paso 7, 27-nov)"
+  },
+  "campoSubcategoria": "Tipo de hábito",
+  "@campoSubcategoria": {
+    "description": "Hábitos con evidencia (Paso 7, 27-nov)"
+  },
+  "validacionSubcategoria": "Elige el tipo de hábito.",
+  "@validacionSubcategoria": {
+    "description": "Hábitos con evidencia (Paso 7, 27-nov)"
+  },
+  "campoPrioridad": "Prioridad",
+  "@campoPrioridad": {
+    "description": "Hábitos con evidencia (Paso 7, 27-nov)"
+  },
+  "prioridadAlta": "Alta",
+  "@prioridadAlta": {
+    "description": "Hábitos con evidencia (Paso 7, 27-nov)"
+  },
+  "prioridadMedia": "Media",
+  "@prioridadMedia": {
+    "description": "Hábitos con evidencia (Paso 7, 27-nov)"
+  },
+  "prioridadBaja": "Baja",
+  "@prioridadBaja": {
+    "description": "Hábitos con evidencia (Paso 7, 27-nov)"
+  },
+  "campoIntencion": "¿Cuándo lo harás?",
+  "@campoIntencion": {
+    "description": "Hábitos con evidencia (Paso 7, 27-nov)"
+  },
+  "pistaIntencion": "Después de desayunar",
+  "@pistaIntencion": {
+    "description": "Hábitos con evidencia (Paso 7, 27-nov)"
+  },
+  "ayudaIntencion": "Atarlo a algo que ya haces ayuda a que se vuelva automático.",
+  "@ayudaIntencion": {
+    "description": "Hábitos con evidencia (Paso 7, 27-nov)"
+  },
+  "validacionIntencion": "Máximo {max} caracteres.",
+  "@validacionIntencion": {
+    "description": "Hábitos con evidencia (Paso 7, 27-nov)",
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "unidadNoEditable": "La unidad no cambia después de crear el hábito.",
+  "@unidadNoEditable": {
+    "description": "Hábitos con evidencia (Paso 7, 27-nov)"
+  },
+  "evidenciaTitulo": "Lo que dice la evidencia",
+  "@evidenciaTitulo": {
+    "description": "Hábitos con evidencia (Paso 7, 27-nov)"
+  },
+  "zonaBajo": "Por debajo de lo recomendado",
+  "@zonaBajo": {
+    "description": "Hábitos con evidencia (Paso 7, 27-nov)"
+  },
+  "zonaOptimo": "Dentro de lo recomendado",
+  "@zonaOptimo": {
+    "description": "Hábitos con evidencia (Paso 7, 27-nov)"
+  },
+  "zonaAlto": "Más de lo necesario",
+  "@zonaAlto": {
+    "description": "Hábitos con evidencia (Paso 7, 27-nov)"
+  },
+  "zonaExcesivo": "Más de lo recomendado",
+  "@zonaExcesivo": {
+    "description": "Hábitos con evidencia (Paso 7, 27-nov)"
+  },
+  "zonaSinReferencia": "Sin rango científico: la meta la defines tú.",
+  "@zonaSinReferencia": {
+    "description": "Hábitos con evidencia (Paso 7, 27-nov)"
+  },
+  "evidenciaRango": "Recomendado: {desde}–{hasta} {unidad}",
+  "@evidenciaRango": {
+    "description": "Hábitos con evidencia (Paso 7, 27-nov)",
+    "placeholders": {
+      "desde": {
+        "type": "String"
+      },
+      "hasta": {
+        "type": "String"
+      },
+      "unidad": {
+        "type": "String"
+      }
+    }
+  },
+  "evidenciaHasta": "Recomendado: hasta {hasta} {unidad}",
+  "@evidenciaHasta": {
+    "description": "Hábitos con evidencia (Paso 7, 27-nov)",
+    "placeholders": {
+      "hasta": {
+        "type": "String"
+      },
+      "unidad": {
+        "type": "String"
+      }
+    }
+  },
+  "evidenciaPorSesion": "por día que toca",
+  "@evidenciaPorSesion": {
+    "description": "Hábitos con evidencia (Paso 7, 27-nov)"
+  },
+  "evidenciaBajo": "Empezar aquí está bien: la Escalera te llevará hacia {meta}.",
+  "@evidenciaBajo": {
+    "description": "Hábitos con evidencia (Paso 7, 27-nov)",
+    "placeholders": {
+      "meta": {
+        "type": "String"
+      }
+    }
+  },
+  "evidenciaOptimo": "Ritmo ideal según la evidencia.",
+  "@evidenciaOptimo": {
+    "description": "Hábitos con evidencia (Paso 7, 27-nov)"
+  },
+  "evidenciaAlto": "Ya está en un buen nivel: hacer más no aporta beneficio adicional.",
+  "@evidenciaAlto": {
+    "description": "Hábitos con evidencia (Paso 7, 27-nov)"
+  },
+  "evidenciaExcesivo": "Más de {maximo} no aporta beneficio y puede no ser saludable. La Escalera te propondrá bajar.",
+  "@evidenciaExcesivo": {
+    "description": "Hábitos con evidencia (Paso 7, 27-nov)",
+    "placeholders": {
+      "maximo": {
+        "type": "String"
+      }
+    }
+  },
+  "evidenciaReducirAlto": "Lo recomendado es hasta {meta}: la Escalera bajará tu límite poco a poco.",
+  "@evidenciaReducirAlto": {
+    "description": "Hábitos con evidencia (Paso 7, 27-nov)",
+    "placeholders": {
+      "meta": {
+        "type": "String"
+      }
+    }
+  },
+  "evidenciaUsar": "Usar {meta}",
+  "@evidenciaUsar": {
+    "description": "Hábitos con evidencia (Paso 7, 27-nov)",
+    "placeholders": {
+      "meta": {
+        "type": "String"
+      }
+    }
+  },
+  "evidenciaFuente": "Fuente: {cita}",
+  "@evidenciaFuente": {
+    "description": "Hábitos con evidencia (Paso 7, 27-nov)",
+    "placeholders": {
+      "cita": {
+        "type": "String"
+      }
+    }
+  },
+  "confianzaAlta": "Evidencia sólida",
+  "@confianzaAlta": {
+    "description": "Hábitos con evidencia (Paso 7, 27-nov)"
+  },
+  "confianzaMedia": "Evidencia moderada",
+  "@confianzaMedia": {
+    "description": "Hábitos con evidencia (Paso 7, 27-nov)"
+  },
+  "confianzaBaja": "Evidencia limitada",
+  "@confianzaBaja": {
+    "description": "Hábitos con evidencia (Paso 7, 27-nov)"
+  },
+  "unidadSinConversion": "Con esta unidad no se puede comparar con lo recomendado; usa {unidad} para recibir la recomendación.",
+  "@unidadSinConversion": {
+    "description": "Hábitos con evidencia (Paso 7, 27-nov)",
+    "placeholders": {
+      "unidad": {
+        "type": "String"
+      }
+    }
+  },
+  "habitoFormado": "Hábito formado",
+  "@habitoFormado": {
+    "description": "Hábitos con evidencia (Paso 7, 27-nov)"
+  },
+  "habitoFormadoDetalle": "{dias} días seguidos: la mediana científica para formar un hábito es 66.",
+  "@habitoFormadoDetalle": {
+    "description": "Hábitos con evidencia (Paso 7, 27-nov)",
+    "placeholders": {
+      "dias": {
+        "type": "int"
+      }
+    }
+  },
+  "habitoHacia66": "Te faltan {dias} días para los 66, la mediana para formar un hábito.",
+  "@habitoHacia66": {
+    "description": "Hábitos con evidencia (Paso 7, 27-nov)",
+    "placeholders": {
+      "dias": {
+        "type": "int"
+      }
+    }
+  },
+  "protectorUsado": "Ya usaste el protector esta semana: un fallo más rompe la racha.",
+  "@protectorUsado": {
+    "description": "Hábitos con evidencia (Paso 7, 27-nov)"
+  },
+  "protectorDisponible": "Protector disponible: fallar un día esta semana no rompe tu racha.",
+  "@protectorDisponible": {
+    "description": "Hábitos con evidencia (Paso 7, 27-nov)"
+  },
+  "intencionDe": "Cuándo: {intencion}",
+  "@intencionDe": {
+    "description": "Hábitos con evidencia (Paso 7, 27-nov)",
+    "placeholders": {
+      "intencion": {
+        "type": "String"
+      }
+    }
+  },
+  "prioridadDe": "Prioridad {prioridad}",
+  "@prioridadDe": {
+    "description": "Hábitos con evidencia (Paso 7, 27-nov)",
+    "placeholders": {
+      "prioridad": {
+        "type": "String"
+      }
+    }
+  },
+  "sugerenciaExceso": "Tu meta pasa de lo que recomienda la evidencia.",
+  "@sugerenciaExceso": {
+    "description": "Sugerencia de bajar por exceso (sin % de 14 días)"
   }
 }

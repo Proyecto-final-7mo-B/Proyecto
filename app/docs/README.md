@@ -79,3 +79,4 @@ flutter build windows                             # en la máquina Windows
 | 4 · Núcleo de datos y *fakes* | [04_nucleo_de_datos.md](modulos/04_nucleo_de_datos.md) |
 | 5 · Autenticación | [05_auth.md](modulos/05_auth.md) |
 | 6 · Hoy | [06_hoy.md](modulos/06_hoy.md) |
+| 7 · Hábitos | [07_habitos.md](modulos/07_habitos.md) |

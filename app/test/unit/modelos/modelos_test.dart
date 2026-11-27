@@ -6,6 +6,7 @@ import 'package:kaizen/domain/models/capsula.dart';
 import 'package:kaizen/domain/models/categoria.dart';
 import 'package:kaizen/domain/models/conversores.dart';
 import 'package:kaizen/domain/models/escalera.dart';
+import 'package:kaizen/domain/models/evidencia.dart';
 import 'package:kaizen/domain/models/frecuencia.dart';
 import 'package:kaizen/domain/models/habito.dart';
 import 'package:kaizen/domain/models/laboratorio.dart';
@@ -27,10 +28,19 @@ void main() {
   group('§5 objetos que se repiten', () {
     const habitoJson = '''
       {"id": "1c9e", "nombre": "Leer", "unidad": "páginas", "meta": 15, "nivel": 3,
-       "categoria": {"id": "5b1e", "nombre": "Lectura"},
+       "categoria": {"id": "5b1e", "clave": "educacion", "nombre": "Educación", "color": "#2563EB", "icono": "school"},
+       "subcategoria": {"id": "9a0d", "clave": "lectura", "nombre": "Lectura", "icono": "menu_book",
+                        "sentido": "aumentar"},
+       "prioridad": 2, "intencion": "Al llegar a casa",
        "frecuencia": {"tipo": "dias_semana", "dias_semana": 31, "veces_semana": null},
        "escalera_activa": true, "activo": true, "fecha_creacion": "2026-09-01T14:00:00Z",
-       "racha": {"actual": 5, "maxima": 12, "ultima_fecha": "2026-11-22"},
+       "racha": {"actual": 5, "maxima": 12, "ultima_fecha": "2026-11-22", "protegida_esta_semana": false},
+       "evaluacion": {"zona": "bajo", "sentido": "aumentar", "volumen": 93.75, "unidad_base": "min",
+                      "periodo": "semana", "optimo_desde": 33.6, "optimo_hasta": 67.2, "maximo": null,
+                      "meta_sugerida": 34, "paso": 1, "piso": null,
+                      "cita": "Bavishi 2016: beneficio mayor con más de 3.5 h/semana (≈30 min/día)",
+                      "fuentes": "F28, F29", "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC5105607",
+                      "confianza": "baja", "nota": null},
        "hoy": {"fecha": "2026-11-23", "programado": true,
                "registro": {"id": "r1", "cumplido": true, "valor": 18}}}''';
 
@@ -44,9 +54,84 @@ void main() {
       expect(h.hoy!.registro!.valor, 18.0);
       final vuelta = jsonDecode(jsonEncode(h.toJson())) as Map<String, dynamic>;
       expect(vuelta['fecha_creacion'], '2026-09-01T14:00:00Z');
-      expect(vuelta['racha'], {'actual': 5, 'maxima': 12, 'ultima_fecha': '2026-11-22'});
+      expect(vuelta['racha'], {
+        'actual': 5,
+        'maxima': 12,
+        'ultima_fecha': '2026-11-22',
+        'protegida_esta_semana': false,
+      });
       expect(vuelta['frecuencia'], {'tipo': 'dias_semana', 'dias_semana': 31, 'veces_semana': null});
-      expect(vuelta['categoria'], {'id': '5b1e', 'nombre': 'Lectura', 'activa': true});
+      expect(h.categoria.clave, 'educacion');
+      expect(h.categoria.color, '#2563EB');
+      expect(h.subcategoria.clave, 'lectura');
+      expect(h.subcategoria.sentido, SentidoHabito.aumentar);
+      expect(h.prioridad, 2);
+      expect(h.intencion, 'Al llegar a casa');
+      expect(h.evaluacion!.zona, ZonaEvidencia.bajo);
+      expect(h.evaluacion!.maximo, isNull);
+      expect(h.evaluacion!.confianza, Confianza.baja);
+      expect(vuelta['evaluacion']['zona'], 'bajo');
+    });
+
+    test('Habito sin evaluación ni intención (la API puede omitirlas)', () {
+      final m = json(habitoJson)
+        ..remove('evaluacion')
+        ..remove('intencion')
+        ..remove('prioridad');
+      final h = Habito.fromJson(m);
+      expect(h.evaluacion, isNull);
+      expect(h.intencion, isNull);
+      expect(h.prioridad, Prioridad.media);
+    });
+
+    test('Evaluación sin referencia y zonas en snake_case', () {
+      final e = Evaluacion.fromJson({'zona': 'sin_referencia', 'sentido': 'reducir', 'paso': 5});
+      expect(e.zona, ZonaEvidencia.sinReferencia);
+      expect(e.tieneReferencia, isFalse);
+      expect(e.sentido, SentidoHabito.reducir);
+      expect(Evaluacion.fromJson({'zona': 'excesivo', 'sentido': 'aumentar', 'paso': 5}).zona, ZonaEvidencia.excesivo);
+    });
+
+    test('Catálogo de GET /categorias (v1.6): árbol con unidades y referencia', () {
+      final c = Categoria.fromJson(
+        json('''{"id": "c", "clave": "ejercicio", "nombre": "Ejercicio", "color": "#D9480F", "icono": "fitness_center",
+          "subcategorias": [{"id": "s", "clave": "aerobico_moderado", "nombre": "Aeróbico moderado",
+            "icono": "directions_bike", "sentido": "aumentar",
+            "unidades": [{"unidad": "min", "factor_a_base": 1, "paso": 5, "minimo": 1, "maximo": 1440},
+                         {"unidad": "km", "factor_a_base": null, "paso": 0.5, "minimo": 0.5, "maximo": 200}],
+            "referencia": {"periodo": "semana", "unidad_base": "min", "optimo_desde": 150, "optimo_hasta": 300,
+                           "maximo": 600, "piso_bajada": null, "cita": "OMS 2020", "fuentes": "F11, F12, F13",
+                           "url": "https://doi.org/10.1136/bjsports-2020-102955", "confianza": "alta",
+                           "nota": null}}]}'''),
+      );
+      final s = c.subcategorias.single;
+      expect(s.unidades.map((u) => u.unidad), ['min', 'km']);
+      expect(s.unidad('km')!.convertible, isFalse);
+      expect(s.referencia!.maximo, 600);
+      expect(s.referencia!.periodo, PeriodoReferencia.semana);
+      expect([c].subcategoria('s')!.clave, 'aerobico_moderado');
+      expect([c].categoriaDe('s')!.clave, 'ejercicio');
+      expect(c.resumen.subcategorias, isEmpty);
+      expect(s.resumen.unidades, isEmpty);
+    });
+
+    test('Sugerencia v1.6: motivo, cita y sin porcentaje cuando excede el máximo', () {
+      final s = Sugerencia.fromJson(
+        json('''{"id": "s1", "habito_id": "h1", "habito_nombre": "Repasar apuntes", "tipo": "bajar",
+                 "motivo": "excede_maximo", "meta_actual": 300, "meta_propuesta": 240, "cumplimiento_14d": null,
+                 "cita": "Ericsson 1993", "estado": "pendiente", "creada_en": "2026-11-27T08:00:00Z",
+                 "resuelta_en": null}'''),
+      );
+      expect(s.motivo, MotivoSugerencia.excedeMaximo);
+      expect(s.cumplimiento14d, isNull);
+      expect(s.cita, 'Ericsson 1993');
+      expect(s.toJson()['motivo'], 'excede_maximo');
+      final vieja = Sugerencia.fromJson(
+        json('''{"id": "s2", "habito_id": "h1", "habito_nombre": "Leer", "tipo": "subir", "meta_actual": 10,
+                 "meta_propuesta": 11, "cumplimiento_14d": 92.9, "estado": "pendiente",
+                 "creada_en": "2026-11-27T08:00:00Z", "resuelta_en": null}'''),
+      );
+      expect(vieja.motivo, MotivoSugerencia.cumplimiento, reason: 'sin motivo (antes del 27-nov)');
     });
 
     test('Habito sin check-in hoy y copyWith', () {
@@ -83,7 +168,7 @@ void main() {
 
     test('Capsula (sin el mensaje)', () {
       idaYVuelta(
-        json('''{"id": "c1", "habito_id": "h1", "habito_nombre": "Tomar agua", "racha_objetivo": 21,
+        json('''{"id": "c1", "habito_id": "h1", "habito_nombre": "Tomar agua", "racha_objetivo": 30,
                  "progreso": 9, "se_puede_abrir": false, "estado": "sellada", "tiene_foto": true,
                  "creada_en": "2026-11-01T10:00:00Z", "abierta_en": null}'''),
         (m) => Capsula.fromJson(m).toJson(),
@@ -128,14 +213,23 @@ void main() {
     });
 
     test('NuevoHabito y CambiosHabito (PATCH solo con lo que cambia, nunca meta ni frecuencia)', () {
-      const n = NuevoHabito(nombre: 'Leer', categoriaId: 'c1', frecuencia: NPorSemana(3), meta: 10, unidad: 'min');
+      const n = NuevoHabito(
+        nombre: 'Leer',
+        subcategoriaId: 's1',
+        frecuencia: NPorSemana(3),
+        meta: 10,
+        unidad: 'min',
+        intencion: 'Antes de dormir',
+      );
       expect(n.toJson(), {
         'nombre': 'Leer',
-        'categoria_id': 'c1',
+        'subcategoria_id': 's1',
         'frecuencia': {'tipo': 'n_por_semana', 'dias_semana': null, 'veces_semana': 3},
         'meta': 10.0,
         'unidad': 'min',
         'escalera_activa': true,
+        'prioridad': 2,
+        'intencion': 'Antes de dormir',
       });
       expect(NuevoHabito.fromJson(n.toJson()).frecuencia, const NPorSemana(3));
       expect(const CambiosHabito(activo: false).toJson(), {'activo': false});
@@ -144,6 +238,9 @@ void main() {
         'escalera_activa': false,
       });
       expect(const CambiosHabito().vacio, isTrue);
+      expect(const CambiosHabito(subcategoriaId: 's2', prioridad: 1).toJson(), {'subcategoria_id': 's2', 'prioridad': 1});
+      expect(const CambiosHabito(quitarIntencion: true).toJson(), {'intencion': null}, reason: 'borrar la intención');
+      expect(const CambiosHabito(intencion: 'Al despertar').toJson(), {'intencion': 'Al despertar'});
     });
 
     test('NuevoRegistro, ResultadoCheckin y lote', () {

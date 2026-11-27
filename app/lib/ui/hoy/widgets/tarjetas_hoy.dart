@@ -75,7 +75,11 @@ String preguntaSugerencia(Sugerencia s, String unidad, AppLocalizations t) => s.
     : t.sugerenciaBajar(s.habitoNombre, numero(s.metaActual), numero(s.metaPropuesta), unidad);
 
 /// "93 % en 14 días".
-String detalleSugerencia(Sugerencia s, AppLocalizations t) => t.sugerenciaDetalle(s.cumplimiento14d.round().toString());
+/// "Cumpliste 93 % en 14 días" o, si la meta pasa del máximo recomendado (v1.6, sin porcentaje), el aviso de exceso.
+String detalleSugerencia(Sugerencia s, AppLocalizations t) {
+  final pct = s.cumplimiento14d;
+  return pct == null ? t.sugerenciaExceso : t.sugerenciaDetalle(pct.round().toString());
+}
 
 /// Teléfono: la sugerencia como un renglón que abre las opciones (bosquejo móvil 02).
 class TarjetaSugerencia extends StatelessWidget {

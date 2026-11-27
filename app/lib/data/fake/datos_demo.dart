@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:math';
 
 import 'package:flutter/foundation.dart';
@@ -12,10 +13,12 @@ import '../../domain/models/laboratorio.dart';
 import '../../domain/models/problema.dart';
 import '../../domain/models/registro.dart';
 import '../../domain/models/usuario.dart';
+import '../../utils/evidencia.dart';
 import '../../utils/fechas.dart';
 import '../../utils/paises_estados.dart';
 import '../../utils/result.dart';
 import '../services/api/errores_api.dart';
+import 'catalogo_demo.dart';
 
 /// "Servidor" en memoria para desarrollar y probar sin backend (`KAIZEN_FUENTE=fake`).
 ///
@@ -164,6 +167,13 @@ class DatosDemo {
 
   Categoria categoria(String id) => categorias.firstWhere((c) => c.id == id);
 
+  /// Subcategoría del catálogo completo (con unidades y referencia).
+  Subcategoria subcategoria(String id) => categorias.subcategoria(id)!;
+
+  /// Subcategoría por clave (`aerobico_moderado`), como la usan los datos de demo y las pruebas.
+  Subcategoria subcategoriaPorClave(String clave) =>
+      categorias.todasLasSubcategorias.firstWhere((s) => s.clave == clave);
+
   /// Emite un par de tokens (de mentira, pero con la misma rotación que la API).
   (String, String) emitirTokens(String usuarioId) {
     _secuenciaTokens++;
@@ -186,11 +196,14 @@ class DatosDemo {
 
   /// Racha actual, máxima y último día cumplido, con las reglas de la base: solo cuentan los días programados;
   /// hoy todavía no rompe la racha si aún no hay check-in. Los "N por semana" cuentan semanas cumplidas.
+  /// **Protector** (igual que `fn_rachas` desde el 27-nov): el primer día programado fallado de cada semana ISO no
+  /// rompe la racha (ese día no suma); el segundo de la misma semana sí.
   Racha racha(HabitoDemo h, {DateTime? desde}) {
     final hasta = hoy;
     final inicio = desde ?? Fechas.soloFecha(h.fechaCreacion);
     final regs = registros[h.id] ?? const {};
     DateTime? ultima;
+    DateTime? protegido;
     var actual = 0;
     var maxima = 0;
     if (h.frecuencia case NPorSemana(:final veces)) {
@@ -211,6 +224,7 @@ class DatosDemo {
         }
       }
     } else {
+      DateTime? semanaProtegida;
       for (var d = inicio; !d.isAfter(hasta); d = d.add(const Duration(days: 1))) {
         if (!h.frecuencia.programadoEn(d)) {
           continue;
@@ -219,23 +233,38 @@ class DatosDemo {
           actual++;
           maxima = max(maxima, actual);
           ultima = d;
-        } else if (d != hasta) {
+        } else if (d == hasta) {
+          // hoy todavía no cuenta como fallo
+        } else if (actual > 0 && semanaProtegida != Fechas.inicioSemana(d)) {
+          semanaProtegida = Fechas.inicioSemana(d);
+          protegido = d;
+        } else {
           actual = 0;
         }
       }
     }
-    return Racha(actual: actual, maxima: desde == null ? max(maxima, h.maximaHistorica) : maxima, ultimaFecha: ultima);
+    return Racha(
+      actual: actual,
+      maxima: desde == null ? max(maxima, h.maximaHistorica) : maxima,
+      ultimaFecha: ultima,
+      protegidaEstaSemana: protegido != null && !protegido.isBefore(Fechas.inicioSemana(hasta)),
+    );
   }
 
   Habito aHabito(HabitoDemo h, DateTime fecha) {
     final reg = registros[h.id]?[fecha];
+    final sub = subcategoria(h.subcategoriaId);
     return Habito(
       id: h.id,
       nombre: h.nombre,
       unidad: h.unidad,
       meta: h.meta,
       nivel: h.nivel,
-      categoria: categoria(h.categoriaId),
+      categoria: categoria(h.categoriaId).resumen,
+      subcategoria: sub.resumen,
+      prioridad: h.prioridad,
+      intencion: h.intencion,
+      evaluacion: EvaluadorEvidencia.evaluar(sub, h.unidad, h.meta, h.frecuencia),
       frecuencia: h.frecuencia,
       escaleraActiva: h.escaleraActiva,
       activo: h.activo,
@@ -269,18 +298,10 @@ class DatosDemo {
   // ───────────────────────────── Datos iniciales ─────────────────────────────
 
   void _sembrar() {
-    for (final (clave, nombre) in const [
-      ('aprendizaje', 'Aprendizaje'),
-      ('ejercicio', 'Ejercicio'),
-      ('finanzas', 'Finanzas'),
-      ('hidratacion', 'Hidratación'),
-      ('lectura', 'Lectura'),
-      ('meditacion', 'Meditación'),
-      ('salud', 'Salud'),
-      ('sueno', 'Sueño'),
-    ]) {
-      categorias.add(Categoria(id: 'cat-$clave', nombre: nombre));
-    }
+    // El catálogo es el mismo del clúster (mismos ids, unidades y referencias científicas).
+    categorias.addAll([
+      for (final c in jsonDecode(catalogoDemoJson) as List<dynamic>) Categoria.fromJson(c as Map<String, dynamic>),
+    ]);
 
     final hace = ahora.subtract(const Duration(days: 120));
     UsuarioDemo cuenta(
@@ -319,64 +340,79 @@ class DatosDemo {
     cuenta('u-nuevo', 'nuevo@kaizen.test', 'Nico Nuevo', 'MX', 'PUE', 'MX-CENTRO-SUR', diasAntiguedad: 0);
     cuenta('u-suspendido', 'suspendido@kaizen.test', 'Sergio Suspendido', 'MX', 'NLE', 'MX-NORTE', suspendido: true);
 
-    // Los hábitos de Daniela son los de los bosquejos de Hoy.
+    // Los hábitos de Daniela son los de los bosquejos de Hoy, con su subcategoría, prioridad e intención.
     final agua = _habito(
       demo.id,
       'Tomar agua',
       'L',
       2,
-      'cat-hidratacion',
+      'hidratacion',
       const Diaria(),
       racha: 21,
       hoyCumplido: true,
+      intencion: 'Después de lavarme los dientes',
     );
     final ejercicio = _habito(
       demo.id,
       'Ejercicio',
       'min',
       30,
-      'cat-ejercicio',
+      'aerobico_moderado',
       const Diaria(),
       racha: 8,
       hoyCumplido: true,
       metas: const [25, 30],
+      prioridad: Prioridad.alta,
+      intencion: 'Después de desayunar',
     );
     final leer = _habito(
       demo.id,
       'Leer',
       'min',
       10,
-      'cat-lectura',
+      'lectura',
       const Diaria(),
       racha: 34,
       metas: const [7, 8.5, 10],
+      intencion: 'Antes de dormir',
     );
     _habito(
       demo.id,
       'Estudiar inglés',
       'min',
       20,
-      'cat-aprendizaje',
+      'idiomas',
       const DiasSemana(DiasSemana.lunesAViernes),
       racha: 5,
       escalera: false,
+      prioridad: Prioridad.baja,
     );
-    final dormir = _habito(demo.id, 'Dormir 7 h', 'h', 7, 'cat-sueno', const Diaria(), racha: 2);
-    _sugerencia(leer, TipoSugerencia.subir, 11, 92.86);
-    _capsula(agua, 21, 'Si estás leyendo esto, sí pudiste. Recuerda por qué empezaste: tener más energía.', 21);
+    final dormir = _habito(demo.id, 'Dormir 7 h', 'h', 7, 'sueno', const Diaria(), racha: 2);
+    _sugerencia(leer, TipoSugerencia.subir, 11, 92.86, cita: subcategoriaPorClave('lectura').referencia?.cita);
+    _capsula(agua, 7, 'Si estás leyendo esto, sí pudiste. Recuerda por qué empezaste: tener más energía.', 21);
     _capsula(ejercicio, 66, 'Sesenta y seis días después, ¿cómo se siente tu cuerpo?', 8);
     _capsula(dormir, 7, 'Una semana durmiendo bien. Sigue así.', 2);
 
-    _habito('u-admin', 'Meditar', 'min', 10, 'cat-meditacion', const Diaria(), racha: 4);
-    _habito('u-admin', 'Caminar', 'min', 30, 'cat-ejercicio', const Diaria(), racha: 3);
+    _habito('u-admin', 'Meditar', 'min', 10, 'meditacion', const Diaria(), racha: 4);
+    _habito('u-admin', 'Caminar', 'min', 30, 'aerobico_moderado', const Diaria(), racha: 3);
+    // Meta excesiva (Ericsson: ≈4 h/día de práctica como máximo): la Escalera propone bajar a 240.
+    final apuntes = _habito('u-admin', 'Repasar apuntes', 'min', 300, 'estudio', const Diaria(), racha: 3);
+    _sugerencia(
+      apuntes,
+      TipoSugerencia.bajar,
+      240,
+      null,
+      motivo: MotivoSugerencia.excedeMaximo,
+      cita: subcategoriaPorClave('estudio').referencia?.cita,
+    );
 
-    final leerLatam = _habito(latam.id, 'Leer', 'páginas', 15, 'cat-lectura', const Diaria(), racha: 6);
-    _habito(latam.id, 'Tomar agua', 'vasos', 8, 'cat-hidratacion', const Diaria(), racha: 12);
-    _habito(latam.id, 'Ahorrar', 'pesos', 50, 'cat-finanzas', const NPorSemana(3), racha: 0);
-    _sugerencia(leerLatam, TipoSugerencia.subir, 16.5, 92.86);
-    _capsula(leerLatam, 21, 'Lucía del futuro: ¿ya terminaste el libro?', 6);
+    final leerLatam = _habito(latam.id, 'Leer', 'páginas', 15, 'lectura', const Diaria(), racha: 6);
+    _habito(latam.id, 'Tomar agua', 'vasos', 8, 'hidratacion', const Diaria(), racha: 12);
+    _habito(latam.id, 'Ahorrar', 'pesos', 50, 'ahorro', const NPorSemana(3), racha: 0);
+    _sugerencia(leerLatam, TipoSugerencia.subir, 17, 92.86, cita: subcategoriaPorClave('lectura').referencia?.cita);
+    _capsula(leerLatam, 30, 'Lucía del futuro: ¿ya terminaste el libro?', 6);
 
-    _habito('u-suspendido', 'Correr', 'km', 3, 'cat-ejercicio', const Diaria(), racha: 1);
+    _habito('u-suspendido', 'Correr', 'km', 3, 'aerobico_moderado', const Diaria(), racha: 1);
 
     for (final u in [demo, latam]) {
       final dias = senales.putIfAbsent(u.id, () => {});
@@ -409,15 +445,18 @@ class DatosDemo {
     String nombre,
     String unidad,
     double meta,
-    String categoriaId,
+    String subcategoriaClave,
     Frecuencia frecuencia, {
     required int racha,
     bool hoyCumplido = false,
     bool escalera = true,
     List<double>? metas,
     double constancia = 0.7,
+    int prioridad = Prioridad.media,
+    String? intencion,
   }) {
     final creado = ahora.subtract(const Duration(days: 120));
+    final sub = subcategoriaPorClave(subcategoriaClave);
     final h = HabitoDemo(
       id: nuevoId(),
       usuarioId: usuarioId,
@@ -425,7 +464,10 @@ class DatosDemo {
       unidad: unidad,
       meta: meta,
       nivel: metas?.length ?? 1,
-      categoriaId: categoriaId,
+      subcategoriaId: sub.id,
+      categoriaId: categorias.categoriaDe(sub.id)!.id,
+      prioridad: prioridad,
+      intencion: intencion,
       frecuencia: frecuencia,
       escaleraActiva: escalera,
       activo: true,
@@ -446,11 +488,13 @@ class DatosDemo {
         ),
     ];
 
-    // Historial: los últimos [racha] días programados cumplidos, el anterior no, y antes al azar.
+    // Historial: los últimos [racha] días programados cumplidos; antes, fallos hasta que dos caen en la misma semana
+    // (así el protector no alarga la racha y la racha queda exactamente en [racha]); antes de eso, al azar.
     final regs = registros.putIfAbsent(h.id, () => {});
     final inicio = Fechas.soloFecha(creado);
     var pendientes = racha;
     var corte = false;
+    DateTime? semanaDelFallo;
     for (
       var d = hoyCumplido ? hoy : hoy.subtract(const Duration(days: 1));
       !d.isBefore(inicio);
@@ -468,7 +512,9 @@ class DatosDemo {
         pendientes--;
       } else if (!corte) {
         cumplido = false;
-        corte = true;
+        final semana = Fechas.inicioSemana(d);
+        corte = semana == semanaDelFallo;
+        semanaDelFallo = semana;
       } else {
         cumplido = _azar.nextDouble() < constancia;
       }
@@ -487,7 +533,14 @@ class DatosDemo {
     return h;
   }
 
-  void _sugerencia(HabitoDemo h, TipoSugerencia tipo, double propuesta, double cumplimiento) {
+  void _sugerencia(
+    HabitoDemo h,
+    TipoSugerencia tipo,
+    double propuesta,
+    double? cumplimiento, {
+    MotivoSugerencia? motivo,
+    String? cita,
+  }) {
     final s = Sugerencia(
       id: nuevoId(),
       habitoId: h.id,
@@ -496,6 +549,10 @@ class DatosDemo {
       metaActual: h.meta,
       metaPropuesta: propuesta,
       cumplimiento14d: cumplimiento,
+      motivo:
+          motivo ??
+          (tipo == TipoSugerencia.subir ? MotivoSugerencia.cumplimientoAlto : MotivoSugerencia.cumplimientoBajo),
+      cita: cita,
       estado: EstadoSugerencia.pendiente,
       creadaEn: hoy.add(const Duration(hours: 8)),
     );
@@ -513,6 +570,17 @@ class DatosDemo {
       creadaEn: hoy.subtract(Duration(days: diasAtras)),
     );
     capsulas[c.id] = c;
+  }
+
+  /// Como `sp_admin_actualizar_subcategoria(..., activa => false)`: deja de ofrecerse y de aceptarse en hábitos nuevos.
+  @visibleForTesting
+  void desactivarSubcategoria(String id) {
+    for (final c in categorias) {
+      final i = c.subcategorias.indexWhere((s) => s.id == id);
+      if (i >= 0) {
+        c.subcategorias[i] = c.subcategorias[i].copyWith(activa: false);
+      }
+    }
   }
 
   @visibleForTesting
@@ -575,11 +643,14 @@ class HabitoDemo {
     required this.unidad,
     required this.meta,
     required this.nivel,
+    required this.subcategoriaId,
     required this.categoriaId,
     required this.frecuencia,
     required this.escaleraActiva,
     required this.activo,
     required this.fechaCreacion,
+    this.prioridad = Prioridad.media,
+    this.intencion,
   });
 
   final String id;
@@ -588,7 +659,12 @@ class HabitoDemo {
   String unidad;
   double meta;
   int nivel;
+  String subcategoriaId;
+
+  /// La categoría de su subcategoría (la base la fija con un trigger).
   String categoriaId;
+  int prioridad;
+  String? intencion;
   final Frecuencia frecuencia;
   bool escaleraActiva;
   bool activo;

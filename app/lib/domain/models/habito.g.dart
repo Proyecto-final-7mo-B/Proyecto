@@ -6,23 +6,35 @@ part of 'habito.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-Racha _$RachaFromJson(Map<String, dynamic> json) =>
-    $checkedCreate('Racha', json, ($checkedConvert) {
-      final val = Racha(
-        actual: $checkedConvert('actual', (v) => (v as num).toInt()),
-        maxima: $checkedConvert('maxima', (v) => (v as num).toInt()),
-        ultimaFecha: $checkedConvert(
-          'ultima_fecha',
-          (v) => const FechaNulaConverter().fromJson(v as String?),
-        ),
-      );
-      return val;
-    }, fieldKeyMap: const {'ultimaFecha': 'ultima_fecha'});
+Racha _$RachaFromJson(Map<String, dynamic> json) => $checkedCreate(
+  'Racha',
+  json,
+  ($checkedConvert) {
+    final val = Racha(
+      actual: $checkedConvert('actual', (v) => (v as num).toInt()),
+      maxima: $checkedConvert('maxima', (v) => (v as num).toInt()),
+      ultimaFecha: $checkedConvert(
+        'ultima_fecha',
+        (v) => const FechaNulaConverter().fromJson(v as String?),
+      ),
+      protegidaEstaSemana: $checkedConvert(
+        'protegida_esta_semana',
+        (v) => v as bool? ?? false,
+      ),
+    );
+    return val;
+  },
+  fieldKeyMap: const {
+    'ultimaFecha': 'ultima_fecha',
+    'protegidaEstaSemana': 'protegida_esta_semana',
+  },
+);
 
 Map<String, dynamic> _$RachaToJson(Racha instance) => <String, dynamic>{
   'actual': instance.actual,
   'maxima': instance.maxima,
   'ultima_fecha': const FechaNulaConverter().toJson(instance.ultimaFecha),
+  'protegida_esta_semana': instance.protegidaEstaSemana,
 };
 
 RegistroDeHoy _$RegistroDeHoyFromJson(Map<String, dynamic> json) =>
@@ -80,6 +92,10 @@ Habito _$HabitoFromJson(Map<String, dynamic> json) => $checkedCreate(
         'categoria',
         (v) => Categoria.fromJson(v as Map<String, dynamic>),
       ),
+      subcategoria: $checkedConvert(
+        'subcategoria',
+        (v) => Subcategoria.fromJson(v as Map<String, dynamic>),
+      ),
       frecuencia: $checkedConvert(
         'frecuencia',
         (v) => Frecuencia.fromJson(v as Map<String, dynamic>),
@@ -93,6 +109,13 @@ Habito _$HabitoFromJson(Map<String, dynamic> json) => $checkedCreate(
       racha: $checkedConvert(
         'racha',
         (v) => Racha.fromJson(v as Map<String, dynamic>),
+      ),
+      prioridad: $checkedConvert('prioridad', (v) => (v as num?)?.toInt() ?? 2),
+      intencion: $checkedConvert('intencion', (v) => v as String?),
+      evaluacion: $checkedConvert(
+        'evaluacion',
+        (v) =>
+            v == null ? null : Evaluacion.fromJson(v as Map<String, dynamic>),
       ),
       hoy: $checkedConvert(
         'hoy',
@@ -114,6 +137,10 @@ Map<String, dynamic> _$HabitoToJson(Habito instance) => <String, dynamic>{
   'meta': instance.meta,
   'nivel': instance.nivel,
   'categoria': instance.categoria.toJson(),
+  'subcategoria': instance.subcategoria.toJson(),
+  'prioridad': instance.prioridad,
+  'intencion': instance.intencion,
+  'evaluacion': instance.evaluacion?.toJson(),
   'frecuencia': instance.frecuencia.toJson(),
   'escalera_activa': instance.escaleraActiva,
   'activo': instance.activo,
@@ -128,7 +155,7 @@ NuevoHabito _$NuevoHabitoFromJson(Map<String, dynamic> json) => $checkedCreate(
   ($checkedConvert) {
     final val = NuevoHabito(
       nombre: $checkedConvert('nombre', (v) => v as String),
-      categoriaId: $checkedConvert('categoria_id', (v) => v as String),
+      subcategoriaId: $checkedConvert('subcategoria_id', (v) => v as String),
       frecuencia: $checkedConvert(
         'frecuencia',
         (v) => Frecuencia.fromJson(v as Map<String, dynamic>),
@@ -139,11 +166,16 @@ NuevoHabito _$NuevoHabitoFromJson(Map<String, dynamic> json) => $checkedCreate(
         'escalera_activa',
         (v) => v as bool? ?? true,
       ),
+      prioridad: $checkedConvert(
+        'prioridad',
+        (v) => (v as num?)?.toInt() ?? Prioridad.media,
+      ),
+      intencion: $checkedConvert('intencion', (v) => v as String?),
     );
     return val;
   },
   fieldKeyMap: const {
-    'categoriaId': 'categoria_id',
+    'subcategoriaId': 'subcategoria_id',
     'escaleraActiva': 'escalera_activa',
   },
 );
@@ -151,9 +183,11 @@ NuevoHabito _$NuevoHabitoFromJson(Map<String, dynamic> json) => $checkedCreate(
 Map<String, dynamic> _$NuevoHabitoToJson(NuevoHabito instance) =>
     <String, dynamic>{
       'nombre': instance.nombre,
-      'categoria_id': instance.categoriaId,
+      'subcategoria_id': instance.subcategoriaId,
       'frecuencia': instance.frecuencia.toJson(),
       'meta': instance.meta,
       'unidad': instance.unidad,
       'escalera_activa': instance.escaleraActiva,
+      'prioridad': instance.prioridad,
+      'intencion': instance.intencion,
     };

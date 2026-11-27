@@ -19,7 +19,9 @@ abstract final class Limites {
   static const int escalaMin = 1; // ánimo y energía
   static const int escalaMax = 5;
   static const int mensajeCapsulaMaxBytes = 4096;
-  static const List<int> rachasObjetivo = [7, 21, 66];
+  /// 7, 30 y 66 días (el 21 es un mito sin estudio detrás; 66 es la mediana para formar un hábito, doc. 01).
+  static const List<int> rachasObjetivo = [7, 30, 66];
+  static const int intencionMax = 120;
   static const int categoriaMin = 2;
   static const int categoriaMax = 40;
   static const int motivoSuspensionMin = 3;

@@ -5,6 +5,7 @@ import 'package:integration_test/integration_test.dart';
 import 'package:kaizen/app.dart';
 import 'package:kaizen/config/entorno.dart';
 import 'package:kaizen/ui/core/adaptativo/busqueda.dart';
+import 'package:kaizen/ui/habitos/widgets/pantalla_habitos.dart';
 import 'package:kaizen/ui/hoy/widgets/pantalla_hoy.dart';
 
 /// Flujo del Paso 3 en la app real (escritorio): entrar → secciones → Ctrl+K → perfil → salir.
@@ -42,7 +43,7 @@ void main() {
 
     await tester.tap(find.text('Hábitos'));
     await tester.pumpAndSettle();
-    expect(find.text('Esta pantalla llega en el paso 7 del plan.'), findsOneWidget);
+    expect(find.byType(PantallaHabitos), findsOneWidget);
 
     await buscarEIr(tester, 'progreso');
     expect(find.text('Esta pantalla llega en el paso 12 del plan.'), findsOneWidget);

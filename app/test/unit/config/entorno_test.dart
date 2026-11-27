@@ -45,10 +45,11 @@ void main() {
     expect(e.apiBaseUrl, apiProduccion);
   });
 
-  test('los límites coinciden con el contrato v1.4', () {
+  test('los límites coinciden con el contrato v1.6', () {
     expect(Limites.contrasenaMin, 18);
     expect(Limites.mensajeCapsulaMaxBytes, 4096);
-    expect(Limites.rachasObjetivo, [7, 21, 66]);
+    expect(Limites.rachasObjetivo, [7, 30, 66], reason: '21 días es un mito; 66 es la mediana científica');
+    expect(Limites.intencionMax, 120);
     expect(Limites.mascaraLunesAViernes, 1 + 2 + 4 + 8 + 16);
   });
 }

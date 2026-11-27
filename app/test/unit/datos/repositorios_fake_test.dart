@@ -6,6 +6,7 @@ import 'package:kaizen/data/services/api/errores_api.dart';
 import 'package:kaizen/domain/models/admin.dart';
 import 'package:kaizen/domain/models/capsula.dart';
 import 'package:kaizen/domain/models/escalera.dart';
+import 'package:kaizen/domain/models/evidencia.dart';
 import 'package:kaizen/domain/models/frecuencia.dart';
 import 'package:kaizen/domain/models/habito.dart';
 import 'package:kaizen/domain/models/laboratorio.dart';
@@ -193,7 +194,29 @@ void main() {
       expect(porNombre['Leer']!.nivel, 3);
       expect(porNombre['Estudiar inglés']!.escaleraActiva, isFalse);
       expect(porNombre['Estudiar inglés']!.hoy!.programado, isTrue, reason: 'lunes es día de L–V');
-      expect((await d.categorias.listar()).valorONulo, hasLength(8));
+      final catalogo = (await d.categorias.listar()).valorONulo!;
+      expect(catalogo.map((c) => c.clave), ['ejercicio', 'salud', 'educacion', 'bienestar', 'finanzas']);
+      expect(catalogo.expand((c) => c.subcategorias), hasLength(22));
+      expect(porNombre['Ejercicio']!.prioridad, Prioridad.alta);
+      expect(porNombre['Ejercicio']!.evaluacion!.zona, ZonaEvidencia.optimo, reason: '210 min/semana (OMS 150–300)');
+      expect(porNombre['Leer']!.evaluacion!.zona, ZonaEvidencia.bajo, reason: '70 min/semana < 210');
+      expect(porNombre['Tomar agua']!.intencion, 'Después de lavarme los dientes');
+    });
+
+    test('la lista llega por prioridad y después por nombre (como la API)', () async {
+      await entrar('demo@kaizen.test');
+      final lista = (await d.habitos.listar(fecha: hoy)).valorONulo!;
+      expect(lista.map((h) => h.nombre), ['Ejercicio', 'Dormir 7 h', 'Leer', 'Tomar agua', 'Estudiar inglés']);
+    });
+
+    test('meta excesiva: Repasar apuntes 300 min y su sugerencia de bajar por exceso', () async {
+      await entrar('admin@kaizen.test');
+      final apuntes = (await d.habitos.listar(fecha: hoy)).valorONulo!.firstWhere((h) => h.nombre == 'Repasar apuntes');
+      expect(apuntes.evaluacion!.zona, ZonaEvidencia.excesivo);
+      expect(apuntes.evaluacion!.metaSugerida, 240, reason: 'Ericsson: ≈4 h/día');
+      final s = (await d.escalera.sugerencias()).valorONulo!.single;
+      expect((s.motivo, s.metaPropuesta, s.cumplimiento14d), (MotivoSugerencia.excedeMaximo, 240, null));
+      expect(s.cita, contains('Ericsson'));
     });
 
     test('?fecha= fuera de hoy ±1 da 422', () async {
@@ -267,54 +290,80 @@ void main() {
       expect(tipo(await d.registros.registrarLote(grande)), TipoError.validacion);
     });
 
-    test('crear y editar: valida, categoría inactiva, archivar expira la sugerencia', () async {
+    test('crear y editar: subcategoría, unidad, rango, prioridad e intención; archivar expira la sugerencia', () async {
       await entrar('demo@kaizen.test');
-      const nuevo = NuevoHabito(
+      final meditacion = datos.subcategoriaPorClave('meditacion');
+      final nuevo = NuevoHabito(
         nombre: 'Meditar',
-        categoriaId: 'cat-meditacion',
-        frecuencia: DiasSemana(96),
+        subcategoriaId: meditacion.id,
+        frecuencia: const DiasSemana(96),
         meta: 5,
         unidad: 'min',
+        prioridad: Prioridad.alta,
+        intencion: 'Al despertar',
       );
       final h = (await d.habitos.crear(nuevo)).valorONulo!;
       expect(h.nivel, 1);
       expect(h.racha.actual, 0);
       expect(h.hoy!.programado, isFalse, reason: 'solo fines de semana');
+      expect(h.categoria.clave, 'bienestar', reason: 'la categoría la fija la subcategoría');
+      expect(h.subcategoria.clave, 'meditacion');
+      expect(h.prioridad, Prioridad.alta);
+      expect(h.intencion, 'Al despertar');
+      expect(h.evaluacion!.zona, ZonaEvidencia.bajo, reason: '5 min < 10–20 recomendados');
       expect(
         tipo(
           await d.habitos.crear(
-            const NuevoHabito(nombre: '', categoriaId: 'cat-meditacion', frecuencia: Diaria(), meta: 0, unidad: ''),
+            NuevoHabito(nombre: '', subcategoriaId: meditacion.id, frecuencia: const Diaria(), meta: 0, unidad: ''),
           ),
         ),
         TipoError.validacion,
       );
-      datos.categorias[0] = datos.categorias[0].copyWith(activa: false);
+      expect(
+        tipo(
+          await d.habitos.crear(
+            NuevoHabito(nombre: 'X', subcategoriaId: meditacion.id, frecuencia: const Diaria(), meta: 3, unidad: 'km'),
+          ),
+        ),
+        TipoError.unidadNoPermitida,
+      );
+      expect(
+        tipo(
+          await d.habitos.crear(
+            NuevoHabito(nombre: 'X', subcategoriaId: meditacion.id, frecuencia: const Diaria(), meta: 700, unidad: 'min'),
+          ),
+        ),
+        TipoError.validacion,
+        reason: 'fuera del rango de captura (1–600 min)',
+      );
+      final gratitud = datos.subcategoriaPorClave('gratitud');
+      datos.desactivarSubcategoria(gratitud.id);
       expect(
         tipo(
           await d.habitos.crear(
             NuevoHabito(
               nombre: 'X',
-              categoriaId: datos.categorias[0].id,
-              frecuencia: const Diaria(),
+              subcategoriaId: gratitud.id,
+              frecuencia: const NPorSemana(1),
               meta: 1,
-              unidad: 'u',
+              unidad: 'registros',
             ),
           ),
         ),
-        TipoError.categoriaInactiva,
+        TipoError.subcategoriaInactiva,
       );
       expect(
-        tipo(await d.habitos.actualizar(h.id, CambiosHabito(categoriaId: datos.categorias[0].id))),
-        TipoError.categoriaInactiva,
+        tipo(await d.habitos.actualizar(h.id, CambiosHabito(subcategoriaId: gratitud.id))),
+        TipoError.subcategoriaInactiva,
       );
+      expect(tipo(await d.habitos.actualizar(h.id, const CambiosHabito(nombre: 'Meditar 5', unidad: 'segundos'))),
+          TipoError.unidadNoPermitida);
       expect(tipo(await d.habitos.actualizar(h.id, CambiosHabito(nombre: 'x' * 61))), TipoError.validacion);
-      expect(
-        (await d.habitos.actualizar(
-          h.id,
-          const CambiosHabito(nombre: 'Meditar 5', unidad: 'minutos'),
-        )).valorONulo!.unidad,
-        'minutos',
-      );
+      final editado = (await d.habitos.actualizar(
+        h.id,
+        const CambiosHabito(nombre: 'Meditar 5', prioridad: Prioridad.baja, quitarIntencion: true),
+      )).valorONulo!;
+      expect((editado.nombre, editado.prioridad, editado.intencion), ('Meditar 5', Prioridad.baja, null));
 
       final leer = datos.habitos.values.firstWhere((x) => x.usuarioId == 'u-demo' && x.nombre == 'Leer');
       expect((await d.escalera.sugerencias()).valorONulo, hasLength(1));
@@ -374,10 +423,10 @@ void main() {
   });
 
   group('cápsulas', () {
-    test('la de 21 días de Daniela se abre; la de 66 responde "Racha X de 66"', () async {
+    test('la de 7 días de Tomar agua se abre; la de 66 responde "Racha X de 66"', () async {
       await entrar('demo@kaizen.test');
       final lista = (await d.capsulas.listar()).valorONulo!;
-      final agua = lista.firstWhere((c) => c.rachaObjetivo == 21);
+      final agua = lista.firstWhere((c) => c.habitoNombre == 'Tomar agua');
       final ejercicio = lista.firstWhere((c) => c.rachaObjetivo == 66);
       expect(agua.sePuedeAbrir, isTrue);
       expect(ejercicio.sePuedeAbrir, isFalse);
@@ -429,7 +478,7 @@ void main() {
       expect(s.porDia.single.programados, 5);
       expect(s.porDia.single.cumplidos, 2, reason: 'Tomar agua y Ejercicio, como en el bosquejo "2 de 5"');
       expect(s.porDia.single.cumplimiento, 40);
-      expect(s.mejoresRachas.first.categoria, 'Lectura');
+      expect(s.mejoresRachas.first.categoria, 'Educación', reason: 'Leer (34 días) es de Educación');
       expect(s.crecimientoMetas, greaterThan(0));
       final m = (await d.progreso.obtener(Periodo.mes, fecha: hoy)).valorONulo!;
       expect(m.porDia, hasLength(23));
@@ -559,7 +608,7 @@ void main() {
 
     test('categorías: crear, duplicado sin importar mayúsculas, desactivar', () async {
       await entrar('admin@kaizen.test');
-      expect((await d.admin.categorias()).valorONulo, hasLength(8));
+      expect((await d.admin.categorias()).valorONulo, hasLength(5));
       final m = (await d.admin.crearCategoria('Música')).valorONulo!;
       expect(tipo(await d.admin.crearCategoria('música')), TipoError.nombreDuplicado);
       expect(tipo(await d.admin.crearCategoria('M')), TipoError.validacion);
@@ -576,7 +625,7 @@ void main() {
 
     test('métricas e indicadores I1–I6 con su forma; 404 y 503', () async {
       await entrar('admin@kaizen.test');
-      expect((await d.admin.metricas()).valorONulo!.resumen.categoriasActivas, 8);
+      expect((await d.admin.metricas()).valorONulo!.resumen.categoriasActivas, 5);
       for (final c in ['I1', 'I2', 'I3', 'I4', 'I5', 'I6']) {
         final i = (await d.admin.indicador(c)).valorONulo!;
         expect(i.datosSinteticos, isTrue);

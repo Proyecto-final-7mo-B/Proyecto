@@ -3,10 +3,12 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:kaizen/data/services/api/errores_api.dart';
 import 'package:kaizen/routing/rutas.dart';
 import 'package:kaizen/ui/core/adaptativo/plataforma.dart';
+import 'package:kaizen/ui/core/adaptativo/shell_movil.dart';
 import 'package:kaizen/ui/core/widgets/barra_semana.dart';
 import 'package:kaizen/ui/core/widgets/calendario_mes.dart';
 import 'package:kaizen/ui/core/widgets/fila_habito.dart';
 import 'package:kaizen/ui/core/widgets/indicador_racha.dart';
+import 'package:kaizen/ui/habitos/widgets/pantalla_detalle_habito.dart';
 import 'package:kaizen/ui/hoy/widgets/pantalla_hoy.dart';
 import 'package:kaizen/ui/hoy/widgets/tarjetas_hoy.dart';
 
@@ -102,7 +104,8 @@ void main() {
     testWidgets('tocar un hábito abre su detalle', (tester) async {
       await montarApp(tester);
       await tocar(tester, find.text('Ejercicio'));
-      expect(find.text('Detalle del hábito'), findsOneWidget);
+      expect(find.byType(PantallaDetalleHabito), findsOneWidget);
+      expect(find.text('Ejercicio'), findsWidgets);
     });
 
     testWidgets('"¿Cómo te sientes hoy?" lleva al Laboratorio', (tester) async {
@@ -129,6 +132,20 @@ void main() {
       await tocar(tester, find.text('Reintentar'));
       expect(find.text('2 de 5'), findsOneWidget);
     });
+  });
+
+  testWidgets('al volver a Hoy por la barra después de archivar, "N de M" se actualiza', (tester) async {
+    await montarApp(tester);
+    expect(find.text('2 de 5'), findsOneWidget);
+    await tocar(tester, find.text('Leer'));
+    await tocar(tester, find.byTooltip('Editar'));
+    await tocar(tester, find.text('Archivar hábito'));
+    await tocar(tester, find.text('Archivar'));
+    expect(find.byType(PantallaDetalleHabito), findsOneWidget);
+    await tester.tap(find.descendant(of: find.byType(BarraInferior), matching: find.text('Hoy')));
+    await tester.pumpAndSettle();
+    expect(find.text('2 de 4'), findsOneWidget);
+    expect(fila('Leer'), findsNothing);
   });
 
   group('escritorio y web', () {
