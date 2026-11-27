@@ -26,14 +26,46 @@ def test_diaria_diez_dias_seguidos() -> None:
     assert racha == Racha(10, 10, INICIO + timedelta(9))
 
 
-def test_una_falla_reinicia_pero_conserva_la_maxima() -> None:
+def test_una_falla_la_perdona_el_protector() -> None:
+    # antes del protector daba actual 1, máxima 9
     racha = calc.calcular(Diaria(), dias(*[True] * 9, False, True))
-    assert (racha.actual, racha.maxima) == (1, 9)
+    assert (racha.actual, racha.maxima) == (10, 10)
+    assert racha.ultimo_protegido == INICIO + timedelta(9)
 
 
-def test_dia_programado_sin_registro_rompe() -> None:
+def test_dia_programado_sin_registro_lo_perdona_el_protector() -> None:
+    # antes del protector daba 1
     racha = calc.calcular(Diaria(), dias(True, True, None, True))
-    assert (racha.actual, racha.maxima) == (1, 2)
+    assert (racha.actual, racha.maxima) == (3, 3)
+
+
+def test_falla_sin_racha_no_usa_el_protector() -> None:
+    racha = calc.calcular(Diaria(), dias(False, True))
+    assert racha == Racha(1, 1, INICIO + timedelta(1), None)
+
+
+# Mismos casos que db/cambios/pruebas_evidencia.sql, sección 4: dos semanas de lunes a domingo.
+def test_sql_una_falla_en_la_semana() -> None:
+    racha = calc.calcular(Diaria(), dias(True, True, None, *[True] * 11))
+    assert (racha.actual, racha.ultimo_protegido) == (13, INICIO + timedelta(2))
+
+
+def test_sql_dos_fallas_en_la_misma_semana_rompen() -> None:
+    racha = calc.calcular(Diaria(), dias(True, True, None, True, None, *[True] * 9))
+    assert racha.actual == 9
+
+
+def test_sql_una_falla_en_cada_semana() -> None:
+    racha = calc.calcular(Diaria(), dias(True, True, None, *[True] * 6, None, *[True] * 4))
+    assert racha.actual == 12
+
+
+def test_hasta_cuenta_como_fallados_los_dias_sin_registro() -> None:
+    historial = dias(*[True] * 5)  # lunes a viernes
+    sabado, domingo = INICIO + timedelta(5), INICIO + timedelta(6)
+    assert calc.calcular(Diaria(), historial, hasta=sabado).actual == 5  # protegido
+    assert calc.calcular(Diaria(), historial, hasta=domingo).actual == 0  # segundo fallo
+    assert calc.calcular(Diaria(), historial, hasta=INICIO).actual == 5  # antes del fin: igual
 
 
 def test_lmv_no_se_rompe_en_dias_libres() -> None:
@@ -48,7 +80,8 @@ def test_dia_no_programado_cumplido_no_suma() -> None:
 
 
 def test_n_por_semana_solo_cuentan_dias_con_registro() -> None:
-    racha = calc.calcular(NPorSemana(3), dias(True, None, None, True, False, True))
+    # L y J cumplen, M y X no cuentan, V lo perdona el protector, S rompe, D empieza otra
+    racha = calc.calcular(NPorSemana(3), dias(True, None, None, True, False, False, True))
     assert (racha.actual, racha.maxima) == (1, 2)
 
 
