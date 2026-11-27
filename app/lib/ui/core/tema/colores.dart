@@ -76,6 +76,21 @@ abstract final class KaizenColores {
   static const Color errorFondo = Color(0xFFFBE9E7);
 
   /// Escala de intensidad 0 → 4 del calendario y del mapa de calor (sin registro → meta completa).
+  /// Progreso y "dentro de lo recomendado": verde esmeralda (emociones positivas y logro, F42/F44; doc. 04).
+  /// 5.48:1 sobre blanco. El rojo queda solo para errores.
+  static const Color verdeProgreso = Color(0xFF047857);
+  static const Color verdeProgresoFondo = Color(0xFFE1EFEB);
+
+  /// Color de una categoría a partir de su hex del catálogo (`#D9480F`). Si el texto no es válido, el marino.
+  static Color deHex(String hex) {
+    final limpio = hex.replaceFirst('#', '');
+    final valor = limpio.length == 6 ? int.tryParse(limpio, radix: 16) : null;
+    return valor == null ? marino800 : Color(0xFF000000 | valor);
+  }
+
+  /// Fondo del ícono de una categoría: su color al 12 % sobre blanco (contraste del ícono ≥ 3:1, doc. 04).
+  static Color fondoDe(Color color) => Color.lerp(superficie, color, 0.12)!;
+
   static const List<Color> intensidad = [azul50, azul200, azul400, azul600, marino800];
 
   /// Color de la escala para un nivel; fuera de rango se recorta a 0–4.

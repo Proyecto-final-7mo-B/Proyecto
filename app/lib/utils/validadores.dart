@@ -86,6 +86,10 @@ abstract final class Validadores {
   static ErrorValidacion? unidad(String? valor) => _largo(valor, 1, 20);
 
   /// Nombre de categoría: 2–40.
+  /// Intención "Después de ___": opcional (vacía = sin intención); si viene, 1 a 120 caracteres (`habito.intencion`).
+  static ErrorValidacion? intencion(String? valor) =>
+      (valor == null || valor.trim().isEmpty) ? null : _largo(valor, 1, Limites.intencionMax);
+
   static ErrorValidacion? nombreCategoria(String? valor) => _largo(valor, 2, 40);
 
   /// Motivo de suspensión: 3–200.

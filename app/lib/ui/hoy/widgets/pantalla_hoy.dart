@@ -16,6 +16,7 @@ import '../../../utils/fechas.dart';
 import '../../../utils/reloj.dart';
 import '../../core/adaptativo/breakpoints.dart';
 import '../../core/adaptativo/plataforma.dart';
+import '../../core/adaptativo/recarga_al_volver.dart';
 import '../../core/formatos.dart';
 import '../../core/mensajes.dart';
 import '../../core/tema/colores.dart';
@@ -28,6 +29,7 @@ import '../../core/widgets/fila_habito.dart';
 import '../../core/widgets/tarjeta_kaizen.dart';
 import '../view_models/hoy_viewmodel.dart';
 import 'tarjetas_hoy.dart';
+import '../../core/apariencia_habito.dart';
 
 /// `/hoy` (bosquejo 02). En el teléfono, una columna; con 900 px o más de contenido, dos columnas con el calendario
 /// del mes y el micro-paso a la derecha.
@@ -41,7 +43,13 @@ class PantallaHoy extends StatefulWidget {
   State<PantallaHoy> createState() => _PantallaHoyState();
 }
 
-class _PantallaHoyState extends State<PantallaHoy> {
+class _PantallaHoyState extends State<PantallaHoy> with RecargaAlVolver {
+  @override
+  String get rutaPropia => Rutas.hoy;
+
+  @override
+  Future<void> recargarAlVolver() => _vm.cargar.ejecutar();
+
   late final HoyViewModel _vm;
 
   @override
@@ -305,7 +313,8 @@ class _PantallaHoyState extends State<PantallaHoy> {
           padding: const EdgeInsets.only(bottom: KaizenMedidas.e8),
           child: FilaHabito(
             key: ValueKey(h.id),
-            icono: KaizenIconos.deCategoria(h.categoria.nombre),
+            icono: h.icono,
+            colorIcono: h.color,
             nombre: h.nombre,
             subtitulo: subtituloHabito(h, t),
             racha: h.racha.actual,

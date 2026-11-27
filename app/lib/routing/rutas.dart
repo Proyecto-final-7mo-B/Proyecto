@@ -32,8 +32,9 @@ abstract final class Rutas {
   static String escaleraHabito(String id) => '${habito(id)}/escalera';
 
   /// `/capsulas/nueva?habito=<id>`: al crear un hábito con cápsula se abre esta pantalla (Paso 7).
-  static String nuevaCapsulaDe(String habitoId) =>
-      Uri(path: nuevaCapsula, queryParameters: {'habito': habitoId}).toString();
+  /// Con [objetivo] (7, 21 o 66) la pantalla de cápsula ya trae elegida la racha que se escogió al crear el hábito.
+  static String nuevaCapsulaDe(String habitoId, {int? objetivo}) =>
+      Uri(path: nuevaCapsula, queryParameters: {'habito': habitoId, 'objetivo': ?objetivo?.toString()}).toString();
 
   /// `/login?desde=/habitos/123`: a dónde volver después de entrar.
   static String loginDesde(String destino) => Uri(path: login, queryParameters: {'desde': destino}).toString();

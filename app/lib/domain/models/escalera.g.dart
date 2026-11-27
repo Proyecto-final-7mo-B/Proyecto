@@ -23,10 +23,6 @@ Sugerencia _$SugerenciaFromJson(Map<String, dynamic> json) => $checkedCreate(
         'meta_propuesta',
         (v) => (v as num).toDouble(),
       ),
-      cumplimiento14d: $checkedConvert(
-        'cumplimiento_14d',
-        (v) => (v as num).toDouble(),
-      ),
       estado: $checkedConvert(
         'estado',
         (v) => $enumDecode(_$EstadoSugerenciaEnumMap, v),
@@ -35,6 +31,21 @@ Sugerencia _$SugerenciaFromJson(Map<String, dynamic> json) => $checkedCreate(
         'creada_en',
         (v) => const InstanteConverter().fromJson(v as String),
       ),
+      cumplimiento14d: $checkedConvert(
+        'cumplimiento_14d',
+        (v) => (v as num?)?.toDouble(),
+      ),
+      motivo: $checkedConvert(
+        'motivo',
+        (v) =>
+            $enumDecodeNullable(
+              _$MotivoSugerenciaEnumMap,
+              v,
+              unknownValue: MotivoSugerencia.cumplimiento,
+            ) ??
+            MotivoSugerencia.cumplimiento,
+      ),
+      cita: $checkedConvert('cita', (v) => v as String?),
       resueltaEn: $checkedConvert(
         'resuelta_en',
         (v) => const InstanteNuloConverter().fromJson(v as String?),
@@ -47,8 +58,8 @@ Sugerencia _$SugerenciaFromJson(Map<String, dynamic> json) => $checkedCreate(
     'habitoNombre': 'habito_nombre',
     'metaActual': 'meta_actual',
     'metaPropuesta': 'meta_propuesta',
-    'cumplimiento14d': 'cumplimiento_14d',
     'creadaEn': 'creada_en',
+    'cumplimiento14d': 'cumplimiento_14d',
     'resueltaEn': 'resuelta_en',
   },
 );
@@ -62,6 +73,8 @@ Map<String, dynamic> _$SugerenciaToJson(Sugerencia instance) =>
       'meta_actual': instance.metaActual,
       'meta_propuesta': instance.metaPropuesta,
       'cumplimiento_14d': instance.cumplimiento14d,
+      'motivo': _$MotivoSugerenciaEnumMap[instance.motivo]!,
+      'cita': instance.cita,
       'estado': _$EstadoSugerenciaEnumMap[instance.estado]!,
       'creada_en': const InstanteConverter().toJson(instance.creadaEn),
       'resuelta_en': const InstanteNuloConverter().toJson(instance.resueltaEn),
@@ -77,6 +90,13 @@ const _$EstadoSugerenciaEnumMap = {
   EstadoSugerencia.aceptada: 'aceptada',
   EstadoSugerencia.rechazada: 'rechazada',
   EstadoSugerencia.expirada: 'expirada',
+};
+
+const _$MotivoSugerenciaEnumMap = {
+  MotivoSugerencia.cumplimiento: 'cumplimiento',
+  MotivoSugerencia.cumplimientoAlto: 'cumplimiento_alto',
+  MotivoSugerencia.cumplimientoBajo: 'cumplimiento_bajo',
+  MotivoSugerencia.excedeMaximo: 'excede_maximo',
 };
 
 RespuestaSugerencia _$RespuestaSugerenciaFromJson(Map<String, dynamic> json) =>
@@ -144,7 +164,17 @@ SugerenciaPendiente _$SugerenciaPendienteFromJson(Map<String, dynamic> json) =>
           ),
           cumplimiento14d: $checkedConvert(
             'cumplimiento_14d',
-            (v) => (v as num).toDouble(),
+            (v) => (v as num?)?.toDouble(),
+          ),
+          motivo: $checkedConvert(
+            'motivo',
+            (v) =>
+                $enumDecodeNullable(
+                  _$MotivoSugerenciaEnumMap,
+                  v,
+                  unknownValue: MotivoSugerencia.cumplimiento,
+                ) ??
+                MotivoSugerencia.cumplimiento,
           ),
         );
         return val;
@@ -162,6 +192,7 @@ Map<String, dynamic> _$SugerenciaPendienteToJson(
   'tipo': _$TipoSugerenciaEnumMap[instance.tipo]!,
   'meta_propuesta': instance.metaPropuesta,
   'cumplimiento_14d': instance.cumplimiento14d,
+  'motivo': _$MotivoSugerenciaEnumMap[instance.motivo]!,
 };
 
 CambioEscalera _$CambioEscaleraFromJson(Map<String, dynamic> json) =>

@@ -39,7 +39,10 @@ void main() {
     'unidad': 'min',
     'meta': 10,
     'nivel': 3,
-    'categoria': {'id': 'c1', 'nombre': 'Lectura'},
+    'categoria': {'id': 'c1', 'clave': 'educacion', 'nombre': 'Educación', 'color': '#2563EB', 'icono': 'school'},
+    'subcategoria': {'id': 's1', 'clave': 'lectura', 'nombre': 'Lectura', 'icono': 'menu_book', 'sentido': 'aumentar'},
+    'prioridad': 2,
+    'intencion': null,
     'frecuencia': {'tipo': 'diaria', 'dias_semana': null, 'veces_semana': null},
     'escalera_activa': true,
     'activo': true,
@@ -120,10 +123,30 @@ void main() {
 
   test('categorías', () async {
     responde([
-      {'id': 'c1', 'nombre': 'Aprendizaje'},
+      {
+        'id': 'c1',
+        'clave': 'educacion',
+        'nombre': 'Educación',
+        'color': '#2563EB',
+        'icono': 'school',
+        'subcategorias': [
+          {
+            'id': 's1',
+            'clave': 'idiomas',
+            'nombre': 'Idiomas',
+            'icono': 'translate',
+            'sentido': 'aumentar',
+            'unidades': [
+              {'unidad': 'min', 'factor_a_base': 1, 'paso': 5, 'minimo': 1, 'maximo': 1440},
+            ],
+            'referencia': null,
+          },
+        ],
+      },
     ]);
     final r = await CategoriasRepositoryApi(api).listar();
-    expect(r.valorONulo!.single.nombre, 'Aprendizaje');
+    expect(r.valorONulo!.single.nombre, 'Educación');
+    expect(r.valorONulo!.single.subcategorias.single.unidades.single.paso, 5);
     expect(red.rutas.single, 'GET /categorias');
   });
 
@@ -137,9 +160,10 @@ void main() {
     await repo.obtener('h 1', fecha: hoy);
     expect(ultima().path, '/habitos/h%201');
     await repo.crear(
-      const NuevoHabito(nombre: 'Leer', categoriaId: 'c1', frecuencia: Diaria(), meta: 10, unidad: 'min'),
+      const NuevoHabito(nombre: 'Leer', subcategoriaId: 's1', frecuencia: Diaria(), meta: 10, unidad: 'min'),
     );
     expect(red.rutas.last, 'POST /habitos');
+    expect((ultima().data as Map)['subcategoria_id'], 's1');
     await repo.actualizar('h 1', const CambiosHabito(activo: false));
     expect(red.rutas.last, 'PATCH /habitos/h%201');
     expect(ultima().data, {'activo': false});

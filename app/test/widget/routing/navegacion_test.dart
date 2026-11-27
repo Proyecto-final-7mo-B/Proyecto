@@ -7,6 +7,7 @@ import 'package:kaizen/ui/core/adaptativo/shell_movil.dart';
 import 'package:kaizen/ui/core/adaptativo/shell_web.dart';
 import 'package:kaizen/ui/core/widgets/avatar_usuario.dart';
 import 'package:kaizen/ui/dev/galeria_componentes.dart';
+import 'package:kaizen/ui/habitos/widgets/pantalla_habitos.dart';
 import 'package:kaizen/ui/hoy/widgets/pantalla_hoy.dart';
 import 'package:kaizen/ui/auth/widgets/pantalla_entrar.dart';
 
@@ -30,10 +31,12 @@ void main() {
     });
 
     testWidgets('un enlace profundo sin sesión vuelve a su destino después de entrar', (tester) async {
-      await montarApp(tester, usuario: null, ubicacion: Rutas.editarHabito('42'));
+      final deps = dependenciasPrueba();
+      final leer = deps.datosDemo!.habitosDe('u-demo').firstWhere((h) => h.nombre == 'Leer');
+      await montarApp(tester, usuario: null, ubicacion: Rutas.editarHabito(leer.id), dependencias: deps);
       await entrarCon(tester);
       expect(find.text('Editar hábito'), findsOneWidget);
-      expect(find.text('42'), findsOneWidget);
+      expect(find.widgetWithText(TextField, 'Leer'), findsOneWidget);
     });
 
     testWidgets('un usuario normal que abre /admin termina en Hoy', (tester) async {
@@ -100,7 +103,6 @@ void main() {
       final casos = {
         Rutas.habitos: 'Hábitos',
         Rutas.nuevoHabito: 'Nuevo hábito',
-        Rutas.habito('7'): 'Detalle del hábito',
         Rutas.escaleraHabito('7'): 'Escalera del hábito',
         Rutas.progreso: 'Progreso',
         Rutas.miSemana: 'Mi semana',
@@ -168,7 +170,7 @@ void main() {
       }
       await tester.tap(find.text('Hábitos'));
       await tester.pumpAndSettle();
-      expect(find.text('Esta pantalla llega en el paso 7 del plan.'), findsOneWidget);
+      expect(find.byType(PantallaHabitos), findsOneWidget);
       expect(
         tester.getSemantics(find.descendant(of: find.byType(BarraInferior), matching: find.text('Hábitos'))),
         isSemantics(label: 'Hábitos', isButton: true, isSelected: true),

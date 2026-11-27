@@ -16,12 +16,16 @@ class FilaHabito extends StatelessWidget {
     required this.racha,
     required this.cumplido,
     this.conCapsula = false,
+    this.colorIcono,
     this.onCheck,
     this.onTap,
     super.key,
   });
 
   final IconData icono;
+
+  /// Color de la categoría (doc. 04): el ícono va en ese color sobre el mismo color al 12 %. `null` = marino.
+  final Color? colorIcono;
   final String nombre;
   final String subtitulo;
   final int racha;
@@ -59,11 +63,11 @@ class FilaHabito extends StatelessWidget {
                 child: Container(
                   width: KaizenMedidas.ladoIconoHabito,
                   height: KaizenMedidas.ladoIconoHabito,
-                  decoration: const BoxDecoration(
-                    color: KaizenColores.azul100,
+                  decoration: BoxDecoration(
+                    color: colorIcono == null ? KaizenColores.azul100 : KaizenColores.fondoDe(colorIcono!),
                     borderRadius: KaizenMedidas.bordeControl,
                   ),
-                  child: Icon(icono, color: KaizenColores.texto, size: 22),
+                  child: Icon(icono, color: colorIcono ?? KaizenColores.texto, size: 22),
                 ),
               ),
               const SizedBox(width: KaizenMedidas.e16),

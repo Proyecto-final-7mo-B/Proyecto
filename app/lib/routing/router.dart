@@ -8,6 +8,9 @@ import '../ui/auth/widgets/pantalla_restablecer.dart';
 import '../ui/core/adaptativo/plataforma.dart';
 import '../ui/core/adaptativo/shell_adaptativo.dart';
 import '../ui/dev/galeria_componentes.dart';
+import '../ui/habitos/widgets/pantalla_detalle_habito.dart';
+import '../ui/habitos/widgets/pantalla_formulario_habito.dart';
+import '../ui/habitos/widgets/pantalla_habitos.dart';
 import '../ui/hoy/widgets/pantalla_hoy.dart';
 import '../ui/provisional/pantallas_provisionales.dart';
 import 'estado_sesion.dart';
@@ -67,16 +70,27 @@ GoRouter crearRouter({
           ),
           GoRoute(
             path: Rutas.habitos,
-            pageBuilder: provisional((t) => t.tituloHabitos, 7),
+            pageBuilder: (context, estado) =>
+                NoTransitionPage<void>(key: estado.pageKey, child: const PantallaHabitos()),
             routes: [
-              GoRoute(path: 'nuevo', pageBuilder: provisional((t) => t.tituloNuevoHabito, 7)),
+              GoRoute(
+                path: 'nuevo',
+                pageBuilder: (context, estado) =>
+                    NoTransitionPage<void>(key: estado.pageKey, child: const PantallaFormularioHabito()),
+              ),
               GoRoute(
                 path: ':id',
-                pageBuilder: provisional((t) => t.tituloDetalleHabito, 7, detalle: (e) => e.pathParameters['id']),
+                pageBuilder: (context, estado) => NoTransitionPage<void>(
+                  key: estado.pageKey,
+                  child: PantallaDetalleHabito(habitoId: estado.pathParameters['id']!),
+                ),
                 routes: [
                   GoRoute(
                     path: 'editar',
-                    pageBuilder: provisional((t) => t.tituloEditarHabito, 7, detalle: (e) => e.pathParameters['id']),
+                    pageBuilder: (context, estado) => NoTransitionPage<void>(
+                      key: estado.pageKey,
+                      child: PantallaFormularioHabito(habitoId: estado.pathParameters['id']),
+                    ),
                   ),
                   GoRoute(
                     path: 'escalera',

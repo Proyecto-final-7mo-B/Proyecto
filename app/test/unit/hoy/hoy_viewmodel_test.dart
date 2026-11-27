@@ -56,7 +56,8 @@ void main() {
       expect(vm.totalHoy, 5);
       expect(vm.cumplidosHoy, 2);
       expect(vm.avanceHoy, closeTo(0.4, 1e-9));
-      expect(vm.paraHoy.map((h) => h.nombre), ['Tomar agua', 'Ejercicio', 'Leer', 'Estudiar inglés', 'Dormir 7 h']);
+      // Como los manda la API (v1.6): por prioridad (Ejercicio alta, Estudiar inglés baja) y después por nombre.
+      expect(vm.paraHoy.map((h) => h.nombre), ['Ejercicio', 'Dormir 7 h', 'Leer', 'Tomar agua', 'Estudiar inglés']);
       expect(vm.sugerencia!.habitoNombre, 'Leer');
       expect(vm.tieneCapsula(habito('Tomar agua').id), isTrue);
       expect(vm.tieneCapsula(habito('Leer').id), isFalse);

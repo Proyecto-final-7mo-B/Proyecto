@@ -38,6 +38,9 @@ abstract final class Fechas {
       '${fecha.year.toString().padLeft(4, '0')}-${fecha.month.toString().padLeft(2, '0')}-'
       '${fecha.day.toString().padLeft(2, '0')}';
 
+  /// "7 nov", como en el historial de un hábito.
+  static String corta(DateTime fecha) => '${fecha.day} ${nombreMes(fecha.month).substring(0, 3).toLowerCase()}';
+
   /// "Domingo 8 de noviembre", como en el encabezado de Hoy.
   static String larga(DateTime fecha) {
     final dia = diasSemana[fecha.weekday - 1];

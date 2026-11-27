@@ -10,6 +10,22 @@ enum TipoSugerencia { subir, bajar }
 @JsonEnum()
 enum EstadoSugerencia { pendiente, aceptada, rechazada, expirada }
 
+/// Por qué la Escalera v2 propone el cambio (contrato v1.6; reglas en el doc. 02 de la investigación).
+@JsonEnum(fieldRename: FieldRename.snake)
+enum MotivoSugerencia {
+  /// Regla anterior al 27-nov (solo por cumplimiento).
+  cumplimiento,
+
+  /// ≥ 85 % en 14 días.
+  cumplimientoAlto,
+
+  /// < 50 % en 14 días.
+  cumplimientoBajo,
+
+  /// La meta pasa del máximo que recomienda la evidencia.
+  excedeMaximo,
+}
+
 /// Sugerencia de la Escalera (`GET /escalera/sugerencias`).
 @JsonSerializable()
 class Sugerencia {
@@ -20,9 +36,11 @@ class Sugerencia {
     required this.tipo,
     required this.metaActual,
     required this.metaPropuesta,
-    required this.cumplimiento14d,
     required this.estado,
     required this.creadaEn,
+    this.cumplimiento14d,
+    this.motivo = MotivoSugerencia.cumplimiento,
+    this.cita,
     this.resueltaEn,
   });
 
@@ -35,9 +53,14 @@ class Sugerencia {
   final double metaActual;
   final double metaPropuesta;
 
-  /// Porcentaje 0–100 de los últimos 14 días.
+  /// Porcentaje 0–100 de los últimos 14 días. `null` cuando el motivo es [MotivoSugerencia.excedeMaximo].
   @JsonKey(name: 'cumplimiento_14d')
-  final double cumplimiento14d;
+  final double? cumplimiento14d;
+  @JsonKey(defaultValue: MotivoSugerencia.cumplimiento, unknownEnumValue: MotivoSugerencia.cumplimiento)
+  final MotivoSugerencia motivo;
+
+  /// Cita corta de la referencia científica (`null` en subcategorías sin rango).
+  final String? cita;
   final EstadoSugerencia estado;
   @InstanteConverter()
   final DateTime creadaEn;
@@ -85,7 +108,8 @@ class SugerenciaPendiente {
     required this.id,
     required this.tipo,
     required this.metaPropuesta,
-    required this.cumplimiento14d,
+    this.cumplimiento14d,
+    this.motivo = MotivoSugerencia.cumplimiento,
   });
 
   factory SugerenciaPendiente.fromJson(Map<String, dynamic> json) => _$SugerenciaPendienteFromJson(json);
@@ -94,7 +118,9 @@ class SugerenciaPendiente {
   final TipoSugerencia tipo;
   final double metaPropuesta;
   @JsonKey(name: 'cumplimiento_14d')
-  final double cumplimiento14d;
+  final double? cumplimiento14d;
+  @JsonKey(defaultValue: MotivoSugerencia.cumplimiento, unknownEnumValue: MotivoSugerencia.cumplimiento)
+  final MotivoSugerencia motivo;
 
   Map<String, dynamic> toJson() => _$SugerenciaPendienteToJson(this);
 }

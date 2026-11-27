@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:provider/provider.dart';
 import 'package:provider/single_child_widget.dart';
 
@@ -41,6 +42,8 @@ import '../data/services/api/interceptor_zona_horaria.dart';
 import '../data/services/gestor_tokens.dart';
 import '../utils/paises_estados.dart';
 import '../utils/reloj.dart';
+import '../data/services/recordatorios/servicio_recordatorios.dart';
+import '../data/services/recordatorios/servicio_recordatorios_local.dart';
 import 'entorno.dart';
 
 /// Todo lo que la app necesita de la capa de datos, armado según `KAIZEN_FUENTE`:
@@ -61,6 +64,7 @@ class Dependencias {
     required this.capsulas,
     required this.cuenta,
     required this.admin,
+    required this.recordatorios,
     this.catalogo,
     this.datosDemo,
     this.reloj = relojDelSistema,
@@ -72,6 +76,7 @@ class Dependencias {
     AlmacenSeguro? almacen,
     CatalogoRegiones? catalogo,
     Duration latencia = Duration.zero,
+    ServicioRecordatorios? recordatorios,
   }) {
     final d = datos ?? DatosDemo(latencia: latencia, catalogo: catalogo);
     d.catalogo ??= catalogo;
@@ -90,6 +95,7 @@ class Dependencias {
       capsulas: CapsulasRepositoryFake(d),
       cuenta: CuentaRepositoryFake(d),
       admin: AdminRepositoryFake(d),
+      recordatorios: recordatorios ?? ServicioRecordatoriosEnMemoria(),
       catalogo: catalogo,
       datosDemo: d,
       reloj: d.reloj,
@@ -97,7 +103,12 @@ class Dependencias {
   }
 
   /// Repositorios contra la API de [entorno].
-  factory Dependencias.api(Entorno entorno, {AlmacenSeguro? almacen, CatalogoRegiones? catalogo}) {
+  factory Dependencias.api(
+    Entorno entorno, {
+    AlmacenSeguro? almacen,
+    CatalogoRegiones? catalogo,
+    ServicioRecordatorios? recordatorios,
+  }) {
     final tokens = GestorTokens(almacen ?? crearAlmacenSeguro());
     final api = ClienteApi(
       baseUrl: entorno.apiBaseUrl,
@@ -117,13 +128,18 @@ class Dependencias {
       capsulas: CapsulasRepositoryApi(api),
       cuenta: CuentaRepositoryApi(api),
       admin: AdminRepositoryApi(api),
+      recordatorios: recordatorios ?? recordatoriosDeLaPlataforma(),
       catalogo: catalogo,
     );
   }
 
   /// Según `KAIZEN_FUENTE`. En modo *fake* simula ~300 ms de red para que se vean los estados de carga.
   factory Dependencias.desdeEntorno(Entorno entorno, {CatalogoRegiones? catalogo}) => entorno.usaFakes
-      ? Dependencias.fake(catalogo: catalogo, latencia: const Duration(milliseconds: 300))
+      ? Dependencias.fake(
+          catalogo: catalogo,
+          latencia: const Duration(milliseconds: 300),
+          recordatorios: recordatoriosDeLaPlataforma(),
+        )
       : Dependencias.api(entorno, catalogo: catalogo);
 
   final GestorTokens tokens;
@@ -138,6 +154,15 @@ class Dependencias {
   final CapsulasRepository capsulas;
   final CuentaRepository cuenta;
   final AdminRepository admin;
+
+  /// Recordatorios locales de los hábitos.
+  final ServicioRecordatorios recordatorios;
+
+  /// Notificaciones locales en Android e iOS; en escritorio y web no hay recordatorios.
+  static ServicioRecordatorios recordatoriosDeLaPlataforma() =>
+      !kIsWeb && (defaultTargetPlatform == TargetPlatform.android || defaultTargetPlatform == TargetPlatform.iOS)
+      ? ServicioRecordatoriosLocal()
+      : ServicioRecordatoriosEnMemoria(disponible: false);
 
   /// Países y estados (para el registro). Se carga una vez al arrancar.
   final CatalogoRegiones? catalogo;
@@ -163,5 +188,6 @@ class Dependencias {
     Provider<AdminRepository>.value(value: admin),
     Provider<CatalogoRegiones?>.value(value: catalogo),
     Provider<Reloj>.value(value: reloj),
+    Provider<ServicioRecordatorios>.value(value: recordatorios),
   ];
 }
