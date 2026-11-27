@@ -39,20 +39,43 @@ from argon2 import PasswordHasher
 from cryptography.hazmat.primitives.ciphers.aead import AESGCM
 
 # ---------------------------------------------------------------------------
-# Catálogos (las 8 categorías las crea la estructura de la base; aquí solo se usan por nombre)
+# Catálogos. Las subcategorías, sus unidades y sus rangos científicos los crea la estructura de la base
+# (db/cambios/2026-11-27_evidencia_cientifica.sql); aquí solo se usan por clave. Las metas cubren todas las
+# zonas de la evidencia (bajo, óptimo, alto y algunas excesivas a propósito) para que la Escalera v2 y el
+# panel de indicadores tengan qué mostrar.
 # ---------------------------------------------------------------------------
-CATALOGO: dict[str, list[tuple[str, str, int]]] = {
-    "Aprendizaje": [("Estudiar inglés", "minutos", 20), ("Practicar programación", "minutos", 45),
-                    ("Repasar apuntes", "minutos", 30)],
-    "Salud": [("Comer fruta", "porciones", 2), ("Tomar vitaminas", "tomas", 1), ("Comer verduras", "porciones", 3)],
-    "Ejercicio": [("Caminar", "minutos", 30), ("Correr", "km", 3), ("Hacer lagartijas", "repeticiones", 20),
-                  ("Andar en bici", "km", 5), ("Estiramientos", "minutos", 10)],
-    "Sueño": [("Dormir 7 horas", "horas", 7), ("Acostarse antes de las 23:00", "veces", 1)],
-    "Finanzas": [("Ahorrar", "pesos", 50), ("Registrar gastos", "veces", 1)],
-    "Hidratación": [("Tomar agua", "vasos", 8)],
-    "Lectura": [("Leer", "páginas", 15), ("Leer noticias", "minutos", 10)],
-    "Meditación": [("Meditar", "minutos", 10), ("Respiración consciente", "minutos", 5)],
+CATALOGO: dict[str, list[tuple[str, str, list[float]]]] = {
+    "aerobico_moderado": [("Caminar", "min", [20, 30, 45]), ("Andar en bici", "min", [30, 45, 120]),
+                          ("Correr", "km", [3, 5])],
+    "vigoroso": [("Correr a buen ritmo", "min", [20, 30, 60])],
+    "fuerza": [("Hacer lagartijas", "repeticiones", [20, 30]), ("Entrenar fuerza", "min", [10, 20])],
+    "pasos": [("Caminar más pasos", "pasos", [6000, 8000, 10000])],
+    "estiramiento": [("Estiramientos", "min", [5, 10])],
+    "pausas_activas": [("Pausas activas", "pausas", [4, 8])],
+    "hidratacion": [("Tomar agua", "vasos", [6, 8, 10]), ("Tomar agua", "L", [2, 2.5, 5])],
+    "sueno": [("Dormir bien", "h", [6, 7, 8, 11])],
+    "frutas_verduras": [("Comer fruta", "porciones", [2, 3]), ("Comer verduras", "porciones", [3, 5])],
+    "reducir_azucar": [("Menos azúcar", "g", [25, 40, 60])],
+    "reducir_alcohol": [("Menos alcohol", "bebidas", [1, 2])],
+    "dejar_fumar": [("Fumar menos", "cigarros", [5, 10])],
+    "lectura": [("Leer", "páginas", [10, 15, 20]), ("Leer", "min", [15, 30, 45])],
+    "estudio": [("Repasar apuntes", "min", [30, 45, 300]), ("Practicar programación", "min", [45, 60])],
+    "idiomas": [("Estudiar inglés", "min", [15, 20, 30])],
+    "meditacion": [("Meditar", "min", [5, 10, 15, 60]), ("Respiración consciente", "min", [5])],
+    "gratitud": [("Diario de gratitud", "registros", [1])],
+    "reducir_pantallas": [("Menos redes sociales", "min", [60, 120])],
+    "convivencia_social": [("Llamar a alguien querido", "veces", [1])],
+    "aire_libre": [("Salir al parque", "min", [20, 30])],
+    "ahorro": [("Ahorrar", "pesos", [50, 100])],
+    "control_gastos": [("Registrar gastos", "registros", [1])],
 }
+REDUCIR = {"reducir_azucar", "reducir_alcohol", "dejar_fumar", "reducir_pantallas"}   # la meta es un límite
+SEMANALES = {"gratitud", "convivencia_social", "aire_libre"}                            # mejor n por semana
+# Casos fijos de la cuenta demo (presentación): óptimo con racha larga, excesivo, bajo y sueño
+DEMO = [("aerobico_moderado", "Caminar", "min", 30), ("estudio", "Repasar apuntes", "min", 300),
+        ("lectura", "Leer", "páginas", 15), ("sueno", "Dormir bien", "h", 7)]
+INTENCIONES = ["Después de desayunar", "Después de lavarme los dientes", "Al llegar a casa", "Antes de dormir",
+               "Después de comer", "Al despertar", "Después de la primera clase"]
 # Mismas listas que fn_region (db/sql/02_funciones.sql); el SQL generado vuelve a comprobarlo.
 REGIONES: dict[str, list[tuple[str, str | None]]] = {
     "MX-NORTE": [("MX", e) for e in ["BCN", "BCS", "SON", "CHH", "COA", "NLE", "TAM", "SIN", "DUR",
@@ -215,16 +238,28 @@ class Generador:
         rnd = self.rnd
         c.id = self.nuevo_uuid()
         c.alta = self.ahora if c.dias_antiguedad == 0 else self.momento(self.hoy - timedelta(days=c.dias_antiguedad))
-        opciones = [(cat, *h) for cat, hs in CATALOGO.items() for h in hs]
-        rnd.shuffle(opciones)
+        es_demo = c.email == f"demo@{DOMINIO}"
+        if es_demo:
+            opciones = list(DEMO)
+        else:
+            opciones = [(sub, nombre, unidad, rnd.choice(metas)) for sub, hs in CATALOGO.items()
+                        for nombre, unidad, metas in hs]
+            rnd.shuffle(opciones)
         antes = len(self.registros)
-        for k, (cat, nombre, unidad, meta) in enumerate(opciones[:c.n_habitos]):
-            es_demo = c.email == f"demo@{DOMINIO}"
-            tipo = "diaria" if es_demo and k == 0 else \
-                rnd.choices(["diaria", "dias_semana", "n_por_semana"], weights=[6, 3, 1])[0]
+        for k, (sub, nombre, unidad, meta) in enumerate(opciones[:c.n_habitos]):
+            if es_demo:
+                tipo = "diaria"
+            elif sub in SEMANALES:
+                tipo = "n_por_semana"
+            else:
+                tipo = rnd.choices(["diaria", "dias_semana", "n_por_semana"], weights=[6, 3, 1])[0]
             antig = c.dias_antiguedad if k == 0 else rnd.randint(min(10, c.dias_antiguedad), c.dias_antiguedad)
             creado = max(self.momento(self.hoy - timedelta(days=antig)), c.alta)
-            h = dict(id=self.nuevo_uuid(), categoria=cat, nombre=nombre, unidad=unidad, meta=meta,
+            h = dict(id=self.nuevo_uuid(), subcategoria=sub, nombre=nombre, unidad=unidad, meta=meta,
+                     reducir=sub in REDUCIR,
+                     prioridad=(1 if k == 0 else 2) if es_demo else rnd.choices([1, 2, 3], weights=[2, 5, 2])[0],
+                     intencion=INTENCIONES[k] if es_demo else
+                     (rnd.choice(INTENCIONES) if rnd.random() < 0.4 else None),
                      frecuencia_tipo=tipo,
                      dias_semana=rnd.choice([0b0010101, 0b0011111, 0b1100000, 0b0101010])
                      if tipo == "dias_semana" else None,
@@ -234,7 +269,8 @@ class Generador:
                      escalera=not (es_demo and k == c.n_habitos - 1) and (es_demo or rnd.random() > 0.15),
                      constancia=min(0.98, max(0.05, c.constancia + rnd.uniform(-0.15, 0.15))))
             c.habitos.append(h)
-            self.checkins(c, h, racha_forzada=25 if es_demo and k == 0 else 0)
+            # demo: racha larga en el hábito óptimo y 20 días seguidos en "Leer" (la Escalera propone subir)
+            self.checkins(c, h, racha_forzada={0: 35, 2: 20}.get(k, 0) if es_demo else 0)
         self.cuentas.append(c)
         return len(self.registros) - antes
 
@@ -264,7 +300,10 @@ class Generador:
             semana = (self.hoy - d).days // 7                           # rachas buenas y malas por semana
             p = h["constancia"] + (0.1 if semana % 3 == 0 else -0.05)
             cumplido = True if forzado else rnd.random() < p
-            valor = dinero(h["meta"] * (rnd.uniform(1.0, 1.3) if cumplido else rnd.uniform(0, 0.7)))
+            if h["reducir"]:      # límite: cumplir es quedarse por debajo
+                valor = dinero(h["meta"] * (rnd.uniform(0.4, 1.0) if cumplido else rnd.uniform(1.05, 1.6)))
+            else:
+                valor = dinero(h["meta"] * (rnd.uniform(1.0, 1.3) if cumplido else rnd.uniform(0, 0.7)))
             origen = rnd.choices(*ORIGENES)[0]
             self.registros.append((self.nuevo_uuid(), c.region, h["id"], c.id, d, cumplido, valor, origen,
                                    self.momento(d)))
@@ -380,27 +419,29 @@ SELECT id, region, nombre, email, password_hash, pais, rol, alta, alta, consenti
         bloque_copy(out, "bitacora_auditoria", "fecha, usuario_id, region, accion, resultado, ip", bitacora)
 
         out.write("""\\echo '--- Hábitos (el trigger crea su nivel 1 y su racha)'
-CREATE TEMP TABLE t_habito (id uuid, region region_t, usuario_id uuid, categoria text, nombre text,
+CREATE TEMP TABLE t_habito (id uuid, region region_t, usuario_id uuid, subcategoria text, nombre text,
     frecuencia_tipo text, dias_semana smallint, veces_semana smallint, meta numeric(10,2), unidad text,
-    creado timestamptz, escalera boolean) ON COMMIT DROP;
+    creado timestamptz, escalera boolean, prioridad smallint, intencion text) ON COMMIT DROP;
 """)
-        bloque_copy(out, "t_habito", "id, region, usuario_id, categoria, nombre, frecuencia_tipo, dias_semana, "
-                    "veces_semana, meta, unidad, creado, escalera",
-                    ((h["id"], c.region, c.id, h["categoria"], h["nombre"], h["frecuencia_tipo"], h["dias_semana"],
-                      h["veces_semana"], h["meta"], h["unidad"], h["creado"], h["escalera"])
+        bloque_copy(out, "t_habito", "id, region, usuario_id, subcategoria, nombre, frecuencia_tipo, dias_semana, "
+                    "veces_semana, meta, unidad, creado, escalera, prioridad, intencion",
+                    ((h["id"], c.region, c.id, h["subcategoria"], h["nombre"], h["frecuencia_tipo"], h["dias_semana"],
+                      h["veces_semana"], h["meta"], h["unidad"], h["creado"], h["escalera"], h["prioridad"],
+                      h["intencion"])
                      for c in g.cuentas for h in c.habitos))
         out.write("""DO $$
 BEGIN
-    IF EXISTS (SELECT 1 FROM t_habito t LEFT JOIN categoria k ON k.nombre = t.categoria AND k.activa
-                WHERE k.id IS NULL) THEN
-        RAISE EXCEPTION 'Falta alguna categoría del catálogo inicial: ¿se aplicaron los cambios del 23-nov?';
+    IF EXISTS (SELECT 1 FROM t_habito t LEFT JOIN subcategoria s ON s.clave = t.subcategoria AND s.activa
+                WHERE s.id IS NULL) THEN
+        RAISE EXCEPTION 'Falta alguna subcategoría del catálogo: ¿se aplicaron los cambios del 27-nov?';
     END IF;
 END $$;
-INSERT INTO habito (id, region, usuario_id, categoria_id, nombre, frecuencia_tipo, dias_semana, veces_semana,
-                    meta, unidad, fecha_creacion, escalera_activa)
-SELECT t.id, t.region, t.usuario_id, k.id, t.nombre, t.frecuencia_tipo, t.dias_semana, t.veces_semana,
-       t.meta, t.unidad, t.creado, t.escalera
-  FROM t_habito t JOIN categoria k ON k.nombre = t.categoria;
+-- La categoría la fija el trigger a partir de la subcategoría; la unidad debe estar permitida (KZ016)
+INSERT INTO habito (id, region, usuario_id, subcategoria_id, nombre, frecuencia_tipo, dias_semana, veces_semana,
+                    meta, unidad, fecha_creacion, escalera_activa, prioridad, intencion)
+SELECT t.id, t.region, t.usuario_id, s.id, t.nombre, t.frecuencia_tipo, t.dias_semana, t.veces_semana,
+       t.meta, t.unidad, t.creado, t.escalera, t.prioridad, t.intencion
+  FROM t_habito t JOIN subcategoria s ON s.clave = t.subcategoria;
 
 \\echo '--- Check-ins (UN solo INSERT: el trigger de rachas calcula cada hábito una vez)'
 CREATE TEMP TABLE t_registro (LIKE registro INCLUDING DEFAULTS) ON COMMIT DROP;
@@ -427,11 +468,11 @@ CREATE TEMP TABLE t_registro (LIKE registro INCLUDING DEFAULTS) ON COMMIT DROP;
             if not c.habitos:
                 continue
             if c.email == f"demo@{DOMINIO}":
-                elegidas = [(c.habitos[0], 21, g.hoy - timedelta(days=30)),       # ya se puede abrir
+                elegidas = [(c.habitos[0], 30, g.hoy - timedelta(days=34)),       # ya se puede abrir
                             (c.habitos[0], 66, g.hoy - timedelta(days=30))]       # todavía no
             elif c.email == f"latam@{DOMINIO}" or rnd.random() < 0.3:
                 h = rnd.choice(c.habitos)
-                elegidas = [(h, rnd.choice([7, 21, 66]), h["creado"].date() + timedelta(days=rnd.randint(0, 5)))]
+                elegidas = [(h, rnd.choice([7, 30, 66]), h["creado"].date() + timedelta(days=rnd.randint(0, 5)))]
             else:
                 elegidas = []
             for h, objetivo, creada in elegidas:
@@ -478,6 +519,9 @@ BEGIN
     RAISE NOTICE 'sugerencias respondidas: %', v_resueltas;
 END $$;
 
+\\echo '--- Logros semanales (Semana OMS, Ritmo ideal)'
+CALL sp_otorgar_logros_semanales(current_date, NULL);
+
 \\echo '--- Cuenta suspendida por el admin y comprobación de rachas'
 CALL sp_admin_suspender_usuario('{g.cuentas[1].id}', '{g.cuentas[4].id}', true, 'Cuenta de prueba suspendida', NULL);
 DO $$
@@ -491,7 +535,7 @@ END $$;
 
 COMMIT;
 ANALYZE kaizen.usuario, kaizen.directorio_usuarios, kaizen.habito, kaizen.registro, kaizen.racha,
-        kaizen.nivel_habito, kaizen.senal_diaria, kaizen.capsula, kaizen.sugerencia_ajuste;
+        kaizen.nivel_habito, kaizen.senal_diaria, kaizen.capsula, kaizen.sugerencia_ajuste, kaizen.logro_usuario;
 
 \\echo '--- Filas por tabla y región'
 SELECT t AS tabla, region, n AS filas FROM (
@@ -500,8 +544,12 @@ SELECT t AS tabla, region, n AS filas FROM (
     SELECT 'registro', region::text, count(*) FROM kaizen.registro GROUP BY 2 UNION ALL
     SELECT 'senal_diaria', region::text, count(*) FROM kaizen.senal_diaria GROUP BY 2 UNION ALL
     SELECT 'capsula', region::text, count(*) FROM kaizen.capsula GROUP BY 2 UNION ALL
-    SELECT 'sugerencia_ajuste', region::text, count(*) FROM kaizen.sugerencia_ajuste GROUP BY 2) x
+    SELECT 'sugerencia_ajuste', region::text, count(*) FROM kaizen.sugerencia_ajuste GROUP BY 2 UNION ALL
+    SELECT 'logro_usuario', region::text, count(*) FROM kaizen.logro_usuario GROUP BY 2) x
 ORDER BY 1, 2;
+
+\\echo '--- Hábitos por zona de la evidencia'
+SELECT zona, count(*) AS habitos FROM kaizen.v_habito_evidencia GROUP BY 1 ORDER BY 2 DESC;
 
 \\echo '--- Comprobación como kaizen_api (directorio por HMAC y RLS)'
 BEGIN;
