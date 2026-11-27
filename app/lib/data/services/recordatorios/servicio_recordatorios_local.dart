@@ -12,8 +12,8 @@ import 'servicio_recordatorios.dart';
 /// Recordatorios con notificaciones locales (Android e iOS).
 ///
 /// - **No se guarda nada aparte:** el propio sistema conserva las notificaciones programadas (y el *plugin* las
-///   reprograma al reiniciar el teléfono). La hora de cada hábito se lee de su `payload`. En el Paso 8 también se
-///   copiará a la tabla local `recordatorios`.
+///   reprograma al reiniciar el teléfono). La hora de cada hábito se lee de su `payload`. Además, `ServicioRecordatoriosConCopia`
+///   la copia en la tabla local `recordatorios`.
 /// - Cada hábito usa 8 ids: `base + 0` para "todos los días" y `base + 1…7` para lunes…domingo.
 /// - Horario **inexacto** (`inexactAllowWhileIdle`): Android puede retrasarlo unos minutos, pero no exige el permiso
 ///   de alarmas exactas.

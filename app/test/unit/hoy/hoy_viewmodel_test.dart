@@ -4,10 +4,12 @@ import 'package:kaizen/data/fake/datos_demo.dart';
 import 'package:kaizen/data/repositories/escalera/escalera_repository.dart';
 import 'package:kaizen/data/repositories/progreso/progreso_repository.dart';
 import 'package:kaizen/data/services/api/errores_api.dart';
+import 'package:kaizen/data/sync/monitor_conexion.dart';
 import 'package:kaizen/domain/models/escalera.dart';
 import 'package:kaizen/domain/models/frecuencia.dart';
 import 'package:kaizen/domain/models/habito.dart';
 import 'package:kaizen/domain/models/progreso.dart';
+import 'package:kaizen/domain/models/registro.dart';
 import 'package:kaizen/ui/hoy/view_models/hoy_viewmodel.dart';
 import 'package:kaizen/utils/fechas.dart';
 import 'package:kaizen/utils/result.dart';
@@ -105,9 +107,39 @@ void main() {
       sabado.dispose();
     });
 
-    test('si fallan los hábitos, la carga falla', () async {
+    test('si el servidor falla (no por red), la carga falla', () async {
       final otro = crear();
-      datos.fallarSiguiente(const ErrorApp(TipoError.sinConexion));
+      datos.fallarSiguiente(const ErrorApp(TipoError.errorInterno));
+      await otro.cargar.ejecutar();
+      expect(otro.cargado, isFalse);
+      expect(otro.cargar.error!.tipo, TipoError.errorInterno);
+      otro.dispose();
+    });
+
+    test('sin conexión, carga la copia guardada (Paso 8)', () async {
+      (d.monitor as MonitorConexionManual).hayRed = false;
+      final otro = crear();
+      await otro.cargar.ejecutar();
+      expect(otro.cargado, isTrue);
+      expect(otro.totalHoy, 5);
+      expect(otro.cumplidosHoy, 2);
+      expect(otro.sugerencia, isNull, reason: 'la Escalera necesita al servidor');
+      otro.dispose();
+    });
+
+    test('sin conexión y sin copia guardada, la carga falla', () async {
+      final nuevos = Dependencias.fake(
+        datos: DatosDemo(reloj: () => _ahora)..usuarioActual = 'u-demo',
+        monitor: MonitorConexionManual(hayRed: false),
+      );
+      final otro = HoyViewModel(
+        habitos: nuevos.habitos,
+        registros: nuevos.registros,
+        progreso: nuevos.progreso,
+        escalera: nuevos.escalera,
+        capsulas: nuevos.capsulas,
+        reloj: () => _ahora,
+      );
       await otro.cargar.ejecutar();
       expect(otro.cargado, isFalse);
       expect(otro.cargar.error!.tipo, TipoError.sinConexion);
@@ -161,11 +193,11 @@ void main() {
       expect(datos.registros[agua.id]![DateTime.utc(2026, 11, 25)]!.id, idHoy);
     });
 
-    test('si el servidor falla, vuelve a como estaba y devuelve el error', () async {
+    test('si el servidor lo rechaza, vuelve a como estaba y devuelve el error', () async {
       final leer = habito('Leer');
-      datos.fallarSiguiente(const ErrorApp(TipoError.sinConexion));
+      datos.fallarSiguiente(DatosDemo.error(TipoError.habitoArchivado, 409, 'El hábito está archivado'));
       final error = await vm.alternar(leer);
-      expect(error!.tipo, TipoError.sinConexion);
+      expect(error!.tipo, TipoError.habitoArchivado);
       expect(habito('Leer'), leer);
       expect(vm.cumplidosHoy, 2);
       expect(datos.registros[leer.id]?[DateTime.utc(2026, 11, 25)], isNull);
@@ -200,6 +232,51 @@ void main() {
       expect(vm.nivelesSemana[2], 4, reason: '100 % hoy (miércoles)');
       expect(vm.nivelesMes[25], 4);
       expect(antes, lessThan(4));
+    });
+  });
+
+  group('sin conexión (Paso 8)', () {
+    test('el check-in se queda marcado y en la cola; al volver la red se envía una sola vez', () async {
+      final monitor = d.monitor as MonitorConexionManual;
+      final leer = habito('Leer');
+      final antes = leer.racha.actual;
+      final total = datos.totalRegistros;
+      monitor.hayRed = false;
+
+      expect(await vm.alternar(leer), isNull, reason: 'sin red no es un error: queda guardado');
+      expect(habito('Leer').hoy!.cumplido, isTrue);
+      expect(habito('Leer').racha.actual, antes + 1, reason: 'racha estimada');
+      expect(datos.totalRegistros, total, reason: 'el servidor aún no lo tiene');
+      expect(await d.almacenLocal.pendientes(), hasLength(1));
+
+      // La pantalla se recarga sin red: lo marcado sigue ahí.
+      await vm.cargar.ejecutar();
+      expect(habito('Leer').hoy!.cumplido, isTrue);
+      expect(vm.cumplidosHoy, 3);
+
+      d.sincronizador.haySesion = () => true;
+      monitor.hayRed = true;
+      expect(await d.sincronizador.sincronizar(), 1);
+      expect(await d.almacenLocal.pendientes(), isEmpty);
+      expect(datos.totalRegistros, total + 1);
+      final enviado = datos.registros[leer.id]![DateTime.utc(2026, 11, 25)]!;
+      expect(enviado.origen, OrigenRegistro.offline);
+      expect(enviado.id, habito('Leer').hoy!.registro!.id);
+
+      // Ya con red, la lista del servidor coincide con lo que se veía.
+      await vm.cargar.ejecutar();
+      expect(habito('Leer').racha.actual, antes + 1);
+      expect(vm.cumplidosHoy, 3);
+    });
+
+    test('marcar y desmarcar sin red deja un solo pendiente (el último)', () async {
+      (d.monitor as MonitorConexionManual).hayRed = false;
+      await vm.alternar(habito('Leer'));
+      await vm.alternar(habito('Leer'));
+      final cola = await d.almacenLocal.pendientes();
+      expect(cola, hasLength(1));
+      expect(cola.single.cumplido, isFalse);
+      expect(habito('Leer').hoy!.cumplido, isFalse);
     });
   });
 

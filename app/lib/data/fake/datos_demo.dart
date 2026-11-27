@@ -50,6 +50,12 @@ class DatosDemo {
 
   ErrorApp? _errorSiguiente;
 
+  /// ¿Llega la petición a este "servidor"? Con `false`, todo responde "sin conexión" (como en modo avión). En la app,
+  /// el monitor de red lo controla; en las pruebas se cambia directo.
+  bool Function() hayRed = _siempre;
+
+  static bool _siempre() => true;
+
   /// La próxima operación falla con [error] (para probar estados de error).
   void fallarSiguiente(ErrorApp error) => _errorSiguiente = error;
 
@@ -91,6 +97,9 @@ class DatosDemo {
   Future<Result<T>> ejecutar<T>(T Function() operacion) async {
     if (latencia > Duration.zero) {
       await Future<void>.delayed(latencia);
+    }
+    if (!hayRed()) {
+      return const Result.fallo(ErrorApp(TipoError.sinConexion));
     }
     final error = _errorSiguiente;
     _errorSiguiente = null;

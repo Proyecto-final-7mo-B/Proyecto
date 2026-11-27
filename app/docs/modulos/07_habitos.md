@@ -134,7 +134,7 @@ Cambios en archivos de pasos anteriores:
 | Lista | `GET /habitos?fecha=&archivados=true` | Activos y archivados en una llamada, por prioridad y nombre, con `evaluacion` |
 | Categorías | `GET /categorias` | Árbol activo con subcategorías, unidades y referencia (v1.6) |
 | Crear | `POST /habitos` | Con `subcategoria_id`, `prioridad` e `intencion`. 201 con nivel 1; 422 `subcategoria-inactiva` / `unidad-no-permitida` / `validacion` |
-| Editar / archivar / reactivar | `PATCH /habitos/{id}` | Solo los campos que cambiaron (`nombre`, `subcategoria_id`, `prioridad`, `intencion`, `escalera_activa`, `activo`); **nunca** `meta`, `frecuencia`, `unidad` ni `categoria_id` |
+| Editar / archivar / reactivar | `PATCH /habitos/{id}` | Solo los campos que cambiaron (`nombre`, `subcategoria_id`, `prioridad`, `intencion`, `escalera_activa`, `activo`); **nunca** `meta`, `frecuencia` ni `categoria_id`. Si cambia la subcategoría, va también la `unidad` (la misma: solo se ofrecen subcategorías que la permiten), como pide el contrato |
 | Detalle | `GET /habitos/{id}?fecha=` | Racha actual y máxima |
 | Check-ins | `GET /habitos/{id}/registros?desde=&hasta=` | Un año (366 días) de una vez: cambiar de mes no vuelve a llamar |
 | Escalera | `GET /habitos/{id}/escalera` | Opcional: si falla, el detalle sale sin la tarjeta de nivel |
@@ -176,7 +176,7 @@ Cambios en archivos de pasos anteriores:
   - Horario **inexacto** (`inexactAllowWhileIdle`): Android puede retrasarlo unos minutos, pero no hace falta el
     permiso de alarmas exactas.
   - No se guarda en la base ni en la API. El sistema conserva las notificaciones programadas y la hora se lee de su
-    `payload`. En el Paso 8 también se copiará a la tabla local `recordatorios`.
+    `payload`. Desde el Paso 8 también se copia a la tabla local `recordatorios`.
 - **Detalle, porcentajes:**
   - diario y días: cumplidos ÷ días programados;
   - "N por semana": cumplidos ÷ (N × semanas), como máximo 100 %;

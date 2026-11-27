@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
+import 'package:drift/drift.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 /// Configuración de las pruebas golden:
@@ -12,6 +13,7 @@ import 'package:flutter_test/flutter_test.dart';
 Future<void> testExecutable(FutureOr<void> Function() pruebas) async {
   TestWidgetsFlutterBinding.ensureInitialized();
   WidgetController.hitTestWarningShouldBeFatal = true;
+  driftRuntimeOptions.dontWarnAboutMultipleDatabases = true;
   await _cargarFuentes();
   final actual = goldenFileComparator;
   if (actual is LocalFileComparator) {

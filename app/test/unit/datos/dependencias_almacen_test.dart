@@ -6,7 +6,14 @@ import 'package:kaizen/config/entorno.dart';
 import 'package:kaizen/data/repositories/auth/auth_repository.dart';
 import 'package:kaizen/data/repositories/auth/auth_repository_api.dart';
 import 'package:kaizen/data/repositories/auth/auth_repository_fake.dart';
+import 'package:kaizen/data/repositories/categorias/categorias_repository_api.dart';
+import 'package:kaizen/data/repositories/categorias/categorias_repository_local.dart';
 import 'package:kaizen/data/repositories/habitos/habitos_repository_api.dart';
+import 'package:kaizen/data/repositories/habitos/habitos_repository_local.dart';
+import 'package:kaizen/data/repositories/registros/registros_repository_api.dart';
+import 'package:kaizen/data/repositories/registros/registros_repository_local.dart';
+import 'package:kaizen/data/services/base_local/base_local.dart';
+import 'package:kaizen/data/sync/monitor_conexion.dart';
 import 'package:kaizen/data/services/almacen_seguro.dart';
 import 'package:kaizen/domain/models/categoria.dart';
 import 'package:kaizen/utils/paises_estados.dart';
@@ -19,17 +26,22 @@ void main() {
       Entorno.desdeValores(fuente: fuente, apiBaseUrl: 'http://localhost:8000/api/v1', zonaHorariaDefecto: 'UTC');
 
   test('KAIZEN_FUENTE=fake → repositorios fake con 300 ms de red simulada', () {
-    final d = Dependencias.desdeEntorno(entorno('fake'));
+    final d = Dependencias.desdeEntorno(entorno('fake'), base: BaseLocal.enMemoria());
     expect(d.auth, isA<AuthRepositoryFake>());
+    expect(d.monitor, isA<MonitorConexionPlus>(), reason: 'en el teléfono, el modo avión deja sin red al fake');
+    expect(d.sincronizador.reintento, const Duration(minutes: 1));
     expect(d.datosDemo, isNotNull);
     expect(d.datosDemo!.latencia, const Duration(milliseconds: 300));
     expect(d.tokens.renovador, isNotNull, reason: 'el gestor renueva contra el fake');
   });
 
   test('KAIZEN_FUENTE=api → repositorios contra la API; sin datos demo', () {
-    final d = Dependencias.desdeEntorno(entorno('api'));
+    final d = Dependencias.desdeEntorno(entorno('api'), base: BaseLocal.enMemoria());
     expect(d.auth, isA<AuthRepositoryApi>());
-    expect(d.habitos, isA<HabitosRepositoryApi>());
+    expect(d.habitos, isA<HabitosRepositoryLocal>(), reason: 'la API envuelta con la base local');
+    expect((d.habitos as HabitosRepositoryLocal).remoto, isA<HabitosRepositoryApi>());
+    expect((d.registros as RegistrosRepositoryLocal).remoto, isA<RegistrosRepositoryApi>());
+    expect((d.categorias as CategoriasRepositoryLocal).remoto, isA<CategoriasRepositoryApi>());
     expect(d.datosDemo, isNull);
     expect(d.tokens.renovador, isNotNull, reason: 'el cliente configura /auth/renovar');
   });
@@ -37,7 +49,7 @@ void main() {
   testWidgets('proveedores: cada interfaz se puede pedir con context.read', (tester) async {
     const catalogo = CatalogoRegiones(paises: [], estadosMx: []);
     final d = Dependencias.fake(catalogo: catalogo);
-    expect(d.proveedores(), hasLength(15));
+    expect(d.proveedores(), hasLength(16));
     late AuthRepository auth;
     late CatalogoRegiones leido;
     await tester.pumpWidget(
@@ -54,7 +66,7 @@ void main() {
     );
     expect(auth, same(d.auth));
     expect(leido, same(catalogo));
-    expect(Dependencias.fake().proveedores(), hasLength(15), reason: 'el catálogo se registra aunque sea nulo');
+    expect(Dependencias.fake().proveedores(), hasLength(16), reason: 'el catálogo se registra aunque sea nulo');
   });
 
   test('almacén nativo (flutter_secure_storage simulado) y almacén en memoria', () async {

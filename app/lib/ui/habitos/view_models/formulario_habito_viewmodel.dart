@@ -303,15 +303,18 @@ class FormularioHabitoViewModel extends ChangeNotifier {
 
   // ───────────────────────── Guardar ─────────────────────────
 
-  /// Lo que se mandaría en `PATCH`: solo los campos que cambiaron (nunca meta, frecuencia, unidad ni categoría).
+  /// Lo que se mandaría en `PATCH`: solo los campos que cambiaron (nunca meta, frecuencia ni categoría). La unidad
+  /// no cambia al editar, pero el contrato (§6.4) pide mandarla junto con una subcategoría nueva.
   CambiosHabito get cambios {
     final o = _original!;
+    final otraSubcategoria = _subcategoriaId != o.subcategoria.id;
     final n = nombre.trim();
     final i = intencion.trim();
     final intencionAntes = o.intencion ?? '';
     return CambiosHabito(
       nombre: n != o.nombre ? n : null,
-      subcategoriaId: _subcategoriaId != o.subcategoria.id ? _subcategoriaId : null,
+      subcategoriaId: otraSubcategoria ? _subcategoriaId : null,
+      unidad: otraSubcategoria ? o.unidad : null,
       prioridad: _prioridad != o.prioridad ? _prioridad : null,
       intencion: i != intencionAntes && i.isNotEmpty ? i : null,
       quitarIntencion: i.isEmpty && intencionAntes.isNotEmpty,
