@@ -35,20 +35,23 @@ aparte (Docker con la misma base que producción).
 
 ## Cómo correr la API en local
 
-1. Levanta el entorno de Jael (`docker compose up -d` y `docker compose run --rm poblar`).
+Se corre en Docker (Linux): así no depende de lo que Windows permita ejecutar.
+
+1. Levanta el entorno de Jael (`docker compose up -d` en `entorno_local_backend` y, la primera vez,
+   `docker compose run --rm poblar`).
 2. Copia su `.env` a esta carpeta (`backend/.env`; no se sube a Git):
    ```powershell
    copy ..\..\entorno_local_backend\.env .env
    ```
-3. Instala y arranca:
+3. Construye y arranca la API (se conecta a la base por la red de Docker del entorno):
    ```powershell
-   py -3.12 -m venv .venv; .venv\Scripts\Activate.ps1
-   pip install --require-hashes -r requirements/base.txt -r requirements/dev.txt
-   pip install --no-deps -e .
-   uvicorn kaizen.api.main:crear_app --factory --reload
+   docker compose up --build
    ```
 4. Prueba: http://localhost:8000/api/v1/salud y la documentación en http://localhost:8000/docs
    (login con `demo@kaizen.test` y la contraseña `KAIZEN_DEMO_PASSWORD` del `.env`).
+
+Sin Docker (si tu sistema lo permite): `pip install --no-deps -e .` y
+`uvicorn kaizen.api.main:crear_app --factory --reload`.
 
 ## Pruebas
 
