@@ -19,7 +19,7 @@ Todas usan la misma contraseña, que **no se versiona** (la responsable la tiene
 
 | Correo | Región | Para mostrar |
 |---|---|---|
-| `demo@kaizen.test` | MX-NORTE | 4 hábitos (uno con la Escalera apagada), racha de más de 21 días, cápsula de 21 lista para abrir, señales |
+| `demo@kaizen.test` | MX-NORTE | 4 hábitos, uno por cada caso de la evidencia: Caminar 30 min (óptimo, racha de más de 30 días, prioridad alta), Repasar apuntes 300 min (excesivo: la Escalera propone bajar a 240), Leer 15 páginas (bajo con 20 días seguidos: propone subir) y Dormir 7 h (óptimo). Todos con intención "Después de ___"; cápsula de 30 lista para abrir y otra de 66; logros; señales |
 | `admin@kaizen.test` | MX-CENTRO-SUR | Rol administrador: usuarios enmascarados, métricas, suspensión |
 | `latam@kaizen.test` | LATAM | Región LATAM con sugerencias de la Escalera pendientes |
 | `nuevo@kaizen.test` | MX-CENTRO-SUR | Recién registrado, sin hábitos |
@@ -71,3 +71,14 @@ La bitácora es de solo inserción: `limpiar.sql` borra todo lo demás, pero los
   Argon2), descifrado de cápsulas, `limpiar.sql` y recarga.
 - En el clúster: carga en 30 s en el primario (nodo2); nodo1, nodo2 y nodo3 con las mismas cifras (927 usuarios,
   100 086 check-ins, 33 664 señales); retraso de réplicas 0 bytes; la consulta con región lee solo su fragmento.
+
+## Recarga del 27-nov-2026 (esquema con respaldo científico)
+
+- Antes: respaldo diferencial con pgBackRest (`20261122-210929F_20261127-012645D`), migración
+  `cambios/2026-11-27_evidencia_cientifica.sql` (4 s) y sus 81 pruebas en el primario.
+- `limpiar.sql` y carga nueva: 965 cuentas (322 · 322 · 321) y 100 080 check-ins (33 345 · 33 184 · 33 551),
+  2 576 hábitos con subcategoría, prioridad e intención; 298 cápsulas de 7/30/66; 2 585 logros.
+- Hábitos por zona de la evidencia: óptimo 919 · bajo 640 · sin referencia 508 · alto 325 · excesivo 184.
+- nodo1, nodo2 y nodo3 con las mismas cifras; plan B en el HomeLab transmitiendo, retraso de 0 bytes.
+- Salidas en `evidencia_cambios_2026-11-27/` (fuera del repositorio).
+
