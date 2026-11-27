@@ -1,24 +1,24 @@
-"""Política de contraseña (contrato v1.4, §2.3).
+"""Política de contraseña (contrato v1.6, §2.3).
 
-- De 12 a 128 caracteres, sin reglas de composición (ASVS 2.1).
+- De 18 a 128 caracteres, sin reglas de composición (ASVS 2.1).
 - No puede ser igual al correo.
 - Se rechaza si está en la lista de contraseñas comunes.
 """
 
 from kaizen.dominio.excepciones import ValidacionError
 
-MINIMO = 12
+MINIMO = 18
 MAXIMO = 128
 
 # Lista corta de ejemplo; se puede cargar una más grande desde un archivo.
 COMUNES = frozenset(
     {
-        "123456789012",
-        "contrasena123",
-        "contraseña123",
-        "password1234",
-        "qwertyuiop12",
-        "kaizenkaizen",
+        "123456789012345678",
+        "contrasena12345678",
+        "contraseña12345678",
+        "password1234567890",
+        "qwertyuiopasdfghjk",
+        "kaizenkaizenkaizen",
     }
 )
 
