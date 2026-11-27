@@ -77,3 +77,37 @@ jobs:
       - run: pip install --require-hashes -r requirements/base.txt -r requirements/dev.txt
       - run: pip install --no-deps -e .
       - run: pytest --cov-report=xml
+
+  # 4. Base de datos: esquema, cambios fechados y sus pruebas SQL (db/) contra PostgreSQL 16
+  base-de-datos:
+    runs-on: ubuntu-24.04
+    services:
+      postgres:
+        image: postgres:16.16
+        env:
+          POSTGRES_PASSWORD: solo-ci          # contenedor desechable del CI, no es una contrasena real
+          POSTGRES_HOST_AUTH_METHOD: trust    # los scripts entran como postgres y kaizen_owner sin contrasena
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s --health-timeout 3s --health-retries 20
+    env:
+      PGHOST: localhost
+      PGPORT: "5432"
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803        # v6.1.0
+      - name: Rol dueno del esquema (en el cluster no inicia sesion; aqui si, para aplicar los scripts)
+        run: psql -X -v ON_ERROR_STOP=1 -U postgres -c "CREATE ROLE kaizen_owner LOGIN"
+      - name: Esquema 01-07 + cambios fechados + 102 pruebas SQL
+        run: |
+          set -o pipefail
+          db/cambios/run_pruebas.sh | tee salida.txt
+      - name: Revisar el resultado (el script imprime FALLA pero no termina con error)
+        run: |
+          echo "Pruebas OK: $(grep -c 'OK ' salida.txt)"
+          if grep -E 'FALLA|ERROR' salida.txt; then
+            echo "::error::Fallaron pruebas de la base de datos"
+            exit 1
+          fi
+          grep -q 'OK ' salida.txt || { echo "::error::No se corrio ninguna prueba"; exit 1; }
