@@ -1,6 +1,6 @@
 """Traduce los errores de PostgreSQL (SQLSTATE) a errores de Kaizen.
 
-La base hace cumplir las reglas con códigos propios KZ001–KZ017 (RAISE ... USING ERRCODE).
+La base hace cumplir las reglas con códigos propios KZ001–KZ018 (RAISE ... USING ERRCODE).
 Aquí se convierten en excepciones del dominio, y la API las vuelve problem+json (contrato §3).
 El texto de la base (message_primary) es en español y sin datos internos: sirve como detalle.
 """
@@ -17,6 +17,7 @@ from kaizen.dominio.excepciones import (
     NoEncontrado,
     NombreDuplicado,
     OperacionNoPermitida,
+    RecomendacionNoDisponible,
     RegionInvalida,
     RolInsuficiente,
     SubcategoriaInactiva,
@@ -38,6 +39,7 @@ TABLA: dict[str, type[KaizenError]] = {
     "KZ014": CategoriaInactiva,
     "KZ016": UnidadNoPermitida,
     "KZ017": SubcategoriaInactiva,
+    "KZ018": RecomendacionNoDisponible,
 }
 
 # Errores de validación: KZ011 (regla de la base) y 23514 (CHECK de una columna)

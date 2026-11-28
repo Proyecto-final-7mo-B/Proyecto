@@ -94,3 +94,7 @@ class UnidadNoPermitida(ErrorDominio):
 
 class SubcategoriaInactiva(ErrorDominio):
     """La subcategoría está desactivada (KZ017)."""
+
+
+class RecomendacionNoDisponible(ErrorDominio):
+    """La recomendación no existe, está inactiva o su subcategoría se desactivó (KZ018)."""

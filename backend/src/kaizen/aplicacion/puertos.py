@@ -82,6 +82,32 @@ class NuevoHabito:
 
 
 @dataclass(frozen=True, slots=True)
+class HabitoDesdeRecomendacion:
+    """Crear desde una recomendación: la base copia nombre, meta, unidad, frecuencia e intención."""
+
+    recomendacion_id: UUID
+    prioridad: int = 2
+    escalera_activa: bool = True
+
+
+@dataclass(frozen=True, slots=True)
+class Recomendacion:
+    """Alta o cambio de una recomendación (administración)."""
+
+    clave: str
+    subcategoria_id: UUID
+    nombre: str
+    unidad: str
+    meta: Decimal
+    frecuencia: FrecuenciaDatos
+    momento: str
+    porque: str
+    fuentes: str
+    activo: bool = True
+    orden: int = 99
+
+
+@dataclass(frozen=True, slots=True)
 class ConsultaEvaluacion:
     subcategoria_id: UUID
     unidad: str
@@ -110,8 +136,22 @@ class RepositorioHabitos(Protocol):
         habito_id: UUID | None = None,
     ) -> list[Objeto]: ...
 
-    def crear(self, usuario: UsuarioActual, zona: str, nuevo: NuevoHabito) -> UUID: ...
+    def crear(
+        self, usuario: UsuarioActual, zona: str, nuevo: NuevoHabito | HabitoDesdeRecomendacion
+    ) -> UUID: ...
 
     def actualizar(
         self, usuario: UsuarioActual, zona: str, habito_id: UUID, cambios: dict[str, Any]
     ) -> bool: ...
+
+    def recomendados(self, zona: str, incluir_inactivas: bool = False) -> list[Objeto]: ...
+
+    def dias_protegidos(
+        self, usuario: UsuarioActual, zona: str, habito_id: UUID, desde: date, hasta: date
+    ) -> list[date] | None: ...
+
+    def fuentes(self, zona: str) -> list[Objeto]: ...
+
+    def guardar_recomendacion(
+        self, admin: UsuarioActual, zona: str, datos: Recomendacion, ip: str | None
+    ) -> Objeto: ...

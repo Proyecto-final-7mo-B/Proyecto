@@ -14,12 +14,15 @@ from kaizen.api.main import construir_app
 from kaizen.aplicacion.puertos import (
     ConsultaEvaluacion,
     CuentaLogin,
+    HabitoDesdeRecomendacion,
     NuevoHabito,
     Objeto,
+    Recomendacion,
     UsuarioActual,
 )
 from kaizen.aplicacion.servicios.autenticacion import ServicioAutenticacion
 from kaizen.aplicacion.servicios.habitos import ServicioHabitos
+from kaizen.dominio.excepciones import RecomendacionNoDisponible
 from kaizen.infraestructura.seguridad.contrasenas import HasherContrasenas
 from kaizen.infraestructura.seguridad.seudonimos import GeneradorHmac
 from kaizen.infraestructura.seguridad.tokens import EmisorTokens, ParTokens
@@ -108,6 +111,31 @@ SUBCATEGORIA = {
     "sentido": "aumentar",
 }
 EVALUACION_OPTIMA = {"zona": "optimo", "sentido": "aumentar", "paso": 5.0}
+RECOMENDACION = {
+    "id": uuid.uuid4(),
+    "clave": "caminar_rapido",
+    "nombre": "Caminar a paso rápido",
+    "categoria": CATEGORIA,
+    "subcategoria": SUBCATEGORIA,
+    "unidad": "min",
+    "meta": 30.0,
+    "frecuencia": {"tipo": "dias_semana", "dias_semana": 31, "veces_semana": None},
+    "momento": "Después de comer",
+    "porque": "La OMS recomienda de 150 a 300 minutos a la semana.",
+    "fuentes": "F11",
+    "zona": "optimo",
+    "optimo_desde": 30.0,
+    "optimo_hasta": 60.0,
+}
+FUENTE = {
+    "clave": "F01",
+    "tema": "formacion",
+    "referencia": "Lally y otros (2010). How are habits formed.",
+    "enlace": "10.1002/ejsp.674",
+    "dato": "De 18 a 254 días; mediana 66.",
+    "verificada": "Sí",
+    "confianza": "Media",
+}
 
 
 class RepoHabitosFalso:
@@ -116,6 +144,12 @@ class RepoHabitosFalso:
     def __init__(self) -> None:
         self.habitos: dict[UUID, tuple[UUID, Objeto]] = {}  # id -> (dueño, hábito)
         self.consultas: list[ConsultaEvaluacion] = []
+        # clave -> recomendación (con activo y orden, como la tabla)
+        self.recomendaciones: dict[str, Objeto] = {
+            "caminar_rapido": RECOMENDACION | {"activo": True, "orden": 1}
+        }
+        self.protegidos: dict[UUID, list[date]] = {}  # id de hábito -> días perdonados
+        self.guardadas: list[tuple[UUID, str | None]] = []  # (admin, ip) de cada PUT
 
     def categorias(self, zona: str) -> list[Objeto]:
         unidad = {"unidad": "min", "factor_a_base": 1, "paso": 5, "minimo": 1, "maximo": 1440}
@@ -143,26 +177,48 @@ class RepoHabitosFalso:
         ]
         return sorted(visibles, key=lambda h: (h["prioridad"], h["nombre"]))
 
-    def crear(self, usuario: UsuarioActual, zona: str, nuevo: NuevoHabito) -> UUID:
-        habito_id = uuid.uuid4()
-        f = nuevo.frecuencia
-        self.habitos[habito_id] = (
-            usuario.id,
-            {
-                "id": habito_id,
+    def crear(
+        self, usuario: UsuarioActual, zona: str, nuevo: NuevoHabito | HabitoDesdeRecomendacion
+    ) -> UUID:
+        if isinstance(nuevo, HabitoDesdeRecomendacion):  # lo que hace el trigger de la base
+            rec = next(
+                (r for r in self.recomendaciones.values() if r["id"] == nuevo.recomendacion_id),
+                None,
+            )
+            if rec is None or not rec["activo"]:
+                raise RecomendacionNoDisponible("Esa recomendación ya no está disponible")
+            datos = {
+                "nombre": rec["nombre"],
+                "unidad": rec["unidad"],
+                "meta": rec["meta"],
+                "intencion": rec["momento"],
+                "frecuencia": rec["frecuencia"],
+                "recomendacion_id": rec["id"],
+            }
+        else:
+            f = nuevo.frecuencia
+            datos = {
                 "nombre": nuevo.nombre,
                 "unidad": nuevo.unidad,
                 "meta": float(nuevo.meta),
-                "nivel": 1,
-                "categoria": CATEGORIA,
-                "subcategoria": SUBCATEGORIA,
-                "prioridad": nuevo.prioridad,
                 "intencion": nuevo.intencion,
                 "frecuencia": {
                     "tipo": f.tipo,
                     "dias_semana": f.dias_semana,
                     "veces_semana": f.veces_semana,
                 },
+                "recomendacion_id": None,
+            }
+        habito_id = uuid.uuid4()
+        self.habitos[habito_id] = (
+            usuario.id,
+            datos
+            | {
+                "id": habito_id,
+                "nivel": 1,
+                "categoria": CATEGORIA,
+                "subcategoria": SUBCATEGORIA,
+                "prioridad": nuevo.prioridad,
                 "escalera_activa": nuevo.escalera_activa,
                 "activo": True,
                 "fecha_creacion": datetime.now(UTC),
@@ -185,6 +241,53 @@ class RepoHabitosFalso:
             return False
         h.update({k: v for k, v in cambios.items() if k != "subcategoria_id"})
         return True
+
+    def recomendados(self, zona: str, incluir_inactivas: bool = False) -> list[Objeto]:
+        filas = sorted(self.recomendaciones.values(), key=lambda r: (r["orden"], r["nombre"]))
+        if incluir_inactivas:
+            return filas
+        return [
+            {k: v for k, v in r.items() if k not in ("activo", "orden")}
+            for r in filas
+            if r["activo"]
+        ]
+
+    def dias_protegidos(
+        self, usuario: UsuarioActual, zona: str, habito_id: UUID, desde: date, hasta: date
+    ) -> list[date] | None:
+        dueno, _ = self.habitos.get(habito_id, (None, {}))
+        if dueno != usuario.id:
+            return None
+        return [d for d in self.protegidos.get(habito_id, []) if desde <= d <= hasta]
+
+    def fuentes(self, zona: str) -> list[Objeto]:
+        return [FUENTE]
+
+    def guardar_recomendacion(
+        self, admin: UsuarioActual, zona: str, datos: Recomendacion, ip: str | None
+    ) -> Objeto:
+        self.guardadas.append((admin.id, ip))
+        f = datos.frecuencia
+        previa = self.recomendaciones.get(datos.clave, {"id": uuid.uuid4()})
+        fila = RECOMENDACION | {
+            "id": previa["id"],
+            "clave": datos.clave,
+            "nombre": datos.nombre,
+            "unidad": datos.unidad,
+            "meta": float(datos.meta),
+            "frecuencia": {
+                "tipo": f.tipo,
+                "dias_semana": f.dias_semana,
+                "veces_semana": f.veces_semana,
+            },
+            "momento": datos.momento,
+            "porque": datos.porque,
+            "fuentes": datos.fuentes,
+            "activo": datos.activo,
+            "orden": datos.orden,
+        }
+        self.recomendaciones[datos.clave] = fila
+        return fila
 
 
 class Reloj:
@@ -243,4 +346,10 @@ def usuario_id() -> UUID:
 def cabeceras(emisor: EmisorTokens, usuario_id: UUID) -> dict[str, str]:
     """Cabecera Authorization con un token de acceso válido (como el que da el login)."""
     par = emisor.emitir_par(usuario_id, "MX-NORTE", "usuario")
+    return {"Authorization": f"Bearer {par.acceso}"}
+
+
+@pytest.fixture
+def cabeceras_admin(emisor: EmisorTokens) -> dict[str, str]:
+    par = emisor.emitir_par(uuid.uuid4(), "MX-CENTRO-SUR", "admin")
     return {"Authorization": f"Bearer {par.acceso}"}
