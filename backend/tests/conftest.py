@@ -3,7 +3,7 @@
 import base64
 import uuid
 from dataclasses import replace
-from datetime import UTC, date, datetime
+from datetime import UTC, date, datetime, timedelta
 from typing import Any
 from uuid import UUID
 
@@ -16,13 +16,23 @@ from kaizen.aplicacion.puertos import (
     CuentaLogin,
     HabitoDesdeRecomendacion,
     NuevoHabito,
+    NuevoRegistro,
     Objeto,
     Recomendacion,
+    ResultadoRegistro,
     UsuarioActual,
 )
 from kaizen.aplicacion.servicios.autenticacion import ServicioAutenticacion
 from kaizen.aplicacion.servicios.habitos import ServicioHabitos
-from kaizen.dominio.excepciones import RecomendacionNoDisponible
+from kaizen.aplicacion.servicios.registros import ServicioRegistros
+from kaizen.dominio.excepciones import (
+    FechaFueraDeRango,
+    HabitoArchivado,
+    KaizenError,
+    NoEncontrado,
+    RecomendacionNoDisponible,
+    ValidacionError,
+)
 from kaizen.infraestructura.seguridad.contrasenas import HasherContrasenas
 from kaizen.infraestructura.seguridad.seudonimos import GeneradorHmac
 from kaizen.infraestructura.seguridad.tokens import EmisorTokens, ParTokens
@@ -290,6 +300,71 @@ class RepoHabitosFalso:
         return fila
 
 
+class RepoRegistrosFalso:
+    """Implementa RepositorioRegistros en memoria, con las reglas de sp_registrar_checkin.
+
+    Usa los hábitos del repositorio falso de hábitos (mismo dueño, archivado o no).
+    La racha falsa es simplemente cuántos días cumplidos hay (la real la calcula la base).
+    """
+
+    def __init__(self, habitos: RepoHabitosFalso) -> None:
+        self._habitos = habitos
+        self.registros: dict[tuple[UUID, date], Objeto] = {}  # (hábito, fecha) -> registro
+
+    def _un_checkin(self, usuario: UsuarioActual, r: NuevoRegistro) -> Objeto:
+        dueno, h = self._habitos.habitos.get(r.habito_id, (None, {}))
+        if dueno != usuario.id:
+            raise NoEncontrado("Hábito no encontrado")
+        if not h["activo"]:
+            raise HabitoArchivado("El hábito está archivado")
+        if r.fecha > date.today() + timedelta(days=1):
+            raise FechaFueraDeRango("No se puede registrar una fecha futura")
+        otro = next((x for x in self.registros.values() if x["id"] == r.id), None)
+        if otro and (otro["habito_id"], otro["fecha"]) != (r.habito_id, r.fecha):
+            raise ValidacionError("Ese id ya es de otro check-in", campo="id")
+        previo = self.registros.get((r.habito_id, r.fecha))
+        self.registros[(r.habito_id, r.fecha)] = {
+            "id": previo["id"] if previo else r.id,  # un día = un check-in: se queda el primero
+            "habito_id": r.habito_id,
+            "fecha": r.fecha,
+            "cumplido": r.cumplido,
+            "valor": None if r.valor is None else float(r.valor),
+            "origen": r.origen,
+            "registrado_en": datetime.now(UTC),
+        }
+        racha = sum(
+            1 for x in self.registros.values() if x["habito_id"] == r.habito_id and x["cumplido"]
+        )
+        return {"id": self.registros[(r.habito_id, r.fecha)]["id"], "racha_actual": racha}
+
+    def registrar(self, usuario: UsuarioActual, zona: str, registro: NuevoRegistro) -> Objeto:
+        return self._un_checkin(usuario, registro)
+
+    def registrar_lote(
+        self, usuario: UsuarioActual, zona: str, registros: list[NuevoRegistro]
+    ) -> list[ResultadoRegistro]:
+        resultados = []
+        for r in registros:
+            try:
+                resultados.append(
+                    ResultadoRegistro(r.id, self._un_checkin(usuario, r)["racha_actual"])
+                )
+            except KaizenError as error:
+                resultados.append(ResultadoRegistro(r.id, error=error))
+        return resultados
+
+    def historial(
+        self, usuario: UsuarioActual, zona: str, habito_id: UUID, desde: date, hasta: date
+    ) -> list[Objeto] | None:
+        dueno, _ = self._habitos.habitos.get(habito_id, (None, {}))
+        if dueno != usuario.id:
+            return None
+        return sorted(
+            (x for (h, f), x in self.registros.items() if h == habito_id and desde <= f <= hasta),
+            key=lambda x: x["fecha"],
+        )
+
+
 class Reloj:
     """Reloj controlable para probar el bloqueo de 15 minutos sin esperar."""
 
@@ -331,10 +406,26 @@ def servicio_habitos(repo_habitos: RepoHabitosFalso, reloj: Reloj) -> ServicioHa
 
 
 @pytest.fixture
+def repo_registros(repo_habitos: RepoHabitosFalso) -> RepoRegistrosFalso:
+    return RepoRegistrosFalso(repo_habitos)
+
+
+@pytest.fixture
+def servicio_registros(repo_registros: RepoRegistrosFalso) -> ServicioRegistros:
+    return ServicioRegistros(repo_registros)
+
+
+@pytest.fixture
 def cliente(
-    servicio: ServicioAutenticacion, servicio_habitos: ServicioHabitos, emisor: EmisorTokens
+    servicio: ServicioAutenticacion,
+    servicio_habitos: ServicioHabitos,
+    servicio_registros: ServicioRegistros,
+    emisor: EmisorTokens,
 ) -> TestClient:
-    return TestClient(construir_app(servicio, servicio_habitos, emisor, revisar_base=lambda: True))
+    app = construir_app(
+        servicio, servicio_habitos, servicio_registros, emisor, revisar_base=lambda: True
+    )
+    return TestClient(app)
 
 
 @pytest.fixture

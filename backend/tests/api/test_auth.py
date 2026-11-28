@@ -14,9 +14,11 @@ def test_salud_ok(cliente: TestClient) -> None:
     assert r.json() == {"estado": "ok", "base_de_datos": "ok"}
 
 
-def test_salud_sin_base_da_503(servicio, servicio_habitos, emisor) -> None:  # type: ignore[no-untyped-def]
+def test_salud_sin_base_da_503(servicio, servicio_habitos, servicio_registros, emisor) -> None:  # type: ignore[no-untyped-def]
     r = TestClient(
-        construir_app(servicio, servicio_habitos, emisor, revisar_base=lambda: False)
+        construir_app(
+            servicio, servicio_habitos, servicio_registros, emisor, revisar_base=lambda: False
+        )
     ).get("/api/v1/salud")
     assert r.status_code == 503
 
@@ -81,12 +83,14 @@ def test_zona_horaria_invalida_da_422(cliente: TestClient) -> None:
     assert r.json()["errores"][0]["campo"] == "X-Zona-Horaria"
 
 
-def test_error_inesperado_da_500_sin_traza(servicio, servicio_habitos, emisor) -> None:  # type: ignore[no-untyped-def]
+def test_error_inesperado_da_500_sin_traza(
+    servicio, servicio_habitos, servicio_registros, emisor
+) -> None:  # type: ignore[no-untyped-def]
     def explota() -> bool:
         raise RuntimeError("detalle interno secreto")
 
     c = TestClient(
-        construir_app(servicio, servicio_habitos, emisor, revisar_base=explota),
+        construir_app(servicio, servicio_habitos, servicio_registros, emisor, revisar_base=explota),
         raise_server_exceptions=False,
     )
     r = c.get("/api/v1/salud")

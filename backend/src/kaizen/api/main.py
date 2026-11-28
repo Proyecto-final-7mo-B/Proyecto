@@ -9,9 +9,10 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 
 from kaizen.api.errores import registrar_manejadores
-from kaizen.api.rutas import admin, auth, categorias, fuentes, habitos, salud
+from kaizen.api.rutas import admin, auth, categorias, fuentes, habitos, registros, salud
 from kaizen.aplicacion.servicios.autenticacion import ServicioAutenticacion
 from kaizen.aplicacion.servicios.habitos import ServicioHabitos
+from kaizen.aplicacion.servicios.registros import ServicioRegistros
 from kaizen.config import Configuracion
 from kaizen.infraestructura.seguridad.tokens import EmisorTokens
 
@@ -21,6 +22,7 @@ PREFIJO = "/api/v1"
 def construir_app(
     servicio_auth: ServicioAutenticacion,
     servicio_habitos: ServicioHabitos,
+    servicio_registros: ServicioRegistros,
     emisor: EmisorTokens,
     revisar_base: Callable[[], bool],
     zona_defecto: str = "America/Mexico_City",
@@ -29,11 +31,12 @@ def construir_app(
     app = FastAPI(title="Kaizen API", version="1.7.0")
     app.state.servicio_auth = servicio_auth
     app.state.servicio_habitos = servicio_habitos
+    app.state.servicio_registros = servicio_registros
     app.state.emisor = emisor  # verifica los tokens de acceso de cada petición
     app.state.revisar_base = revisar_base
     app.state.zona_defecto = zona_defecto
     registrar_manejadores(app)
-    for modulo in (salud, auth, categorias, habitos, fuentes, admin):
+    for modulo in (salud, auth, categorias, habitos, registros, fuentes, admin):
         app.include_router(modulo.router, prefix=PREFIJO)
     return app
 
@@ -43,6 +46,7 @@ def crear_app() -> FastAPI:  # pragma: no cover - se prueba en integración con 
     from kaizen.infraestructura.postgres.conexion import UnidadDeTrabajo, crear_pool
     from kaizen.infraestructura.postgres.repositorio_auth import RepositorioAuthPg
     from kaizen.infraestructura.postgres.repositorio_habitos import RepositorioHabitosPg
+    from kaizen.infraestructura.postgres.repositorio_registros import RepositorioRegistrosPg
     from kaizen.infraestructura.seguridad.contrasenas import HasherContrasenas
     from kaizen.infraestructura.seguridad.seudonimos import GeneradorHmac
 
@@ -59,6 +63,7 @@ def crear_app() -> FastAPI:  # pragma: no cover - se prueba en integración con 
     app = construir_app(
         servicio,
         ServicioHabitos(RepositorioHabitosPg(uow)),
+        ServicioRegistros(RepositorioRegistrosPg(uow)),
         emisor,
         uow.base_disponible,
         cfg.zona_horaria_defecto,
