@@ -47,3 +47,15 @@ def test_actualizar_rechaza_campos_no_editables_aunque_no_pase_por_la_api() -> N
     with pytest.raises(ValidacionError) as error:
         s.actualizar(yo, MX, uuid.uuid4(), {"meta": 99})
     assert error.value.campo == "meta"
+
+
+def test_admin_exige_rol_aunque_no_pase_por_la_api() -> None:
+    import uuid
+
+    from kaizen.aplicacion.puertos import UsuarioActual
+    from kaizen.dominio.excepciones import RolInsuficiente
+
+    s = ServicioHabitos(RepoHabitosFalso())
+    yo = UsuarioActual(uuid.uuid4(), "MX-NORTE", "usuario")
+    with pytest.raises(RolInsuficiente):
+        s.recomendaciones_admin(yo, MX)

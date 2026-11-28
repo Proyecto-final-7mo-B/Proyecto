@@ -9,7 +9,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 
 from kaizen.api.errores import registrar_manejadores
-from kaizen.api.rutas import auth, categorias, habitos, salud
+from kaizen.api.rutas import admin, auth, categorias, fuentes, habitos, salud
 from kaizen.aplicacion.servicios.autenticacion import ServicioAutenticacion
 from kaizen.aplicacion.servicios.habitos import ServicioHabitos
 from kaizen.config import Configuracion
@@ -26,14 +26,14 @@ def construir_app(
     zona_defecto: str = "America/Mexico_City",
 ) -> FastAPI:
     """Crea la app con las piezas que se le pasen (las pruebas pasan piezas falsas)."""
-    app = FastAPI(title="Kaizen API", version="1.6.0")
+    app = FastAPI(title="Kaizen API", version="1.7.0")
     app.state.servicio_auth = servicio_auth
     app.state.servicio_habitos = servicio_habitos
     app.state.emisor = emisor  # verifica los tokens de acceso de cada petición
     app.state.revisar_base = revisar_base
     app.state.zona_defecto = zona_defecto
     registrar_manejadores(app)
-    for modulo in (salud, auth, categorias, habitos):
+    for modulo in (salud, auth, categorias, habitos, fuentes, admin):
         app.include_router(modulo.router, prefix=PREFIJO)
     return app
 

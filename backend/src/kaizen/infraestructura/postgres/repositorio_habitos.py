@@ -18,8 +18,10 @@ from psycopg.rows import dict_row
 
 from kaizen.aplicacion.puertos import (
     ConsultaEvaluacion,
+    HabitoDesdeRecomendacion,
     NuevoHabito,
     Objeto,
+    Recomendacion,
     UsuarioActual,
 )
 from kaizen.dominio.excepciones import SubcategoriaInactiva, UnidadNoPermitida, ValidacionError
@@ -45,7 +47,7 @@ SELECT h.id, h.nombre, h.unidad, h.meta, n.nivel,
        s.id AS s_id, s.clave AS s_clave, s.nombre AS s_nombre, s.icono AS s_icono,
        s.sentido AS s_sentido,
        h.prioridad, h.intencion, h.frecuencia_tipo, h.dias_semana, h.veces_semana,
-       h.escalera_activa, h.activo, h.fecha_creacion,
+       h.escalera_activa, h.activo, h.fecha_creacion, h.recomendacion_id,
        r.racha_actual, r.racha_maxima, r.ultima_fecha, r.protector_usado_semana,
        e.zona, e.sentido, e.volumen, e.unidad_base, e.periodo, e.optimo_desde, e.optimo_hasta,
        e.maximo, e.meta_sugerida, e.paso, e.cita, e.fuentes, e.url, e.confianza, e.nota,
@@ -79,6 +81,40 @@ INSERT INTO habito (region, usuario_id, subcategoria_id, nombre, frecuencia_tipo
                     veces_semana, meta, unidad, escalera_activa, prioridad, intencion)
 VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
 RETURNING id
+"""
+
+# Desde una recomendación: el trigger trg_habito_0_recomendacion copia lo demás (o lanza KZ018)
+SQL_CREAR_RECOMENDADO = """
+INSERT INTO habito (region, usuario_id, recomendacion_id, prioridad, escalera_activa)
+VALUES (%s, %s, %s, %s, %s)
+RETURNING id
+"""
+
+# Mismo resultado que v_habito_recomendado; con %(todas)s también las inactivas (administración)
+SQL_RECOMENDADOS = """
+SELECT r.id, r.clave, r.nombre, r.unidad, r.meta, r.frecuencia_tipo, r.dias_semana, r.veces_semana,
+       r.momento, r.porque, r.fuentes, r.orden, r.activo AND s.activa AND c.activa AS activo,
+       c.id AS c_id, c.clave AS c_clave, c.nombre AS c_nombre, c.color, c.icono AS c_icono,
+       s.id AS s_id, s.clave AS s_clave, s.nombre AS s_nombre, s.icono AS s_icono,
+       s.sentido AS s_sentido, e.zona, e.optimo_desde, e.optimo_hasta
+  FROM habito_recomendado r
+  JOIN subcategoria s ON s.id = r.subcategoria_id
+  JOIN categoria c ON c.id = s.categoria_id
+ CROSS JOIN LATERAL fn_evaluar_meta(r.subcategoria_id, r.unidad, r.meta, r.frecuencia_tipo,
+                                    r.dias_semana, r.veces_semana) e
+ WHERE (%(todas)s OR (r.activo AND s.activa AND c.activa))
+   AND (%(clave)s::text IS NULL OR r.clave = %(clave)s::text)
+ ORDER BY c.orden, s.orden, r.orden, r.nombre
+"""
+
+SQL_FUENTES = """
+SELECT clave, tema, referencia, enlace, dato, verificada, confianza
+  FROM fuente_cientifica ORDER BY clave
+"""
+
+SQL_GUARDAR_RECOMENDACION = """
+CALL sp_admin_guardar_recomendacion(%s, %s, %s, %s, %s, %s, %s, %s::smallint, %s::smallint,
+                                    %s, %s, %s, %s, %s::smallint, %s::inet, NULL)
 """
 
 # Columnas que PATCH puede tocar (el servicio ya filtró los campos; esto es la segunda barrera)
@@ -149,6 +185,7 @@ def habito(fila: dict[str, Any], fecha: date) -> Objeto:
         "escalera_activa": fila["escalera_activa"],
         "activo": fila["activo"],
         "fecha_creacion": fila["fecha_creacion"].astimezone(UTC),  # instantes siempre en UTC
+        "recomendacion_id": fila["recomendacion_id"],
         "racha": {
             "actual": fila["racha_actual"] or 0,
             "maxima": fila["racha_maxima"] or 0,
@@ -158,6 +195,45 @@ def habito(fila: dict[str, Any], fecha: date) -> Objeto:
         "evaluacion": evaluacion(fila),
         "hoy": {"fecha": fecha, "programado": bool(fila["programado"]), "registro": registro},
     }
+
+
+def recomendacion(fila: dict[str, Any], con_activo: bool) -> Objeto:
+    objeto: Objeto = {
+        "id": fila["id"],
+        "clave": fila["clave"],
+        "nombre": fila["nombre"],
+        "categoria": {
+            "id": fila["c_id"],
+            "clave": fila["c_clave"],
+            "nombre": fila["c_nombre"],
+            "color": fila["color"],
+            "icono": fila["c_icono"],
+        },
+        "subcategoria": {
+            "id": fila["s_id"],
+            "clave": fila["s_clave"],
+            "nombre": fila["s_nombre"],
+            "icono": fila["s_icono"],
+            "sentido": fila["s_sentido"],
+        },
+        "unidad": fila["unidad"],
+        "meta": numero(fila["meta"]),
+        "frecuencia": {
+            "tipo": fila["frecuencia_tipo"],
+            "dias_semana": fila["dias_semana"],
+            "veces_semana": fila["veces_semana"],
+        },
+        "momento": fila["momento"],
+        "porque": fila["porque"],
+        "fuentes": fila["fuentes"],
+        "zona": fila["zona"],
+        "optimo_desde": numero(fila["optimo_desde"]),
+        "optimo_hasta": numero(fila["optimo_hasta"]),
+    }
+    if con_activo:
+        objeto["activo"] = fila["activo"]
+        objeto["orden"] = fila["orden"]
+    return objeto
 
 
 def arbol(filas: list[dict[str, Any]]) -> list[Objeto]:
@@ -278,7 +354,22 @@ class RepositorioHabitosPg:
             filas = conn.cursor(row_factory=dict_row).execute(SQL_HABITOS, parametros).fetchall()
         return [habito(f, fecha) for f in filas]
 
-    def crear(self, usuario: UsuarioActual, zona: str, nuevo: NuevoHabito) -> UUID:
+    def crear(
+        self, usuario: UsuarioActual, zona: str, nuevo: NuevoHabito | HabitoDesdeRecomendacion
+    ) -> UUID:
+        if isinstance(nuevo, HabitoDesdeRecomendacion):
+            with self._uow.transaccion(usuario.id, zona) as conn:
+                fila = conn.execute(
+                    SQL_CREAR_RECOMENDADO,
+                    (
+                        usuario.region,
+                        usuario.id,
+                        nuevo.recomendacion_id,
+                        nuevo.prioridad,
+                        nuevo.escalera_activa,
+                    ),
+                ).fetchone()
+            return self._id_creado(fila)
         f = nuevo.frecuencia
         with self._uow.transaccion(usuario.id, zona) as conn:
             fila = conn.execute(
@@ -298,6 +389,10 @@ class RepositorioHabitosPg:
                     nuevo.intencion,
                 ),
             ).fetchone()
+        return self._id_creado(fila)
+
+    @staticmethod
+    def _id_creado(fila: tuple[Any, ...] | None) -> UUID:
         if fila is None:  # pragma: no cover - INSERT ... RETURNING siempre regresa la fila
             raise RuntimeError("La base no regresó el id del hábito")
         habito_id: UUID = fila[0]
@@ -317,3 +412,67 @@ class RepositorioHabitosPg:
         with self._uow.transaccion(usuario.id, zona) as conn:
             cursor = conn.execute(consulta, valores)
         return cursor.rowcount == 1
+
+    # ------------------------------------------------------------- v1.7
+
+    def _recomendaciones(
+        self, conn: Any, todas: bool, clave: str | None = None
+    ) -> list[dict[str, Any]]:
+        cursor = conn.cursor(row_factory=dict_row)
+        filas: list[dict[str, Any]] = cursor.execute(
+            SQL_RECOMENDADOS, {"todas": todas, "clave": clave}
+        ).fetchall()
+        return filas
+
+    def recomendados(self, zona: str, incluir_inactivas: bool = False) -> list[Objeto]:
+        with self._uow.transaccion(zona=zona) as conn:
+            filas = self._recomendaciones(conn, incluir_inactivas)
+        return [recomendacion(f, incluir_inactivas) for f in filas]
+
+    def fuentes(self, zona: str) -> list[Objeto]:
+        with self._uow.transaccion(zona=zona) as conn:
+            filas: list[Objeto] = conn.cursor(row_factory=dict_row).execute(SQL_FUENTES).fetchall()
+        return filas
+
+    def dias_protegidos(
+        self, usuario: UsuarioActual, zona: str, habito_id: UUID, desde: date, hasta: date
+    ) -> list[date] | None:
+        with self._uow.transaccion(usuario.id, zona) as conn:
+            existe = conn.execute(  # la RLS esconde los hábitos de otros usuarios
+                "SELECT 1 FROM habito WHERE region = %s AND id = %s", (usuario.region, habito_id)
+            ).fetchone()
+            if existe is None:
+                return None
+            filas = conn.execute(
+                "SELECT d FROM fn_dias_protegidos(%s, %s, %s, %s) AS d ORDER BY d",
+                (usuario.region, habito_id, desde, hasta),
+            ).fetchall()
+        return [f[0] for f in filas]
+
+    def guardar_recomendacion(
+        self, admin: UsuarioActual, zona: str, datos: Recomendacion, ip: str | None
+    ) -> Objeto:
+        f = datos.frecuencia
+        with self._uow.transaccion(admin.id, zona) as conn:
+            conn.execute(
+                SQL_GUARDAR_RECOMENDACION,
+                (
+                    admin.id,
+                    datos.clave,
+                    datos.subcategoria_id,
+                    datos.nombre,
+                    datos.unidad,
+                    datos.meta,
+                    f.tipo,
+                    f.dias_semana,
+                    f.veces_semana,
+                    datos.momento,
+                    datos.porque,
+                    datos.fuentes,
+                    datos.activo,
+                    datos.orden,
+                    ip,
+                ),
+            )
+            [fila] = self._recomendaciones(conn, True, datos.clave)
+        return recomendacion(fila, True)
