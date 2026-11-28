@@ -45,6 +45,7 @@ abstract final class KaizenIconos {
   static const IconData actividad = Icons.directions_run;
   static const IconData constancia = Icons.grid_view;
   static const IconData acerca = Icons.info_outline;
+  static const IconData logros = Icons.emoji_events_outlined;
   static const IconData rachaMaxima = Icons.emoji_events_outlined;
   static const IconData cumplimiento = Icons.task_alt;
 

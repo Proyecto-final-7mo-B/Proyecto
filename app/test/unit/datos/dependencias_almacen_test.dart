@@ -17,7 +17,11 @@ import 'package:kaizen/data/services/base_local/base_local.dart';
 import 'package:kaizen/data/services/recordatorios/servicio_recordatorios_adaptativo.dart';
 import 'package:kaizen/data/sync/monitor_conexion.dart';
 import 'package:kaizen/data/services/almacen_seguro.dart';
+import 'package:kaizen/data/repositories/logros/logros_repository.dart';
+import 'package:kaizen/data/repositories/logros/logros_repository_api.dart';
+import 'package:kaizen/data/repositories/logros/logros_repository_local.dart';
 import 'package:kaizen/data/services/avisos/gestor_avisos.dart';
+import 'package:kaizen/data/services/logros/novedades_logros.dart';
 import 'package:kaizen/data/services/avisos/notificador_local.dart';
 import 'package:kaizen/domain/models/categoria.dart';
 import 'package:kaizen/utils/paises_estados.dart';
@@ -48,6 +52,7 @@ void main() {
     expect((registros.interno as RegistrosRepositoryLocal).remoto, isA<RegistrosRepositoryApi>());
     expect(registros.gestor, same(d.avisos), reason: 'cada check-in ajusta los avisos');
     expect(d.recordatorios, isA<ServicioRecordatoriosAdaptativo>());
+    expect((d.logros as LogrosRepositoryLocal).remoto, isA<LogrosRepositoryApi>(), reason: 'logros con copia local');
     expect(d.avisos.notificador, isA<NotificadorLocal>(), reason: 'flutter test simula Android');
     expect((d.categorias as CategoriasRepositoryLocal).remoto, isA<CategoriasRepositoryApi>());
     expect(d.datosDemo, isNull);
@@ -57,7 +62,7 @@ void main() {
   testWidgets('proveedores: cada interfaz se puede pedir con context.read', (tester) async {
     const catalogo = CatalogoRegiones(paises: [], estadosMx: []);
     final d = Dependencias.fake(catalogo: catalogo);
-    expect(d.proveedores(), hasLength(17));
+    expect(d.proveedores(), hasLength(19));
     late AuthRepository auth;
     late CatalogoRegiones leido;
     await tester.pumpWidget(
@@ -68,6 +73,8 @@ void main() {
             auth = context.read<AuthRepository>();
             leido = context.read<CatalogoRegiones>();
             context.read<GestorAvisos>();
+            context.read<LogrosRepository>();
+            context.read<NovedadesLogros>();
             return const SizedBox();
           },
         ),
@@ -75,7 +82,7 @@ void main() {
     );
     expect(auth, same(d.auth));
     expect(leido, same(catalogo));
-    expect(Dependencias.fake().proveedores(), hasLength(17), reason: 'el catálogo se registra aunque sea nulo');
+    expect(Dependencias.fake().proveedores(), hasLength(19), reason: 'el catálogo se registra aunque sea nulo');
   });
 
   test('almacén nativo (flutter_secure_storage simulado) y almacén en memoria', () async {

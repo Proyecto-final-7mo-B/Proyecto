@@ -28,8 +28,9 @@ class Destino {
 /// - **Barra inferior** (pantallas compactas): Hoy · Hábitos · Progreso · Lab · Perfil (bosquejos móviles). La
 ///   Escalera y las Cápsulas se abren desde Hoy y desde el detalle de un hábito.
 /// - **Riel y barra superior** (medianas y amplias): Hoy · Hábitos · Progreso · Escalera · Laboratorio · Cápsulas ·
-///   Acerca de (en qué se basa la app y sus fuentes; 27-nov), y Admin solo con rol admin y fuera de Android/iOS. El
-///   perfil se abre con el avatar. En el teléfono, "Acerca de" se abre desde Nuevo hábito y desde el detalle del hábito.
+///   Logros (Paso 11) · Acerca de (en qué se basa la app y sus fuentes; 27-nov), y Admin solo con rol admin y fuera
+///   de Android/iOS. El perfil se abre con el avatar. En el teléfono, "Acerca de" se abre desde Nuevo hábito y desde
+///   el detalle del hábito, y "Logros" desde la tarjeta "Último logro" de Hoy y desde Perfil.
 List<Destino> destinosDe({
   required AppLocalizations t,
   required Plataforma plataforma,
@@ -52,6 +53,7 @@ List<Destino> destinosDe({
     Destino(ruta: Rutas.escalera, etiqueta: t.navEscalera),
     Destino(ruta: Rutas.laboratorio, etiqueta: t.navLaboratorio, icono: KaizenIconos.laboratorio),
     Destino(ruta: Rutas.capsulas, etiqueta: t.navCapsulas, icono: KaizenIconos.capsulas),
+    Destino(ruta: Rutas.logros, etiqueta: t.navLogros, icono: KaizenIconos.logros),
     Destino(ruta: Rutas.acerca, etiqueta: t.navAcerca, icono: KaizenIconos.acerca),
     if (esAdmin && plataforma.permiteAdmin) Destino(ruta: Rutas.admin, etiqueta: t.navAdmin, icono: KaizenIconos.admin),
   ];

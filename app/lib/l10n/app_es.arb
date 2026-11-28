@@ -2574,5 +2574,133 @@
   "notifPermitirExacta": "Permitir hora exacta",
   "@notifPermitirExacta": {
     "description": "Permiso de hora exacta (Paso 10)"
+  },
+  "navLogros": "Logros",
+  "@navLogros": {
+    "description": "Logros (Paso 11)"
+  },
+  "tituloLogros": "Logros",
+  "@tituloLogros": {
+    "description": "Logros (Paso 11)"
+  },
+  "subtituloLogros": "Insignias por tu constancia, no por hacer de más",
+  "@subtituloLogros": {
+    "description": "Logros (Paso 11)"
+  },
+  "logrosResumen": "{obtenidos} de {total} insignias",
+  "@logrosResumen": {
+    "description": "Logros (Paso 11)",
+    "placeholders": {
+      "obtenidos": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "logrosFiltroTodos": "Todos",
+  "@logrosFiltroTodos": {
+    "description": "Logros (Paso 11)"
+  },
+  "logrosFiltroObtenidos": "Obtenidos",
+  "@logrosFiltroObtenidos": {
+    "description": "Logros (Paso 11)"
+  },
+  "logrosFiltroPorObtener": "Por obtener",
+  "@logrosFiltroPorObtener": {
+    "description": "Logros (Paso 11)"
+  },
+  "logrosSinObtenidos": "Aún no tienes insignias. La primera llega con 7 días seguidos en un hábito.",
+  "@logrosSinObtenidos": {
+    "description": "Logros (Paso 11)"
+  },
+  "logrosTodosObtenidos": "¡Tienes todas las insignias!",
+  "@logrosTodosObtenidos": {
+    "description": "Logros (Paso 11)"
+  },
+  "logrosNota": "Sin rankings ni puntos: cada insignia premia la constancia o mantenerte en lo recomendado.",
+  "@logrosNota": {
+    "description": "Logros (Paso 11)"
+  },
+  "logroObtenidoEl": "Obtenida el {fecha}",
+  "@logroObtenidoEl": {
+    "description": "Logros (Paso 11)",
+    "placeholders": {
+      "fecha": {
+        "type": "String"
+      }
+    }
+  },
+  "logroConHabito": "Con {habito}",
+  "@logroConHabito": {
+    "description": "Logros (Paso 11)",
+    "placeholders": {
+      "habito": {
+        "type": "String"
+      }
+    }
+  },
+  "logroProgresoDias": "{actual} de {objetivo} días",
+  "@logroProgresoDias": {
+    "description": "Logros (Paso 11)",
+    "placeholders": {
+      "actual": {
+        "type": "int"
+      },
+      "objetivo": {
+        "type": "int"
+      }
+    }
+  },
+  "logroPorObtener": "Por obtener",
+  "@logroPorObtener": {
+    "description": "Logros (Paso 11)"
+  },
+  "logroComoSeObtiene": "Cómo se obtiene",
+  "@logroComoSeObtiene": {
+    "description": "Logros (Paso 11)"
+  },
+  "logroPorQue": "Por qué existe",
+  "@logroPorQue": {
+    "description": "Logros (Paso 11)"
+  },
+  "logroCerrar": "Cerrar",
+  "@logroCerrar": {
+    "description": "Logros (Paso 11)"
+  },
+  "logroNuevo": "Insignia nueva: {nombre}",
+  "@logroNuevo": {
+    "description": "Logros (Paso 11)",
+    "placeholders": {
+      "nombre": {
+        "type": "String"
+      }
+    }
+  },
+  "logrosNuevos": "{cuantos} insignias nuevas",
+  "@logrosNuevos": {
+    "description": "Logros (Paso 11)",
+    "placeholders": {
+      "cuantos": {
+        "type": "int"
+      }
+    }
+  },
+  "logroVer": "Ver",
+  "@logroVer": {
+    "description": "Logros (Paso 11)"
+  },
+  "ultimoLogroTitulo": "Último logro",
+  "@ultimoLogroTitulo": {
+    "description": "Logros (Paso 11)"
+  },
+  "proximoLogroTitulo": "Tu próxima insignia",
+  "@proximoLogroTitulo": {
+    "description": "Logros (Paso 11)"
+  },
+  "logrosBoton": "Logros",
+  "@logrosBoton": {
+    "description": "Logros (Paso 11)"
   }
 }

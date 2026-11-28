@@ -59,9 +59,11 @@ void main() {
       expect(etiquetas, ['Hoy', 'Hábitos', 'Progreso', 'Lab', 'Perfil']);
     });
 
-    test('riel y barra superior: 7 secciones (con Acerca de) y Admin solo para admin fuera de móvil', () {
-      expect(rutas(Plataforma.escritorio), hasLength(7));
+    test('riel y barra superior: 8 secciones (con Logros y Acerca de) y Admin solo para admin fuera de móvil', () {
+      expect(rutas(Plataforma.escritorio), hasLength(8));
       expect(rutas(Plataforma.escritorio).last, Rutas.acerca);
+      expect(rutas(Plataforma.escritorio)[6], Rutas.logros);
+      expect(rutas(Plataforma.web), contains(Rutas.logros));
       expect(rutas(Plataforma.web), contains(Rutas.acerca));
       expect(rutas(Plataforma.escritorio), isNot(contains(Rutas.admin)));
       expect(rutas(Plataforma.escritorio, admin: true).last, Rutas.admin);
@@ -85,8 +87,9 @@ void main() {
       final d = destinosDe(t: t, plataforma: Plataforma.escritorio, esAdmin: true, compacto: false);
       expect(indiceSeleccionado(d, '/hoy'), 0);
       expect(indiceSeleccionado(d, '/habitos/abc/editar'), 1);
-      expect(indiceSeleccionado(d, '/acerca'), 6);
-      expect(indiceSeleccionado(d, '/admin/indicadores'), 7);
+      expect(indiceSeleccionado(d, '/logros'), 6);
+      expect(indiceSeleccionado(d, '/acerca'), 7);
+      expect(indiceSeleccionado(d, '/admin/indicadores'), 8);
       expect(indiceSeleccionado(d, '/perfil'), isNull, reason: 'el perfil no está en el riel');
       final m = destinosDe(t: t, plataforma: Plataforma.movil, esAdmin: false, compacto: true);
       expect(indiceSeleccionado(m, '/perfil/privacidad'), 4);

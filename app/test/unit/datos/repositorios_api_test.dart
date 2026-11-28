@@ -8,6 +8,7 @@ import 'package:kaizen/data/repositories/cuenta/cuenta_repository_api.dart';
 import 'package:kaizen/data/repositories/escalera/escalera_repository_api.dart';
 import 'package:kaizen/data/repositories/habitos/habitos_repository_api.dart';
 import 'package:kaizen/data/repositories/laboratorio/laboratorio_repository_api.dart';
+import 'package:kaizen/data/repositories/logros/logros_repository_api.dart';
 import 'package:kaizen/data/repositories/progreso/progreso_repository_api.dart';
 import 'package:kaizen/data/repositories/registros/registros_repository_api.dart';
 import 'package:kaizen/data/repositories/senales/senales_repository_api.dart';
@@ -261,6 +262,28 @@ void main() {
     final f = (await CategoriasRepositoryApi(api).fuentes()).valorONulo!;
     expect(red.rutas.last, 'GET /fuentes');
     expect(f.single.clave, 'F01');
+  });
+
+  test('logros (§6.13)', () async {
+    responde([
+      {
+        'clave': 'racha_7',
+        'nombre': 'Primera semana',
+        'descripcion': 'Llega a 7 días seguidos en un hábito',
+        'icono': 'local_fire_department',
+        'tipo': 'racha',
+        'objetivo': 7,
+        'progreso': 7,
+        'obtenido': true,
+        'obtenido_en': '2026-11-20T12:00:00Z',
+        'habito': {'id': 'h1', 'nombre': 'Leer'},
+        'porque': 'El día 7 es el primer hito con datos de retención',
+        'fuentes': 'F47',
+      },
+    ]);
+    final l = (await LogrosRepositoryApi(api).listar()).valorONulo!;
+    expect(red.rutas.last, 'GET /logros');
+    expect((l.single.clave, l.single.obtenido, l.single.habitoNombre), ('racha_7', true, 'Leer'));
   });
 
   test('registros: check-in y lote de la cola', () async {

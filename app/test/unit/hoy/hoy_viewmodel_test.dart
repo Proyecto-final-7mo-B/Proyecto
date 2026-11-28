@@ -5,6 +5,7 @@ import 'package:kaizen/data/repositories/escalera/escalera_repository.dart';
 import 'package:kaizen/data/repositories/progreso/progreso_repository.dart';
 import 'package:kaizen/data/services/api/errores_api.dart';
 import 'package:kaizen/data/sync/monitor_conexion.dart';
+import 'package:kaizen/domain/models/capsula.dart';
 import 'package:kaizen/domain/models/escalera.dart';
 import 'package:kaizen/domain/models/frecuencia.dart';
 import 'package:kaizen/domain/models/habito.dart';
@@ -415,7 +416,8 @@ void main() {
       expect(
         filas.firstWhere((f) => f.habito.nombre == 'Leer').cumplimiento,
         closeTo(33.33, 1e-9),
-          reason: 'como la base: lunes (falló, protegido), martes cumplido y hoy, que aún no se marca → 1 de 3');
+        reason: 'como la base: lunes (falló, protegido), martes cumplido y hoy, que aún no se marca → 1 de 3',
+      );
     });
 
     test('el calendario de Hoy lleva escudo en los días que el protector perdonó a algún hábito', () {
@@ -435,6 +437,54 @@ void main() {
       );
       expect(manana.consejoDelDia, (vm.consejoDelDia + 1) % 14);
       manana.dispose();
+    });
+  });
+
+  group('logros (Paso 11)', () {
+    HoyViewModel conLogros() => HoyViewModel(
+      habitos: d.habitos,
+      registros: d.registros,
+      progreso: d.progreso,
+      escalera: d.escalera,
+      capsulas: d.capsulas,
+      logros: d.logros,
+      novedadesLogros: d.novedadesLogros,
+      reloj: () => _ahora,
+    );
+
+    test('sin repositorio de logros, no hay tarjeta', () {
+      expect(vm.ultimoLogro, isNull);
+      expect(vm.proximoLogro, isNull);
+      expect(vm.tomarLogrosNuevos(), isEmpty);
+    });
+
+    test('el último logro; la primera carga no avisa; aceptar una subida avisa una vez', () async {
+      final hoy = conLogros();
+      await hoy.cargar.ejecutar();
+      expect(hoy.ultimoLogro!.clave, 'ritmo_ideal');
+      expect(hoy.proximoLogro!.clave, 'habito_formado', reason: '34 de 66 va más avanzado que 34 de 100');
+      expect(hoy.tomarLogrosNuevos(), isEmpty, reason: 'la primera vez solo se anotan');
+      expect(hoy.sugerencia!.tipo, TipoSugerencia.subir);
+      await hoy.responder.ejecutar(true);
+      expect([for (final l in hoy.tomarLogrosNuevos()) l.clave], ['primer_micro_paso']);
+      expect(hoy.tomarLogrosNuevos(), isEmpty, reason: 'se entrega una sola vez');
+      await hoy.cargar.ejecutar();
+      expect(hoy.tomarLogrosNuevos(), isEmpty, reason: 'ya se vio');
+      hoy.dispose();
+    });
+
+    test('un check-in que da un logro lo avisa', () async {
+      final hoy = conLogros();
+      await hoy.cargar.ejecutar();
+      expect(hoy.tomarLogrosNuevos(), isEmpty);
+      // Simula que la base otorgó uno nuevo con este check-in: el usuario abre una cápsula antes de marcar.
+      final c = datos.capsulas.values.firstWhere((c) => c.usuarioId == 'u-demo');
+      c.estado = EstadoCapsula.abierta;
+      c.abiertaEn = _ahora.toUtc();
+      final h = hoy.pendientes.first;
+      expect(await hoy.alternar(h), isNull);
+      expect([for (final l in hoy.tomarLogrosNuevos()) l.clave], ['capsula_abierta']);
+      hoy.dispose();
     });
   });
 }

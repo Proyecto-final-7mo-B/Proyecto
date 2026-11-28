@@ -14,6 +14,7 @@ import '../ui/habitos/widgets/pantalla_formulario_habito.dart';
 import '../ui/habitos/widgets/pantalla_habitos.dart';
 import '../ui/habitos/widgets/pantalla_recomendados.dart';
 import '../ui/hoy/widgets/pantalla_hoy.dart';
+import '../ui/logros/widgets/pantalla_logros.dart';
 import '../ui/notificaciones/widgets/pantalla_notificaciones.dart';
 import '../ui/provisional/pantallas_provisionales.dart';
 import 'estado_sesion.dart';
@@ -132,6 +133,11 @@ GoRouter crearRouter({
             ],
           ),
           GoRoute(
+            path: Rutas.logros,
+            pageBuilder: (context, estado) =>
+                NoTransitionPage<void>(key: estado.pageKey, child: const PantallaLogros()),
+          ),
+          GoRoute(
             path: Rutas.acerca,
             pageBuilder: (context, estado) =>
                 NoTransitionPage<void>(key: estado.pageKey, child: const PantallaAcerca()),
@@ -141,7 +147,7 @@ GoRouter crearRouter({
             pageBuilder: provisional(
               (t) => t.tituloPerfil,
               13,
-              acciones: () => const [BotonNotificaciones(), BotonCerrarSesion()],
+              acciones: () => const [BotonLogros(), BotonNotificaciones(), BotonCerrarSesion()],
             ),
             routes: [
               GoRoute(path: 'privacidad', pageBuilder: provisional((t) => t.tituloPrivacidad, 13)),

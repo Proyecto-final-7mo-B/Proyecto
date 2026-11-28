@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import '../../l10n/gen/app_localizations.dart';
 import '../../data/services/servicio_sesion.dart';
 import '../../routing/rutas.dart';
+import '../core/tema/iconos.dart';
 import '../core/adaptativo/breakpoints.dart';
 import '../core/tema/medidas.dart';
 import '../core/widgets/encabezado_pantalla.dart';
@@ -74,6 +75,18 @@ class PantallaNoEncontrada extends StatelessWidget {
 }
 
 /// Botón "Cerrar sesión" del perfil provisional (el perfil real llega en el Paso 13).
+/// "Logros" desde Perfil (Paso 11): en el teléfono la barra inferior se queda con 5 destinos (Material 3).
+class BotonLogros extends StatelessWidget {
+  const BotonLogros({super.key});
+
+  @override
+  Widget build(BuildContext context) => OutlinedButton.icon(
+    onPressed: () => context.push(Rutas.logros),
+    icon: const Icon(KaizenIconos.logros),
+    label: Text(AppLocalizations.of(context).logrosBoton),
+  );
+}
+
 /// "Notificaciones" desde Perfil (Paso 10), hasta que llegue la pantalla de Cuenta.
 class BotonNotificaciones extends StatelessWidget {
   const BotonNotificaciones({super.key});
