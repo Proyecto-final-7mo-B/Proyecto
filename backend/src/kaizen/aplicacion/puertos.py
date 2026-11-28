@@ -10,6 +10,7 @@ from decimal import Decimal
 from typing import Any, Protocol
 from uuid import UUID
 
+from kaizen.dominio.excepciones import KaizenError
 from kaizen.infraestructura.seguridad.tokens import ParTokens
 
 
@@ -155,3 +156,39 @@ class RepositorioHabitos(Protocol):
     def guardar_recomendacion(
         self, admin: UsuarioActual, zona: str, datos: Recomendacion, ip: str | None
     ) -> Objeto: ...
+
+
+# ---------------------------------------------------------------- check-ins (§6.5)
+
+
+@dataclass(frozen=True, slots=True)
+class NuevoRegistro:
+    """Un check-in. El id lo genera la app: reenviarlo no duplica (idempotencia)."""
+
+    id: UUID
+    habito_id: UUID
+    fecha: date
+    cumplido: bool
+    valor: Decimal | None = None
+    origen: str = "manual"
+
+
+@dataclass(frozen=True, slots=True)
+class ResultadoRegistro:
+    """Resultado de un elemento del lote: la racha nueva, o el error por el que se rechazó."""
+
+    id: UUID
+    racha_actual: int | None = None
+    error: KaizenError | None = None
+
+
+class RepositorioRegistros(Protocol):
+    def registrar(self, usuario: UsuarioActual, zona: str, registro: NuevoRegistro) -> Objeto: ...
+
+    def registrar_lote(
+        self, usuario: UsuarioActual, zona: str, registros: list[NuevoRegistro]
+    ) -> list[ResultadoRegistro]: ...
+
+    def historial(
+        self, usuario: UsuarioActual, zona: str, habito_id: UUID, desde: date, hasta: date
+    ) -> list[Objeto] | None: ...

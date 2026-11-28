@@ -11,6 +11,7 @@ from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from kaizen.aplicacion.puertos import UsuarioActual
 from kaizen.aplicacion.servicios.autenticacion import ServicioAutenticacion
 from kaizen.aplicacion.servicios.habitos import ServicioHabitos
+from kaizen.aplicacion.servicios.registros import ServicioRegistros
 from kaizen.dominio.excepciones import TokenInvalido, ValidacionError
 from kaizen.infraestructura.seguridad.tokens import EmisorTokens
 
@@ -46,6 +47,11 @@ def ip_cliente(request: Request) -> str | None:
 
 def servicio_habitos(request: Request) -> ServicioHabitos:
     servicio: ServicioHabitos = request.app.state.servicio_habitos
+    return servicio
+
+
+def servicio_registros(request: Request) -> ServicioRegistros:
+    servicio: ServicioRegistros = request.app.state.servicio_registros
     return servicio
 
 

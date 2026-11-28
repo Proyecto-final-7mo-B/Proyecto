@@ -72,6 +72,14 @@ CON_DETALLE = (
 )
 
 
+def resumen_de(error: KaizenError) -> dict[str, Any]:
+    """type, status y title de un error: lo que lleva cada rechazo del lote de check-ins."""
+    for clase, (tipo, status, titulo) in TABLA.items():
+        if isinstance(error, clase):
+            return {"type": BASE_TIPO + tipo, "status": status, "title": titulo}
+    return {"type": BASE_TIPO + "error-interno", "status": 500, "title": "Error interno"}
+
+
 def problema(
     tipo: str, status: int, titulo: str, headers: dict[str, str] | None = None, **extra: Any
 ) -> JSONResponse:

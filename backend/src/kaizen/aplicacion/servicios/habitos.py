@@ -29,6 +29,15 @@ from kaizen.dominio.excepciones import (
 
 MAX_DIAS_RANGO = 366  # contrato §4: desde ≤ hasta, máximo 366 días
 
+
+def validar_rango(desde: date, hasta: date) -> None:
+    """Rangos desde/hasta (protegidos, historial): en orden y de máximo 366 días."""
+    if desde > hasta:
+        raise ValidacionError("desde no puede ser después de hasta", campo="desde")
+    if (hasta - desde).days > MAX_DIAS_RANGO:
+        raise ValidacionError(f"El rango es de máximo {MAX_DIAS_RANGO} días", campo="hasta")
+
+
 # Campos que acepta PATCH /habitos/{id}. meta, frecuencia y categoria_id NO (contrato §6.4).
 EDITABLES = frozenset(
     {"nombre", "subcategoria_id", "unidad", "prioridad", "intencion", "escalera_activa", "activo"}
@@ -114,10 +123,7 @@ class ServicioHabitos:
         self, usuario: UsuarioActual, zona: str, habito_id: UUID, desde: date, hasta: date
     ) -> list[date]:
         """Días que perdonó el protector de racha (escudo del calendario)."""
-        if desde > hasta:
-            raise ValidacionError("desde no puede ser después de hasta", campo="desde")
-        if (hasta - desde).days > MAX_DIAS_RANGO:
-            raise ValidacionError(f"El rango es de máximo {MAX_DIAS_RANGO} días", campo="hasta")
+        validar_rango(desde, hasta)
         fechas = self._repo.dias_protegidos(usuario, zona, habito_id, desde, hasta)
         if fechas is None:  # no existe o es de otro usuario
             raise NoEncontrado("Hábito no encontrado")
