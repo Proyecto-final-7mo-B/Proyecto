@@ -13,12 +13,21 @@ from zoneinfo import ZoneInfo
 
 from kaizen.aplicacion.puertos import (
     ConsultaEvaluacion,
+    HabitoDesdeRecomendacion,
     NuevoHabito,
     Objeto,
+    Recomendacion,
     RepositorioHabitos,
     UsuarioActual,
 )
-from kaizen.dominio.excepciones import FechaFueraDeRango, NoEncontrado, ValidacionError
+from kaizen.dominio.excepciones import (
+    FechaFueraDeRango,
+    NoEncontrado,
+    RolInsuficiente,
+    ValidacionError,
+)
+
+MAX_DIAS_RANGO = 366  # contrato §4: desde ≤ hasta, máximo 366 días
 
 # Campos que acepta PATCH /habitos/{id}. meta, frecuencia y categoria_id NO (contrato §6.4).
 EDITABLES = frozenset(
@@ -69,7 +78,10 @@ class ServicioHabitos:
             raise NoEncontrado("Hábito no encontrado")
         return encontrados[0]
 
-    def crear(self, usuario: UsuarioActual, zona: str, nuevo: NuevoHabito) -> Objeto:
+    def crear(
+        self, usuario: UsuarioActual, zona: str, nuevo: NuevoHabito | HabitoDesdeRecomendacion
+    ) -> Objeto:
+        """Personalizado o desde una recomendación (la base copia los datos de la recomendación)."""
         habito_id = self._repo.crear(usuario, zona, nuevo)
         return self.obtener(usuario, zona, habito_id)
 
@@ -87,3 +99,44 @@ class ServicioHabitos:
         if cambios and not self._repo.actualizar(usuario, zona, habito_id, cambios):
             raise NoEncontrado("Hábito no encontrado")
         return self.obtener(usuario, zona, habito_id)
+
+    # ------------------------------------------------------------- v1.7
+
+    def recomendados(self, zona: str) -> list[Objeto]:
+        """Los hábitos recomendados activos (20 por categoría)."""
+        return self._repo.recomendados(zona)
+
+    def fuentes(self, zona: str) -> list[Objeto]:
+        """Las fuentes científicas de "Acerca de Kaizen"."""
+        return self._repo.fuentes(zona)
+
+    def dias_protegidos(
+        self, usuario: UsuarioActual, zona: str, habito_id: UUID, desde: date, hasta: date
+    ) -> list[date]:
+        """Días que perdonó el protector de racha (escudo del calendario)."""
+        if desde > hasta:
+            raise ValidacionError("desde no puede ser después de hasta", campo="desde")
+        if (hasta - desde).days > MAX_DIAS_RANGO:
+            raise ValidacionError(f"El rango es de máximo {MAX_DIAS_RANGO} días", campo="hasta")
+        fechas = self._repo.dias_protegidos(usuario, zona, habito_id, desde, hasta)
+        if fechas is None:  # no existe o es de otro usuario
+            raise NoEncontrado("Hábito no encontrado")
+        return fechas
+
+    # ------------------------------------------------------------- administración
+
+    @staticmethod
+    def exigir_admin(usuario: UsuarioActual) -> None:
+        """Primera barrera: el rol del token. La base lo vuelve a comprobar (KZ010)."""
+        if usuario.rol != "admin":
+            raise RolInsuficiente("Se necesita el rol de administrador")
+
+    def recomendaciones_admin(self, usuario: UsuarioActual, zona: str) -> list[Objeto]:
+        self.exigir_admin(usuario)
+        return self._repo.recomendados(zona, incluir_inactivas=True)
+
+    def guardar_recomendacion(
+        self, usuario: UsuarioActual, zona: str, datos: Recomendacion, ip: str | None
+    ) -> Objeto:
+        self.exigir_admin(usuario)
+        return self._repo.guardar_recomendacion(usuario, zona, datos, ip)
