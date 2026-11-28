@@ -74,6 +74,18 @@ class PantallaNoEncontrada extends StatelessWidget {
 }
 
 /// Botón "Cerrar sesión" del perfil provisional (el perfil real llega en el Paso 13).
+/// "Notificaciones" desde Perfil (Paso 10), hasta que llegue la pantalla de Cuenta.
+class BotonNotificaciones extends StatelessWidget {
+  const BotonNotificaciones({super.key});
+
+  @override
+  Widget build(BuildContext context) => OutlinedButton.icon(
+    onPressed: () => context.push(Rutas.notificaciones),
+    icon: const Icon(Icons.notifications_none),
+    label: Text(AppLocalizations.of(context).notificacionesBoton),
+  );
+}
+
 class BotonCerrarSesion extends StatelessWidget {
   const BotonCerrarSesion({super.key});
 

@@ -3,7 +3,7 @@ import 'package:kaizen/config/dependencias.dart';
 import 'package:kaizen/data/fake/datos_demo.dart';
 import 'package:kaizen/data/repositories/registros/registros_repository.dart';
 import 'package:kaizen/data/services/api/errores_api.dart';
-import 'package:kaizen/data/services/recordatorios/servicio_recordatorios.dart';
+import 'package:kaizen/data/services/avisos/notificador.dart';
 import 'package:kaizen/data/sync/monitor_conexion.dart';
 import 'package:kaizen/data/sync/sincronizador.dart';
 import 'package:kaizen/domain/models/evidencia.dart';
@@ -382,26 +382,28 @@ void main() {
       await servicio.cerrar();
     });
 
-    test('los recordatorios se copian a la tabla local', () async {
-      final interno = ServicioRecordatoriosEnMemoria();
-      final conCopia = Dependencias.fake(datos: datos, recordatorios: interno);
-      final s = conCopia.recordatorios;
+    test('los recordatorios guardan la hora en la tabla local y replanifican los avisos', () async {
+      final n = NotificadorEnMemoria();
+      final conAvisos = Dependencias.fake(datos: datos, notificador: n);
+      final s = conAvisos.recordatorios;
+      expect(s.disponible, isTrue);
+      final leer = idDe('Leer');
       await s.programar(
-        habitoId: 'h1',
+        habitoId: leer,
         titulo: 'K',
         cuerpo: 'x',
-        hora: (hora: 7, minuto: 30),
+        hora: (hora: 23, minuto: 59),
         frecuencia: const Diaria(),
       );
-      expect(await conCopia.almacenLocal.recordatorio('h1'), (hora: 7, minuto: 30));
-      interno.programados.clear(); // p. ej., el sistema aún no los reporta
-      expect(await s.hora('h1'), (hora: 7, minuto: 30));
-      await s.cancelar('h1');
-      expect(await conCopia.almacenLocal.recordatorio('h1'), isNull);
-      interno.permisoConcedido = false;
+      expect(await conAvisos.almacenLocal.recordatorio(leer), (hora: 23, minuto: 59));
+      expect(await s.hora(leer), (hora: 23, minuto: 59));
+      expect(n.reemplazos, greaterThan(0));
+      await s.cancelar(leer);
+      expect(await conAvisos.almacenLocal.recordatorio(leer), isNull);
+      n.permisoConcedido = false;
       expect(
         await s.programar(
-          habitoId: 'h1',
+          habitoId: leer,
           titulo: 'K',
           cuerpo: 'x',
           hora: (hora: 8, minuto: 0),
@@ -409,8 +411,8 @@ void main() {
         ),
         isFalse,
       );
-      expect(await conCopia.almacenLocal.recordatorio('h1'), isNull);
-      final sinPlataforma = Dependencias.fake(recordatorios: ServicioRecordatoriosEnMemoria(disponible: false));
+      expect(await conAvisos.almacenLocal.recordatorio(leer), isNull);
+      final sinPlataforma = Dependencias.fake(notificador: NotificadorEnMemoria(disponible: false));
       expect(sinPlataforma.recordatorios.disponible, isFalse);
     });
   });

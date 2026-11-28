@@ -2103,5 +2103,476 @@
         "type": "int"
       }
     }
+  },
+  "avisoRecordatorio0": "{cuando}: {habito}.",
+  "@avisoRecordatorio0": {
+    "description": "Texto rotativo del recordatorio de un hábito (Paso 10)",
+    "placeholders": {
+      "cuando": {
+        "type": "String"
+      },
+      "habito": {
+        "type": "String"
+      },
+      "meta": {
+        "type": "String"
+      }
+    }
+  },
+  "avisoRecordatorio1": "{cuando}, toca {habito}. Un paso pequeño cuenta.",
+  "@avisoRecordatorio1": {
+    "description": "Texto rotativo del recordatorio de un hábito (Paso 10)",
+    "placeholders": {
+      "cuando": {
+        "type": "String"
+      },
+      "habito": {
+        "type": "String"
+      },
+      "meta": {
+        "type": "String"
+      }
+    }
+  },
+  "avisoRecordatorio2": "{habito}: {meta}. {cuando}.",
+  "@avisoRecordatorio2": {
+    "description": "Texto rotativo del recordatorio de un hábito (Paso 10)",
+    "placeholders": {
+      "cuando": {
+        "type": "String"
+      },
+      "habito": {
+        "type": "String"
+      },
+      "meta": {
+        "type": "String"
+      }
+    }
+  },
+  "avisoRecordatorio3": "Hoy también: {habito} ({meta}).",
+  "@avisoRecordatorio3": {
+    "description": "Texto rotativo del recordatorio de un hábito (Paso 10)",
+    "placeholders": {
+      "cuando": {
+        "type": "String"
+      },
+      "habito": {
+        "type": "String"
+      },
+      "meta": {
+        "type": "String"
+      }
+    }
+  },
+  "avisoRecordatorio4": "{cuando}: unos minutos de {habito} y listo.",
+  "@avisoRecordatorio4": {
+    "description": "Texto rotativo del recordatorio de un hábito (Paso 10)",
+    "placeholders": {
+      "cuando": {
+        "type": "String"
+      },
+      "habito": {
+        "type": "String"
+      },
+      "meta": {
+        "type": "String"
+      }
+    }
+  },
+  "avisoRecordatorio5": "Tu hábito de hoy: {habito}. {cuando}.",
+  "@avisoRecordatorio5": {
+    "description": "Texto rotativo del recordatorio de un hábito (Paso 10)",
+    "placeholders": {
+      "cuando": {
+        "type": "String"
+      },
+      "habito": {
+        "type": "String"
+      },
+      "meta": {
+        "type": "String"
+      }
+    }
+  },
+  "avisoBuenMomento": "Es buen momento",
+  "@avisoBuenMomento": {
+    "description": "Cuando el hábito no tiene intención"
+  },
+  "avisoRiesgo0": "Tu racha de {racha} días en {habito} sigue en pie: aún estás a tiempo.",
+  "@avisoRiesgo0": {
+    "description": "Texto rotativo de \"racha en riesgo\" (Paso 10)",
+    "placeholders": {
+      "racha": {
+        "type": "String"
+      },
+      "siguiente": {
+        "type": "String"
+      },
+      "habito": {
+        "type": "String"
+      },
+      "meta": {
+        "type": "String"
+      }
+    }
+  },
+  "avisoRiesgo1": "Todavía puedes hacer {habito} hoy y llevar tu racha a {siguiente}.",
+  "@avisoRiesgo1": {
+    "description": "Texto rotativo de \"racha en riesgo\" (Paso 10)",
+    "placeholders": {
+      "racha": {
+        "type": "String"
+      },
+      "siguiente": {
+        "type": "String"
+      },
+      "habito": {
+        "type": "String"
+      },
+      "meta": {
+        "type": "String"
+      }
+    }
+  },
+  "avisoRiesgo2": "{habito} te espera: {racha} días seguidos merecen uno más.",
+  "@avisoRiesgo2": {
+    "description": "Texto rotativo de \"racha en riesgo\" (Paso 10)",
+    "placeholders": {
+      "racha": {
+        "type": "String"
+      },
+      "siguiente": {
+        "type": "String"
+      },
+      "habito": {
+        "type": "String"
+      },
+      "meta": {
+        "type": "String"
+      }
+    }
+  },
+  "avisoRiesgo3": "Un último empujón: {habito} y cierras el día.",
+  "@avisoRiesgo3": {
+    "description": "Texto rotativo de \"racha en riesgo\" (Paso 10)",
+    "placeholders": {
+      "racha": {
+        "type": "String"
+      },
+      "siguiente": {
+        "type": "String"
+      },
+      "habito": {
+        "type": "String"
+      },
+      "meta": {
+        "type": "String"
+      }
+    }
+  },
+  "avisoRiesgo4": "No sueltes tu racha de {racha} días: {habito} ({meta}).",
+  "@avisoRiesgo4": {
+    "description": "Texto rotativo de \"racha en riesgo\" (Paso 10)",
+    "placeholders": {
+      "racha": {
+        "type": "String"
+      },
+      "siguiente": {
+        "type": "String"
+      },
+      "habito": {
+        "type": "String"
+      },
+      "meta": {
+        "type": "String"
+      }
+    }
+  },
+  "avisoRiesgo5": "Aún hay tiempo para {habito}. ¡Tú puedes!",
+  "@avisoRiesgo5": {
+    "description": "Texto rotativo de \"racha en riesgo\" (Paso 10)",
+    "placeholders": {
+      "racha": {
+        "type": "String"
+      },
+      "siguiente": {
+        "type": "String"
+      },
+      "habito": {
+        "type": "String"
+      },
+      "meta": {
+        "type": "String"
+      }
+    }
+  },
+  "avisoRiesgoTitulo": "Tu racha de {racha} días",
+  "@avisoRiesgoTitulo": {
+    "description": "Título de racha en riesgo",
+    "placeholders": {
+      "racha": {
+        "type": "String"
+      }
+    }
+  },
+  "avisoRiesgoProtector": " Si hoy no puedes, el protector la cuida.",
+  "@avisoRiesgoProtector": {
+    "description": "Se agrega si el protector de la semana sigue disponible"
+  },
+  "avisoMicroPaso0": "La Escalera propone un ajuste para {habito}: ¿lo revisamos?",
+  "@avisoMicroPaso0": {
+    "description": "Texto rotativo de \"nuevo micro-paso\" (Paso 10)",
+    "placeholders": {
+      "habito": {
+        "type": "String"
+      }
+    }
+  },
+  "avisoMicroPaso1": "Tienes un micro-paso nuevo en {habito}.",
+  "@avisoMicroPaso1": {
+    "description": "Texto rotativo de \"nuevo micro-paso\" (Paso 10)",
+    "placeholders": {
+      "habito": {
+        "type": "String"
+      }
+    }
+  },
+  "avisoMicroPaso2": "{habito}: hay una sugerencia nueva para tu meta.",
+  "@avisoMicroPaso2": {
+    "description": "Texto rotativo de \"nuevo micro-paso\" (Paso 10)",
+    "placeholders": {
+      "habito": {
+        "type": "String"
+      }
+    }
+  },
+  "avisoMicroPaso3": "Tu constancia en {habito} abrió un micro-paso. Ábrelo en Kaizen.",
+  "@avisoMicroPaso3": {
+    "description": "Texto rotativo de \"nuevo micro-paso\" (Paso 10)",
+    "placeholders": {
+      "habito": {
+        "type": "String"
+      }
+    }
+  },
+  "avisoMicroPasoTitulo": "Nuevo micro-paso",
+  "@avisoMicroPasoTitulo": {
+    "description": "Título del aviso de micro-paso"
+  },
+  "avisoResumen0": "Tu semana está lista: revisa cuánto avanzaste.",
+  "@avisoResumen0": {
+    "description": "Texto rotativo del resumen semanal (Paso 10)"
+  },
+  "avisoResumen1": "¿Cómo te fue esta semana? Mira tu avance y tu próximo hito.",
+  "@avisoResumen1": {
+    "description": "Texto rotativo del resumen semanal (Paso 10)"
+  },
+  "avisoResumen2": "Cierra la semana: revisa tus rachas y prepara la siguiente.",
+  "@avisoResumen2": {
+    "description": "Texto rotativo del resumen semanal (Paso 10)"
+  },
+  "avisoResumen3": "Tu resumen semanal te espera en Kaizen.",
+  "@avisoResumen3": {
+    "description": "Texto rotativo del resumen semanal (Paso 10)"
+  },
+  "avisoResumen4": "Una semana más de pasos pequeños: mira tu progreso.",
+  "@avisoResumen4": {
+    "description": "Texto rotativo del resumen semanal (Paso 10)"
+  },
+  "avisoResumen5": "Revisa tu semana: lo que lograste y lo que sigue.",
+  "@avisoResumen5": {
+    "description": "Texto rotativo del resumen semanal (Paso 10)"
+  },
+  "avisoResumenTitulo": "Tu semana en Kaizen",
+  "@avisoResumenTitulo": {
+    "description": "Título del resumen semanal"
+  },
+  "avisoPersonalTitulo": "Kaizen",
+  "@avisoPersonalTitulo": {
+    "description": "Título de un aviso que programó el usuario"
+  },
+  "avisoPersonalTexto": "Revisa tus hábitos de hoy",
+  "@avisoPersonalTexto": {
+    "description": "Texto por omisión de un aviso personal"
+  },
+  "tituloNotificaciones": "Notificaciones",
+  "@tituloNotificaciones": {
+    "description": "Pantalla Notificaciones (Paso 10)"
+  },
+  "subtituloNotificaciones": "Tus avisos viven en este dispositivo",
+  "@subtituloNotificaciones": {
+    "description": "Pantalla Notificaciones (Paso 10)"
+  },
+  "notifNoDisponible": "En la computadora y en la web no hay notificaciones del sistema. Tus avisos llegan en la app del teléfono, donde también se configuran.",
+  "@notifNoDisponible": {
+    "description": "Pantalla Notificaciones (Paso 10)"
+  },
+  "notifPermisoNegado": "Sin permiso de notificaciones no podemos avisarte. Actívalo en los ajustes del teléfono.",
+  "@notifPermisoNegado": {
+    "description": "Pantalla Notificaciones (Paso 10)"
+  },
+  "notifMisAvisos": "Mis avisos",
+  "@notifMisAvisos": {
+    "description": "Pantalla Notificaciones (Paso 10)"
+  },
+  "notifMisAvisosDetalle": "Avisos que tú programas, a la hora y los días que quieras. Siempre llegan.",
+  "@notifMisAvisosDetalle": {
+    "description": "Pantalla Notificaciones (Paso 10)"
+  },
+  "notifSinAvisos": "Aún no tienes avisos propios.",
+  "@notifSinAvisos": {
+    "description": "Pantalla Notificaciones (Paso 10)"
+  },
+  "notifAgregarAviso": "Agregar aviso",
+  "@notifAgregarAviso": {
+    "description": "Pantalla Notificaciones (Paso 10)"
+  },
+  "notifEditarAviso": "Editar aviso",
+  "@notifEditarAviso": {
+    "description": "Pantalla Notificaciones (Paso 10)"
+  },
+  "notifTextoAviso": "Texto del aviso",
+  "@notifTextoAviso": {
+    "description": "Pantalla Notificaciones (Paso 10)"
+  },
+  "notifHora": "Hora",
+  "@notifHora": {
+    "description": "Pantalla Notificaciones (Paso 10)"
+  },
+  "notifDias": "Días",
+  "@notifDias": {
+    "description": "Pantalla Notificaciones (Paso 10)"
+  },
+  "notifQuitar": "Quitar",
+  "@notifQuitar": {
+    "description": "Pantalla Notificaciones (Paso 10)"
+  },
+  "notifGuardar": "Guardar",
+  "@notifGuardar": {
+    "description": "Pantalla Notificaciones (Paso 10)"
+  },
+  "notifRecordatorios": "Recordatorios de tus hábitos",
+  "@notifRecordatorios": {
+    "description": "Pantalla Notificaciones (Paso 10)"
+  },
+  "notifRecordatoriosDetalle": "Solo llegan los días que toca y si el hábito sigue pendiente.",
+  "@notifRecordatoriosDetalle": {
+    "description": "Pantalla Notificaciones (Paso 10)"
+  },
+  "notifSinRecordatorio": "Sin recordatorio",
+  "@notifSinRecordatorio": {
+    "description": "Pantalla Notificaciones (Paso 10)"
+  },
+  "notifPonerHora": "Poner hora",
+  "@notifPonerHora": {
+    "description": "Pantalla Notificaciones (Paso 10)"
+  },
+  "notifAutomaticos": "Avisos automáticos",
+  "@notifAutomaticos": {
+    "description": "Pantalla Notificaciones (Paso 10)"
+  },
+  "notifAutomaticosDetalle": "Los decide Kaizen: como mucho 3 al día y nunca en tus horas de silencio.",
+  "@notifAutomaticosDetalle": {
+    "description": "Pantalla Notificaciones (Paso 10)"
+  },
+  "notifRachaEnRiesgo": "Racha en riesgo",
+  "@notifRachaEnRiesgo": {
+    "description": "Pantalla Notificaciones (Paso 10)"
+  },
+  "notifRachaEnRiesgoDetalle": "Si tienes una racha de 3 días o más y el hábito sigue pendiente.",
+  "@notifRachaEnRiesgoDetalle": {
+    "description": "Pantalla Notificaciones (Paso 10)"
+  },
+  "notifMicroPaso": "Nuevo micro-paso",
+  "@notifMicroPaso": {
+    "description": "Pantalla Notificaciones (Paso 10)"
+  },
+  "notifMicroPasoDetalle": "Cuando la Escalera te propone un ajuste.",
+  "@notifMicroPasoDetalle": {
+    "description": "Pantalla Notificaciones (Paso 10)"
+  },
+  "notifResumen": "Resumen semanal",
+  "@notifResumen": {
+    "description": "Pantalla Notificaciones (Paso 10)"
+  },
+  "notifResumenDetalle": "Tu avance de la semana y tu próximo hito.",
+  "@notifResumenDetalle": {
+    "description": "Pantalla Notificaciones (Paso 10)"
+  },
+  "notifSilencio": "Horas de silencio",
+  "@notifSilencio": {
+    "description": "Pantalla Notificaciones (Paso 10)"
+  },
+  "notifSilencioDetalle": "Kaizen no manda avisos automáticos en este horario.",
+  "@notifSilencioDetalle": {
+    "description": "Pantalla Notificaciones (Paso 10)"
+  },
+  "notifDesde": "Desde",
+  "@notifDesde": {
+    "description": "Pantalla Notificaciones (Paso 10)"
+  },
+  "notifHasta": "Hasta",
+  "@notifHasta": {
+    "description": "Pantalla Notificaciones (Paso 10)"
+  },
+  "notifProximos": "Próximos avisos",
+  "@notifProximos": {
+    "description": "Pantalla Notificaciones (Paso 10)"
+  },
+  "notifSinProximos": "No hay avisos programados para los próximos 7 días.",
+  "@notifSinProximos": {
+    "description": "Pantalla Notificaciones (Paso 10)"
+  },
+  "notifComoFuncionan": "Cómo funcionan",
+  "@notifComoFuncionan": {
+    "description": "Pantalla Notificaciones (Paso 10)"
+  },
+  "notifRegla1": "Los recordatorios solo llegan si el hábito sigue pendiente; al marcarlo, el de hoy se quita.",
+  "@notifRegla1": {
+    "description": "Pantalla Notificaciones (Paso 10)"
+  },
+  "notifRegla2": "Si no respondes 3 recordatorios seguidos, ese hábito te avisa un día sí y otro no, hasta que lo hagas 3 días seguidos.",
+  "@notifRegla2": {
+    "description": "Pantalla Notificaciones (Paso 10)"
+  },
+  "notifRegla3": "Cuando un hábito llega a 66 días, su recordatorio pasa a ser semanal: ya forma parte de ti.",
+  "@notifRegla3": {
+    "description": "Pantalla Notificaciones (Paso 10)"
+  },
+  "notifRegla4": "Los textos cambian para que no se vuelvan ruido.",
+  "@notifRegla4": {
+    "description": "Pantalla Notificaciones (Paso 10)"
+  },
+  "notifCuando": "{dia} {hora}",
+  "@notifCuando": {
+    "description": "Pantalla Notificaciones (Paso 10)",
+    "placeholders": {
+      "dia": {
+        "type": "String"
+      },
+      "hora": {
+        "type": "String"
+      }
+    }
+  },
+  "notificacionesBoton": "Notificaciones",
+  "@notificacionesBoton": {
+    "description": "Botón de Perfil"
+  },
+  "notifHoy": "Hoy",
+  "@notifHoy": {
+    "description": "Próximos avisos (Paso 10)"
+  },
+  "notifManana": "Mañana",
+  "@notifManana": {
+    "description": "Próximos avisos (Paso 10)"
+  },
+  "notifExacta": "Para que tus avisos lleguen al minuto (por ejemplo, a las 22:20), permite \"Alarmas y recordatorios\". Sin ese permiso, Android puede retrasarlos unos minutos.",
+  "@notifExacta": {
+    "description": "Permiso de hora exacta (Paso 10)"
+  },
+  "notifPermitirExacta": "Permitir hora exacta",
+  "@notifPermitirExacta": {
+    "description": "Permiso de hora exacta (Paso 10)"
   }
 }

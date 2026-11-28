@@ -80,14 +80,29 @@ class _KaizenAppState extends State<KaizenApp> {
     // La cola sin conexión se envía al abrir, al iniciar sesión, al volver la red y al regresar la app al frente.
     _sync.haySesion = () => _sesion.usuario != null;
     _sesion.addListener(_alCambiarSesion);
-    _ciclo = AppLifecycleListener(onResume: _sync.sincronizar);
+    _ciclo = AppLifecycleListener(
+      onResume: () {
+        _sync.sincronizar();
+        _replanificarAvisos();
+      },
+    );
     _rechazos = _sync.rechazos.listen(_avisarRechazos);
     _sync.iniciar();
+    _replanificarAvisos();
   }
 
   void _alCambiarSesion() {
     if (_sesion.usuario != null) {
       _sync.sincronizar();
+      _replanificarAvisos();
+    }
+  }
+
+  /// Avisos (Paso 10): se vuelven a planear al abrir con sesión, al iniciar sesión y al regresar al frente, para que lo
+  /// programado refleje lo que falta hoy.
+  void _replanificarAvisos() {
+    if (_sesion.usuario != null) {
+      unawaited((_dependencias.avisos..activar()).replanificar());
     }
   }
 
