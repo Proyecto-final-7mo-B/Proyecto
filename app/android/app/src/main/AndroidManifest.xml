@@ -5,6 +5,9 @@
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <!-- Recordatorios: el plugin los reprograma al reiniciar el teléfono -->
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <!-- Paso 10: los avisos que programa el usuario (p. ej., 22:20) llegan al minuto. Android 14 lo deja apagado;
+         la app lo pide desde Notificaciones ("Permitir hora exacta"). -->
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
     <uses-feature android:name="android.hardware.camera" android:required="false" />
     <application
         android:label="Kaizen"

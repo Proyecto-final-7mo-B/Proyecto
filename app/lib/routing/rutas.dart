@@ -20,6 +20,9 @@ abstract final class Rutas {
   static const String perfil = '/perfil';
   static const String privacidad = '/perfil/privacidad';
 
+  /// Notificaciones (Paso 10): "Mis avisos", recordatorios, automáticos y silencio.
+  static const String notificaciones = '/perfil/notificaciones';
+
   /// "Acerca de Kaizen": en qué se basan las recomendaciones y las fuentes.
   static const String acerca = '/acerca';
 

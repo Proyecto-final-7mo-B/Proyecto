@@ -43,8 +43,11 @@ import '../data/services/gestor_tokens.dart';
 import '../utils/paises_estados.dart';
 import '../utils/reloj.dart';
 import '../data/services/recordatorios/servicio_recordatorios.dart';
-import '../data/services/recordatorios/servicio_recordatorios_local.dart';
-import '../data/services/recordatorios/servicio_recordatorios_con_copia.dart';
+import '../data/services/recordatorios/servicio_recordatorios_adaptativo.dart';
+import '../data/services/avisos/gestor_avisos.dart';
+import '../data/services/avisos/notificador.dart';
+import '../data/services/avisos/notificador_local.dart';
+import '../data/repositories/registros/registros_repository_con_avisos.dart';
 import '../data/services/base_local/almacen_local.dart';
 import '../data/services/base_local/base_local.dart';
 import '../data/repositories/categorias/categorias_repository_local.dart';
@@ -75,6 +78,7 @@ class Dependencias {
     required this.cuenta,
     required this.admin,
     required this.recordatorios,
+    required this.avisos,
     required this.base,
     required this.almacenLocal,
     required this.monitor,
@@ -92,6 +96,7 @@ class Dependencias {
     CatalogoRegiones? catalogo,
     Duration latencia = Duration.zero,
     ServicioRecordatorios? recordatorios,
+    Notificador? notificador,
     BaseLocal? base,
     MonitorConexion? monitor,
     Duration? reintento,
@@ -115,7 +120,8 @@ class Dependencias {
       capsulas: CapsulasRepositoryFake(d),
       cuenta: CuentaRepositoryFake(d),
       admin: AdminRepositoryFake(d),
-      recordatorios: recordatorios ?? ServicioRecordatoriosEnMemoria(),
+      recordatorios: recordatorios,
+      notificador: notificador ?? NotificadorEnMemoria(),
       base: base ?? BaseLocal.enMemoria(),
       monitor: red,
       reintento: reintento,
@@ -131,6 +137,7 @@ class Dependencias {
     AlmacenSeguro? almacen,
     CatalogoRegiones? catalogo,
     ServicioRecordatorios? recordatorios,
+    Notificador? notificador,
     BaseLocal? base,
     MonitorConexion? monitor,
   }) {
@@ -153,7 +160,8 @@ class Dependencias {
       capsulas: CapsulasRepositoryApi(api),
       cuenta: CuentaRepositoryApi(api),
       admin: AdminRepositoryApi(api),
-      recordatorios: recordatorios ?? recordatoriosDeLaPlataforma(),
+      recordatorios: recordatorios,
+      notificador: notificador ?? notificadorDeLaPlataforma(),
       base: base ?? BaseLocal.abrir(),
       monitor: monitor ?? MonitorConexionPlus(),
       reintento: const Duration(minutes: 1),
@@ -176,7 +184,8 @@ class Dependencias {
     required CapsulasRepository capsulas,
     required CuentaRepository cuenta,
     required AdminRepository admin,
-    required ServicioRecordatorios recordatorios,
+    required ServicioRecordatorios? recordatorios,
+    required Notificador notificador,
     required BaseLocal base,
     required MonitorConexion monitor,
     required Duration? reintento,
@@ -192,12 +201,24 @@ class Dependencias {
       reintento: reintento,
     );
     void reportar(bool llego) => llego ? sincronizador.marcarEnLinea() : sincronizador.marcarSinConexion();
+    final habitosLocal = HabitosRepositoryLocal(remoto: habitos, almacen: almacenLocal, reportar: reportar);
+    // Avisos (Paso 10): se arman con los hábitos de la copia local (sin red también) y cada check-in los ajusta.
+    final avisos = GestorAvisos(
+      habitos: habitosLocal,
+      escalera: escalera,
+      almacen: almacenLocal,
+      notificador: notificador,
+      reloj: reloj,
+    );
     return Dependencias(
       tokens: tokens,
       auth: auth,
       categorias: CategoriasRepositoryLocal(remoto: categorias, almacen: almacenLocal, reportar: reportar),
-      habitos: HabitosRepositoryLocal(remoto: habitos, almacen: almacenLocal, reportar: reportar),
-      registros: RegistrosRepositoryLocal(remoto: registros, almacen: almacenLocal, reportar: reportar),
+      habitos: habitosLocal,
+      registros: RegistrosRepositoryConAvisos(
+        interno: RegistrosRepositoryLocal(remoto: registros, almacen: almacenLocal, reportar: reportar),
+        gestor: avisos,
+      ),
       escalera: escalera,
       progreso: progreso,
       senales: senales,
@@ -205,9 +226,9 @@ class Dependencias {
       capsulas: capsulas,
       cuenta: cuenta,
       admin: admin,
-      recordatorios: recordatorios.disponible
-          ? ServicioRecordatoriosConCopia(recordatorios, almacenLocal)
-          : recordatorios,
+      // Las pruebas pueden pasar su propio servicio; en la app, la hora se guarda y el aviso lo programa el gestor.
+      recordatorios: recordatorios ?? ServicioRecordatoriosAdaptativo(gestor: avisos, almacen: almacenLocal),
+      avisos: avisos,
       base: base,
       almacenLocal: almacenLocal,
       monitor: monitor,
@@ -225,7 +246,7 @@ class Dependencias {
       ? Dependencias.fake(
           catalogo: catalogo,
           latencia: const Duration(milliseconds: 300),
-          recordatorios: recordatoriosDeLaPlataforma(),
+          notificador: notificadorDeLaPlataforma(),
           // Base real en el dispositivo y red real: en el teléfono, el modo avión deja al "servidor" sin contestar.
           base: base ?? BaseLocal.abrir(),
           monitor: MonitorConexionPlus(),
@@ -246,14 +267,17 @@ class Dependencias {
   final CuentaRepository cuenta;
   final AdminRepository admin;
 
-  /// Recordatorios locales de los hábitos.
+  /// La hora del recordatorio de cada hábito (el formulario la usa).
   final ServicioRecordatorios recordatorios;
 
-  /// Notificaciones locales en Android e iOS; en escritorio y web no hay recordatorios.
-  static ServicioRecordatorios recordatoriosDeLaPlataforma() =>
+  /// Avisos locales (Paso 10): arma y programa recordatorios, "Mis avisos", racha en riesgo, micro-pasos y resumen.
+  final GestorAvisos avisos;
+
+  /// Notificaciones del sistema en Android e iOS; en escritorio y web no hay (el plan se arma, pero no se programa).
+  static Notificador notificadorDeLaPlataforma() =>
       !kIsWeb && (defaultTargetPlatform == TargetPlatform.android || defaultTargetPlatform == TargetPlatform.iOS)
-      ? ServicioRecordatoriosLocal()
-      : ServicioRecordatoriosEnMemoria(disponible: false);
+      ? NotificadorLocal()
+      : NotificadorEnMemoria(disponible: false);
 
   /// Base local (SQLite con drift).
   final BaseLocal base;
@@ -284,7 +308,10 @@ class Dependencias {
     enviarPendientes: () async {
       await sincronizador.sincronizar();
     },
-    borrarDatosLocales: almacenLocal.borrarTodo,
+    borrarDatosLocales: () async {
+      await avisos.cancelarTodo();
+      await almacenLocal.borrarTodo();
+    },
   );
 
   List<SingleChildWidget> proveedores() => [
@@ -303,6 +330,7 @@ class Dependencias {
     Provider<CatalogoRegiones?>.value(value: catalogo),
     Provider<Reloj>.value(value: reloj),
     Provider<ServicioRecordatorios>.value(value: recordatorios),
+    ChangeNotifierProvider<GestorAvisos>.value(value: avisos),
     ChangeNotifierProvider<Sincronizador>.value(value: sincronizador),
   ];
 }

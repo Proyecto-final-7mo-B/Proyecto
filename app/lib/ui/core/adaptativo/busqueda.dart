@@ -31,6 +31,7 @@ abstract final class Busqueda {
       Destino(ruta: Rutas.miSemana, etiqueta: t.tituloMiSemana, icono: Icons.date_range_outlined),
       Destino(ruta: Rutas.perfil, etiqueta: t.navPerfil, icono: KaizenIconos.perfil),
       Destino(ruta: Rutas.privacidad, etiqueta: t.tituloPrivacidad, icono: Icons.privacy_tip_outlined),
+      Destino(ruta: Rutas.notificaciones, etiqueta: t.tituloNotificaciones, icono: Icons.notifications_none),
       if (esAdmin && plataforma.permiteAdmin)
         Destino(ruta: Rutas.indicadores, etiqueta: t.tituloIndicadores, icono: Icons.insights_outlined),
     ];

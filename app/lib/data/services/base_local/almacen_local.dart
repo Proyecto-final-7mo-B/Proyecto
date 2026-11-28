@@ -337,6 +337,11 @@ class AlmacenLocal {
     return f == null ? null : (hora: f.hora, minuto: f.minuto);
   }
 
+  /// Todas las horas de recordatorio (hábito → hora), para el planificador de avisos (Paso 10).
+  Future<Map<String, ({int hora, int minuto})>> recordatorios() async => {
+    for (final f in await base.select(base.recordatorios).get()) f.habitoId: (hora: f.hora, minuto: f.minuto),
+  };
+
   // ───────────────────────── Sesión ─────────────────────────
 
   Future<void> borrarTodo() => base.borrarTodo();
