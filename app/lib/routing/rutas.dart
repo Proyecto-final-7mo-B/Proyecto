@@ -23,6 +23,9 @@ abstract final class Rutas {
   /// Notificaciones (Paso 10): "Mis avisos", recordatorios, automáticos y silencio.
   static const String notificaciones = '/perfil/notificaciones';
 
+  /// Logros (Paso 11): insignias obtenidas y por obtener.
+  static const String logros = '/logros';
+
   /// "Acerca de Kaizen": en qué se basan las recomendaciones y las fuentes.
   static const String acerca = '/acerca';
 

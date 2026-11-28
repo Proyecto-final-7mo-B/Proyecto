@@ -6,13 +6,16 @@ import 'package:uuid/uuid.dart';
 import '../../../data/repositories/capsulas/capsulas_repository.dart';
 import '../../../data/repositories/escalera/escalera_repository.dart';
 import '../../../data/repositories/habitos/habitos_repository.dart';
+import '../../../data/repositories/logros/logros_repository.dart';
 import '../../../data/repositories/progreso/progreso_repository.dart';
 import '../../../data/repositories/registros/registros_repository.dart';
 import '../../../data/services/api/errores_api.dart';
+import '../../../data/services/logros/novedades_logros.dart';
 import '../../../domain/models/capsula.dart';
 import '../../../domain/models/escalera.dart';
 import '../../../domain/models/frecuencia.dart';
 import '../../../domain/models/habito.dart';
+import '../../../domain/models/logro.dart';
 import '../../../domain/models/progreso.dart';
 import '../../../domain/models/registro.dart';
 import '../../../utils/command.dart';
@@ -42,9 +45,13 @@ class HoyViewModel extends ChangeNotifier {
     required ProgresoRepository progreso,
     required EscaleraRepository escalera,
     required CapsulasRepository capsulas,
+    LogrosRepository? logros,
+    NovedadesLogros? novedadesLogros,
     Reloj reloj = relojDelSistema,
     Uuid uuid = const Uuid(),
-  }) : _habitosRepo = habitos,
+  }) : _repoLogros = logros,
+       _novedades = novedadesLogros,
+       _habitosRepo = habitos,
        _repoRegistros = registros,
        _repoProgreso = progreso,
        _repoEscalera = escalera,
@@ -60,6 +67,8 @@ class HoyViewModel extends ChangeNotifier {
   final ProgresoRepository _repoProgreso;
   final EscaleraRepository _repoEscalera;
   final CapsulasRepository _repoCapsulas;
+  final LogrosRepository? _repoLogros;
+  final NovedadesLogros? _novedades;
   final Reloj _relojHoy;
   final Uuid _generadorId;
 
@@ -75,6 +84,8 @@ class HoyViewModel extends ChangeNotifier {
   Sugerencia? _sugerencia;
   Celebracion? _celebracion;
   Set<String> _conCapsula = const {};
+  List<Logro> _logros = const [];
+  List<Logro> _logrosNuevos = const [];
   final Set<String> _enviando = {};
   bool _cargado = false;
 
@@ -141,6 +152,19 @@ class HoyViewModel extends ChangeNotifier {
       if (d.year == hoy.year && d.month == hoy.month) d.day,
   };
 
+  /// "Último logro" (Paso 11): la insignia obtenida más reciente; `null` si aún no hay.
+  Logro? get ultimoLogro => ultimoObtenido(_logros);
+
+  /// "Tu próxima insignia" cuando aún no hay ninguna: la que va más avanzada.
+  Logro? get proximoLogro => proximoPorObtener(_logros);
+
+  /// Los logros recién obtenidos (para avisarlos una vez); después de leerlos queda vacío.
+  List<Logro> tomarLogrosNuevos() {
+    final n = _logrosNuevos;
+    _logrosNuevos = const [];
+    return n;
+  }
+
   /// La celebración pendiente, una sola vez: después de leerla queda en `null`.
   Celebracion? tomarCelebracion() {
     final c = _celebracion;
@@ -180,13 +204,16 @@ class HoyViewModel extends ChangeNotifier {
 
   Future<Result<void>> _cargar() async {
     final dia = hoy;
-    final resultados = await Future.wait<Result<Object?>>([
+    final pedidos = <Future<Result<Object?>>>[
       _habitosRepo.listar(fecha: dia),
       _repoProgreso.obtener(Periodo.semana, fecha: dia),
       _repoProgreso.obtener(Periodo.mes, fecha: dia),
       _repoEscalera.sugerencias(),
       _repoCapsulas.listar(estado: EstadoCapsula.sellada),
-    ]);
+    ];
+    // Los logros se piden a la vez que lo demás (no retrasan la pantalla), después de los hábitos.
+    final logros = _repoLogros?.listar();
+    final resultados = await Future.wait(pedidos);
     switch (resultados[0]) {
       case Fallo(:final error):
         return Result.fallo(error);
@@ -199,6 +226,9 @@ class HoyViewModel extends ChangeNotifier {
     _sugerencia = sugerencias?.where((s) => s.estado == EstadoSugerencia.pendiente).firstOrNull;
     final capsulas = resultados[4].valorONulo as List<Capsula>?;
     _conCapsula = {for (final c in capsulas ?? const <Capsula>[]) c.habitoId};
+    // Logros: opcionales (si fallan, no hay tarjeta). Al volver a Hoy también se revisan los nuevos (por ejemplo, el
+    // de la primera intención al crear un hábito).
+    await _refrescarLogros(logros);
     // Escudos del calendario: los días protegidos de cada hábito activo en el mes. Son opcionales: si fallan, no hay.
     final primero = DateTime.utc(dia.year, dia.month);
     final protegidos = await Future.wait([
@@ -273,6 +303,7 @@ class HoyViewModel extends ChangeNotifier {
         );
         notifyListeners();
         await _refrescarProgreso();
+        await _refrescarLogros();
         return null;
       case Fallo(:final error):
         _reemplazar(anterior);
@@ -303,6 +334,24 @@ class HoyViewModel extends ChangeNotifier {
     final mes = await _repoProgreso.obtener(Periodo.mes, fecha: dia);
     _semana = semana.valorONulo ?? _semana;
     _mes = mes.valorONulo ?? _mes;
+    notifyListeners();
+  }
+
+  /// Lee los logros (los otorga la base) y anota los nuevos para avisarlos.
+  Future<void> _refrescarLogros([Future<Result<List<Logro>>>? pedido]) async {
+    final futuro = pedido ?? _repoLogros?.listar();
+    if (futuro == null) {
+      return;
+    }
+    final lista = (await futuro).valorONulo;
+    if (lista == null) {
+      return;
+    }
+    _logros = lista;
+    final nuevos = await _novedades?.revisar(lista) ?? const <Logro>[];
+    if (nuevos.isNotEmpty) {
+      _logrosNuevos = [..._logrosNuevos, ...nuevos];
+    }
     notifyListeners();
   }
 

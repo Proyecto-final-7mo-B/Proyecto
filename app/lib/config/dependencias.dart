@@ -12,6 +12,11 @@ import '../data/repositories/auth/auth_repository_fake.dart';
 import '../data/repositories/capsulas/capsulas_repository.dart';
 import '../data/repositories/capsulas/capsulas_repository_api.dart';
 import '../data/repositories/capsulas/capsulas_repository_fake.dart';
+import '../data/repositories/logros/logros_repository.dart';
+import '../data/repositories/logros/logros_repository_api.dart';
+import '../data/repositories/logros/logros_repository_fake.dart';
+import '../data/repositories/logros/logros_repository_local.dart';
+import '../data/services/logros/novedades_logros.dart';
 import '../data/repositories/categorias/categorias_repository.dart';
 import '../data/repositories/categorias/categorias_repository_api.dart';
 import '../data/repositories/categorias/categorias_repository_fake.dart';
@@ -75,6 +80,8 @@ class Dependencias {
     required this.senales,
     required this.laboratorio,
     required this.capsulas,
+    required this.logros,
+    required this.novedadesLogros,
     required this.cuenta,
     required this.admin,
     required this.recordatorios,
@@ -118,6 +125,7 @@ class Dependencias {
       senales: SenalesRepositoryFake(d),
       laboratorio: LaboratorioRepositoryFake(d),
       capsulas: CapsulasRepositoryFake(d),
+      logros: LogrosRepositoryFake(d),
       cuenta: CuentaRepositoryFake(d),
       admin: AdminRepositoryFake(d),
       recordatorios: recordatorios,
@@ -158,6 +166,7 @@ class Dependencias {
       senales: SenalesRepositoryApi(api),
       laboratorio: LaboratorioRepositoryApi(api),
       capsulas: CapsulasRepositoryApi(api),
+      logros: LogrosRepositoryApi(api),
       cuenta: CuentaRepositoryApi(api),
       admin: AdminRepositoryApi(api),
       recordatorios: recordatorios,
@@ -182,6 +191,7 @@ class Dependencias {
     required SenalesRepository senales,
     required LaboratorioRepository laboratorio,
     required CapsulasRepository capsulas,
+    required LogrosRepository logros,
     required CuentaRepository cuenta,
     required AdminRepository admin,
     required ServicioRecordatorios? recordatorios,
@@ -224,6 +234,8 @@ class Dependencias {
       senales: senales,
       laboratorio: laboratorio,
       capsulas: capsulas,
+      logros: LogrosRepositoryLocal(remoto: logros, almacen: almacenLocal, reportar: reportar),
+      novedadesLogros: NovedadesLogros(almacenLocal),
       cuenta: cuenta,
       admin: admin,
       // Las pruebas pueden pasar su propio servicio; en la app, la hora se guarda y el aviso lo programa el gestor.
@@ -264,6 +276,12 @@ class Dependencias {
   final SenalesRepository senales;
   final LaboratorioRepository laboratorio;
   final CapsulasRepository capsulas;
+
+  /// Logros (Paso 11): los otorga la base; con copia local para verlos sin red.
+  final LogrosRepository logros;
+
+  /// Qué logros son nuevos para este dispositivo (para avisarlos una vez).
+  final NovedadesLogros novedadesLogros;
   final CuentaRepository cuenta;
   final AdminRepository admin;
 
@@ -325,6 +343,8 @@ class Dependencias {
     Provider<SenalesRepository>.value(value: senales),
     Provider<LaboratorioRepository>.value(value: laboratorio),
     Provider<CapsulasRepository>.value(value: capsulas),
+    Provider<LogrosRepository>.value(value: logros),
+    Provider<NovedadesLogros>.value(value: novedadesLogros),
     Provider<CuentaRepository>.value(value: cuenta),
     Provider<AdminRepository>.value(value: admin),
     Provider<CatalogoRegiones?>.value(value: catalogo),

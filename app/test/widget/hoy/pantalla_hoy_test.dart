@@ -113,6 +113,10 @@ void main() {
       expect(find.text('Micro-paso sugerido'), findsOneWidget);
       expect(find.text('10 → 11 min'), findsOneWidget);
       await tocar(tester, find.text('Aceptar'));
+      // Primero el aviso de la insignia nueva ("Primer micro-paso", Paso 11); la nueva meta espera su turno.
+      expect(find.text('Insignia nueva: Primer micro-paso'), findsOneWidget);
+      await tester.pump(const Duration(seconds: 5));
+      await tester.pumpAndSettle();
       expect(find.textContaining('tu nueva meta es 11 min'), findsOneWidget);
       expect(find.byType(TarjetaSugerencia), findsNothing);
       await verArriba(tester);

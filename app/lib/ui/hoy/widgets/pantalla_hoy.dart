@@ -5,8 +5,10 @@ import 'package:provider/provider.dart';
 import '../../../data/repositories/capsulas/capsulas_repository.dart';
 import '../../../data/repositories/escalera/escalera_repository.dart';
 import '../../../data/repositories/habitos/habitos_repository.dart';
+import '../../../data/repositories/logros/logros_repository.dart';
 import '../../../data/repositories/progreso/progreso_repository.dart';
 import '../../../data/repositories/registros/registros_repository.dart';
+import '../../../data/services/logros/novedades_logros.dart';
 import '../../../domain/models/escalera.dart';
 import '../../../domain/models/habito.dart';
 import '../../../l10n/gen/app_localizations.dart';
@@ -27,6 +29,7 @@ import '../../core/widgets/encabezado_pantalla.dart';
 import '../../core/widgets/estados.dart';
 import '../../core/widgets/fila_habito.dart';
 import '../../core/widgets/tarjeta_kaizen.dart';
+import '../../logros/widgets/tarjeta_ultimo_logro.dart';
 import '../view_models/hoy_viewmodel.dart';
 import '../../core/apariencia_habito.dart';
 import 'panel_hoy.dart';
@@ -70,21 +73,67 @@ class _PantallaHoyState extends State<PantallaHoy> with RecargaAlVolver {
       progreso: context.read<ProgresoRepository>(),
       escalera: context.read<EscaleraRepository>(),
       capsulas: context.read<CapsulasRepository>(),
+      logros: context.read<LogrosRepository>(),
+      novedadesLogros: context.read<NovedadesLogros>(),
       reloj: context.read<Reloj>(),
     );
+    _vm.addListener(_avisarLogrosNuevos);
     _vm.cargar.ejecutar();
   }
 
   @override
   void dispose() {
+    _vm.removeListener(_avisarLogrosNuevos);
     _vm.dispose();
     super.dispose();
   }
 
+  /// Insignia nueva (Paso 11): un aviso breve con "Ver" (la celebración del hito, si la hay, va aparte).
+  void _avisarLogrosNuevos() {
+    final nuevos = _vm.tomarLogrosNuevos();
+    if (nuevos.isEmpty || !mounted) {
+      return;
+    }
+    final t = AppLocalizations.of(context);
+    _logroVisible = true;
+    final aviso = ScaffoldMessenger.of(context)..hideCurrentSnackBar();
+    aviso
+        .showSnackBar(
+          SnackBar(
+            key: const ValueKey('aviso-logro-nuevo'),
+            // Con botón, un SnackBar se queda hasta que lo toquen; este se va solo (y deja pasar a los demás).
+            persist: false,
+            content: Row(
+              children: [
+                const Icon(KaizenIconos.logros, color: KaizenColores.verdeProgresoSobreMarino),
+                const SizedBox(width: KaizenMedidas.e12),
+                Expanded(
+                  child: Text(nuevos.length == 1 ? t.logroNuevo(nuevos.single.nombre) : t.logrosNuevos(nuevos.length)),
+                ),
+              ],
+            ),
+            action: SnackBarAction(label: t.logroVer, onPressed: () => context.push(Rutas.logros)),
+          ),
+        )
+        .closed
+        .whenComplete(() => _logroVisible = false);
+  }
+
+  /// Mientras se ve el aviso de una insignia nueva, los demás avisos esperan su turno (no lo tapan).
+  bool _logroVisible = false;
+
+  /// La tarjeta "Último logro" (o "Tu próxima insignia"); `null` si no hay logros.
+  Widget? _tarjetaLogro() => switch (_vm.ultimoLogro ?? _vm.proximoLogro) {
+    final l? => TarjetaUltimoLogro(logro: l, onTap: () => context.push(Rutas.logros)),
+    null => null,
+  };
+
   void _avisar(String texto) {
-    ScaffoldMessenger.of(context)
-      ..hideCurrentSnackBar()
-      ..showSnackBar(SnackBar(content: Text(texto)));
+    final aviso = ScaffoldMessenger.of(context);
+    if (!_logroVisible) {
+      aviso.hideCurrentSnackBar();
+    }
+    aviso.showSnackBar(SnackBar(content: Text(texto)));
   }
 
   Future<void> _alternar(Habito h) async {
@@ -220,6 +269,7 @@ class _PantallaHoyState extends State<PantallaHoy> with RecargaAlVolver {
             const SizedBox(height: KaizenMedidas.e8),
             TarjetaProximoHito(habito: h, compacta: true, onTap: () => context.push(Rutas.habito(h.id))),
           ],
+          if (_tarjetaLogro() case final logro?) ...[const SizedBox(height: KaizenMedidas.e8), logro],
           // El avance del mes, como en escritorio (revisión de Jael, 27-nov).
           const SizedBox(height: KaizenMedidas.e8),
           _tuMes(),
@@ -351,6 +401,7 @@ class _PantallaHoyState extends State<PantallaHoy> with RecargaAlVolver {
         TarjetaMetaOms(actividad: actividad)
       else
         ?hito,
+      if (_tarjetaLogro() case final logro?) ...[const SizedBox(height: KaizenMedidas.e12), logro],
       if (_vm.semanaPorHabito case final filas when filas.isNotEmpty) ...[
         const SizedBox(height: KaizenMedidas.e12),
         TarjetaSemanaHabitos(filas: filas),

@@ -186,9 +186,11 @@ void main() {
   });
 
   group('riel lateral (escritorio)', () {
-    testWidgets('extendido: marca, 7 secciones (con Acerca de) y usuario; Admin solo para admin', (tester) async {
+    testWidgets('extendido: marca, 8 secciones (con Logros y Acerca de) y usuario; Admin solo para admin', (
+      tester,
+    ) async {
       await montarApp(tester, plataforma: Plataforma.escritorio, tamano: escritorio);
-      for (final e in ['Hoy', 'Hábitos', 'Progreso', 'Escalera', 'Laboratorio', 'Cápsulas', 'Acerca de']) {
+      for (final e in ['Hoy', 'Hábitos', 'Progreso', 'Escalera', 'Laboratorio', 'Cápsulas', 'Logros', 'Acerca de']) {
         expect(
           find.descendant(of: find.byType(RielLateral), matching: find.text(e)),
           findsOneWidget,
@@ -200,6 +202,12 @@ void main() {
       expect(find.textContaining('Región'), findsNothing, reason: 'la región no se muestra');
 
       await montarApp(tester, plataforma: Plataforma.escritorio, tamano: escritorio, usuario: adminPrueba);
+      // Con 9 secciones, a 800 px de alto el riel se desplaza para llegar a Admin.
+      await tester.scrollUntilVisible(
+        find.text('Admin'),
+        60,
+        scrollable: find.descendant(of: find.byType(RielLateral), matching: find.byType(Scrollable)),
+      );
       await tester.tap(find.text('Admin'));
       await tester.pumpAndSettle();
       expect(find.text('Panel de administración'), findsOneWidget);

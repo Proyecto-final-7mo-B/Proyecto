@@ -83,3 +83,4 @@ flutter build windows                             # en la máquina Windows
 | 8 · Sin conexión | [08_sin_conexion.md](modulos/08_sin_conexion.md) |
 | 9 · Identidad visual, motivación y hábitos recomendados | [09_identidad_visual.md](modulos/09_identidad_visual.md) |
 | 10 · Notificaciones adaptativas y "Mis avisos" | [10_notificaciones.md](modulos/10_notificaciones.md) |
+| 11 · Logros | [11_logros.md](modulos/11_logros.md) |
