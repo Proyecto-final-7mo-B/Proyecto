@@ -56,7 +56,6 @@ el archivado de WAL esperan en el primario y se ponen al día solos al encenderl
 | [13_mongodb](13_mongodb/) | Base analítica |
 | [14_monitoreo](14_monitoreo/) | Prometheus, Grafana, Blackbox y exportadores |
 | [15_plan_b](15_plan_b/) | Réplica en caliente fuera de la nube |
-| [16_cuentas_y_secretos](16_cuentas_y_secretos/) | Qué cuenta usa cada servicio y dónde vive su secreto |
 
 ## Acceso rápido
 
